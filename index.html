@@ -3,1281 +3,768 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏥 CRM Farmacias - Panel de Control</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+    <title>CRM de Farmacias</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --success-color: #059669;
-            --warning-color: #d97706;
-            --danger-color: #dc2626;
-            --light-gray: #f8fafc;
-            --medium-gray: #e2e8f0;
-            --dark-gray: #475569;
-            --white: #ffffff;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --border-radius: 12px;
-            --transition: all 0.3s ease;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: var(--dark-gray);
-            line-height: 1.6;
+            font-family: var(--font-family);
+            background-color: var(--light-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--dark-color);
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
             padding: 20px;
-        }
-
-        /* Header */
-        .header {
-            background: var(--white);
+            background-color: #fdfdfd;
+            border: 1px solid #ddd;
             border-radius: var(--border-radius);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(10px);
         }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
+        .filters input, .filters select, .filters button {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
         }
 
-        .header h1 {
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .filters input[type="text"] {
+            flex-grow: 1;
         }
 
-        .header-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--dark-gray);
-        }
-
-        /* Dashboard Stats */
-        .dashboard {
-            margin-bottom: 2rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-color);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .stat-card.success::before {
-            background: var(--success-color);
-        }
-
-        .stat-card.warning::before {
-            background: var(--warning-color);
-        }
-
-        .stat-card.danger::before {
-            background: var(--danger-color);
-        }
-
-        .stat-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .stat-card.success .stat-icon {
-            color: var(--success-color);
-        }
-
-        .stat-card.warning .stat-icon {
-            color: var(--warning-color);
-        }
-
-        .stat-card.danger .stat-icon {
-            color: var(--danger-color);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--dark-gray);
-        }
-
-        .stat-label {
-            color: var(--dark-gray);
-            font-weight: 500;
-        }
-
-        /* Controls */
-        .controls {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-        }
-
-        .controls-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .controls-header h2 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .export-btn {
-            background: var(--success-color);
-            color: var(--white);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+        #btn-reset-filters {
+            background-color: var(--secondary-color);
+            color: white;
             cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            border: none;
+        }
+        #btn-reset-filters:hover {
+            background-color: #5a6268;
         }
 
-        .export-btn:hover {
-            background: #047857;
-            transform: translateY(-2px);
-        }
-
-        .filters-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--dark-gray);
-            opacity: 0.6;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 15px 50px;
-            border: 2px solid var(--medium-gray);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition);
-            background: var(--light-gray);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: var(--white);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .filter-select {
+        #upload-section {
+            background-color: #fff3cd;
+            color: #664d03;
             padding: 15px;
-            border: 2px solid var(--medium-gray);
-            border-radius: 8px;
-            font-size: 1rem;
-            background: var(--light-gray);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: var(--white);
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 4rem;
-            background: var(--white);
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid #ffecb5;
+        }
+        
+        #upload-section h3 {
+            margin-top: 0;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--medium-gray);
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Pharmacy Grid */
-        .pharmacy-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .pharmacy-card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            transition: var(--transition);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .pharmacy-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .pharmacy-card.visited {
-            border-left: 5px solid var(--success-color);
-        }
-
-        .pharmacy-card.pending {
-            border-left: 5px solid var(--warning-color);
-        }
-
-        .card-header {
-            padding: 1.5rem;
-            background: var(--light-gray);
-            border-bottom: 1px solid var(--medium-gray);
-        }
-
-        .pharmacy-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .pharmacy-chain {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--white);
-            background: var(--primary-color);
-        }
-
-        .pharmacy-chain.independiente {
-            background: var(--warning-color);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .pharmacy-address {
-            color: var(--dark-gray);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-
-        .status-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem;
-            border-radius: 8px;
-            background: var(--light-gray);
-        }
-
-        .status-item.visited {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-item.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-item.transfer-ok {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-item.transfer-pending {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 16px;
+        #upload-section button {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 10px 15px;
             border: none;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
+            border-radius: 5px;
         }
 
-        .btn-primary {
-            background: var(--primary-color);
-            color: var(--white);
+        .table-container {
+            overflow-x: auto;
         }
 
-        .btn-primary:hover {
-            background: var(--secondary-color);
-        }
-
-        .btn-success {
-            background: var(--success-color);
-            color: var(--white);
-        }
-
-        .btn-success:hover {
-            background: #047857;
-        }
-
-        .btn-warning {
-            background: var(--warning-color);
-            color: var(--white);
-        }
-
-        .btn-warning:hover {
-            background: #b45309;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
+        table {
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s ease;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .modal-content {
-            background: var(--white);
-            margin: 5% auto;
-            padding: 0;
-            border-radius: var(--border-radius);
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease;
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
         }
 
-        .modal-header {
-            padding: 2rem 2rem 1rem;
-            border-bottom: 1px solid var(--medium-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        th {
+            background-color: var(--primary-color);
+            color: white;
         }
 
-        .modal-header h2 {
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
 
-        .close {
-            color: var(--dark-gray);
-            font-size: 1.5rem;
+        tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .status-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
             font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .close:hover {
-            color: var(--danger-color);
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark-gray);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--medium-gray);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition);
-            background: var(--light-gray);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: var(--white);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .form-control[readonly] {
-            background: var(--medium-gray);
-            color: var(--dark-gray);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .modal-footer {
-            padding: 1rem 2rem 2rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-
-        .btn-secondary {
-            background: var(--medium-gray);
-            color: var(--dark-gray);
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e1;
-        }
-
-        .btn-lg {
-            padding: 12px 24px;
-            font-size: 1rem;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .filters-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .pharmacy-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-content {
-                margin: 10% auto;
-                width: 95%;
-            }
-        }
-
-        .empty-state {
+            width: 110px;
             text-align: center;
-            padding: 4rem 2rem;
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
         }
 
-        .empty-state i {
-            font-size: 4rem;
-            color: var(--medium-gray);
-            margin-bottom: 1rem;
+        .status-btn.pendiente {
+            background-color: var(--danger-color);
+        }
+        .status-btn.pendiente:hover {
+            background-color: #c82333;
+        }
+        
+        .status-btn.realizado {
+            background-color: var(--success-color);
+        }
+        .status-btn.realizado:hover {
+            background-color: #218838;
+        }
+        
+        #loading {
+            text-align: center;
+            font-size: 1.2em;
+            padding: 40px;
+            color: var(--secondary-color);
         }
 
-        .empty-state h3 {
-            color: var(--dark-gray);
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-state p {
-            color: var(--dark-gray);
-            opacity: 0.7;
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <h1>
-                <i class="fas fa-pills"></i>
-                CRM Farmacias
-            </h1>
-            <div class="header-info">
-                <div><i class="fas fa-map-marker-alt"></i> Bucaramanga, Colombia</div>
-                <div id="current-date"><i class="fas fa-calendar"></i> <span></span></div>
-                <div><i class="fas fa-user"></i> Panel de Gestión</div>
-            </div>
-        </div>
-    </header>
 
     <div class="container">
-        <!-- Dashboard Stats -->
-        <section class="dashboard">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i class="fas fa-store stat-icon"></i>
-                    <div class="stat-number" id="total-farmacias">0</div>
-                    <div class="stat-label">Total Farmacias</div>
-                </div>
-                <div class="stat-card success">
-                    <i class="fas fa-check-circle stat-icon"></i>
-                    <div class="stat-number" id="visitadas">0</div>
-                    <div class="stat-label">✅ Visitadas</div>
-                </div>
-                <div class="stat-card warning">
-                    <i class="fas fa-clock stat-icon"></i>
-                    <div class="stat-number" id="pendientes-visita">0</div>
-                    <div class="stat-label">⏳ Pendientes Visita</div>
-                </div>
-                <div class="stat-card success">
-                    <i class="fas fa-money-bill-transfer stat-icon"></i>
-                    <div class="stat-number" id="transferencias">0</div>
-                    <div class="stat-label">💰 Con Transferencia</div>
-                </div>
-                <div class="stat-card danger">
-                    <i class="fas fa-exclamation-triangle stat-icon"></i>
-                    <div class="stat-number" id="pendientes-transferencia">0</div>
-                    <div class="stat-label">📋 Pendientes Transferencia</div>
-                </div>
-            </div>
-        </section>
+        <h1>📈 CRM de Gestión de Farmacias</h1>
 
-        <!-- Controls -->
-        <section class="controls">
-            <div class="controls-header">
-                <h2><i class="fas fa-filter"></i> Filtros y Búsqueda</h2>
-                <button class="export-btn" onclick="exportToCSV()">
-                    <i class="fas fa-download"></i>
-                    Exportar Excel
-                </button>
-            </div>
-            <div class="filters-grid">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" class="search-input" id="search-input" placeholder="Buscar farmacia, cadena o dirección...">
-                </div>
-                <select class="filter-select" id="filter-cadena">
-                    <option value="">🏪 Todas las cadenas</option>
-                    <option value="DROSAN LTDA">DROSAN LTDA</option>
-                    <option value="INDEPENDIENTE">INDEPENDIENTE</option>
-                </select>
-                <select class="filter-select" id="filter-visita">
-                    <option value="">👁️ Estado de visita</option>
-                    <option value="visitada">✅ Visitadas</option>
-                    <option value="pendiente">⏳ Pendientes</option>
-                </select>
-                <select class="filter-select" id="filter-transferencia">
-                    <option value="">💰 Estado transferencia</option>
-                    <option value="realizada">✅ Realizadas</option>
-                    <option value="pendiente">📋 Pendientes</option>
-                </select>
-            </div>
-        </section>
-
-        <!-- Loading -->
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <h3>Cargando datos...</h3>
-            <p>Conectando con Firebase...</p>
+        <div id="upload-section">
+            <h3>Paso Inicial: Cargar Datos a Firebase</h3>
+            <p>Si es la primera vez que usas este CRM, haz clic en el siguiente botón para cargar la lista inicial de farmacias a tu base de datos en la nube. <strong>¡Solo necesitas hacerlo una vez!</strong></p>
+            <button id="upload-initial-data">Cargar Datos Iniciales</button>
         </div>
 
-        <!-- Pharmacy Grid -->
-        <main id="main-content" style="display: none;">
-            <div class="pharmacy-grid" id="pharmacy-grid">
-                <!-- Las tarjetas se generarán dinámicamente -->
-            </div>
-        </main>
+        <div class="filters">
+            <input type="text" id="search-box" placeholder="Buscar por nombre o dirección...">
+            <select id="filter-visitado">
+                <option value="">Visita (Todos)</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Realizado">Realizado</option>
+            </select>
+            <select id="filter-transferencia">
+                <option value="">Transferencia (Todos)</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Realizado">Realizado</option>
+            </select>
+            <select id="filter-cadena">
+                <option value="">Cadena (Todas)</option>
+            </select>
+            <button id="btn-reset-filters">Limpiar Filtros</button>
+        </div>
 
-        <!-- Empty State -->
-        <div id="empty-state" class="empty-state" style="display: none;">
-            <i class="fas fa-search"></i>
-            <h3>No se encontraron farmacias</h3>
-            <p>Ajusta los filtros de búsqueda para ver más resultados</p>
+        <div class="table-container">
+            <p id="record-count">Cargando registros...</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Farmacia</th>
+                        <th>Cadena</th>
+                        <th>Dirección</th>
+                        <th>Visita</th>
+                        <th>Transferencia</th>
+                    </tr>
+                </thead>
+                <tbody id="pharmacy-table-body">
+                    <!-- Las filas se insertarán aquí dinámicamente -->
+                </tbody>
+            </table>
+            <div id="loading">Cargando farmacias...</div>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="pharmacy-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-edit"></i> Gestionar Farmacia</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <form id="pharmacy-form">
-                    <div class="form-group">
-                        <label class="form-label">Farmacia:</label>
-                        <input type="text" class="form-control" id="modal-farmacia" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Cadena:</label>
-                        <input type="text" class="form-control" id="modal-cadena" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Dirección:</label>
-                        <input type="text" class="form-control" id="modal-direccion" readonly>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="modal-visit-status">Estado de Visita:</label>
-                            <select class="form-control" id="modal-visit-status">
-                                <option value="pendiente">⏳ Pendiente</option>
-                                <option value="visitada">✅ Visitada</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="modal-transfer-status">Estado Transferencia:</label>
-                            <select class="form-control" id="modal-transfer-status">
-                                <option value="pendiente">📋 Pendiente</option>
-                                <option value="realizada">💰 Realizada</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="modal-visit-date">Fecha de Visita:</label>
-                        <input type="date" class="form-control" id="modal-visit-date">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="modal-notes">Observaciones:</label>
-                        <textarea class="form-control" id="modal-notes" rows="4" placeholder="Notas de la visita, comentarios, etc."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-lg" onclick="closeModal()">Cancelar</button>
-                <button type="button" class="btn btn-primary btn-lg" onclick="savePharmacy()">💾 Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase SDK -->
+    <!-- Usamos type="module" para poder usar 'import' -->
     <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, onSnapshot, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        // Importar funciones de Firebase SDK v9+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            onSnapshot, 
+            doc, 
+            updateDoc, 
+            query, 
+            orderBy,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-        // Tu configuración de Firebase
+        // TU CONFIGURACIÓN DE FIREBASE (YA ACTUALIZADA)
         const firebaseConfig = {
             apiKey: "AIzaSyB2glK3jtje7juBG7gMl4bzh6xG_Zz2YNU",
             authDomain: "crm-farmacias.firebaseapp.com",
             projectId: "crm-farmacias",
-            storageBucket: "crm-farmacias.firebasestorage.app",
+            storageBucket: "crm-farmacias.appspot.com", // Corregido: .appspot.com es el estándar
             messagingSenderId: "251276216502",
             appId: "1:251276216502:web:374f708e2ff040192d3e17"
         };
 
-        // Initialize Firebase
+        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const pharmaciesCollectionRef = collection(db, 'pharmacies');
 
-        // Variables globales
-        let farmaciasList = [];
-        let filteredList = [];
-        let currentEditingId = null;
+        // Referencias a elementos del DOM
+        const tableBody = document.getElementById('pharmacy-table-body');
+        const loadingIndicator = document.getElementById('loading');
+        const searchBox = document.getElementById('search-box');
+        const filterVisitado = document.getElementById('filter-visitado');
+        const filterTransferencia = document.getElementById('filter-transferencia');
+        const filterCadena = document.getElementById('filter-cadena');
+        const recordCount = document.getElementById('record-count');
+        const btnResetFilters = document.getElementById('btn-reset-filters');
+        const btnUpload = document.getElementById('upload-initial-data');
+        const uploadSection = document.getElementById('upload-section');
 
-        // Datos iniciales de las farmacias
-        const farmaciasIniciales = [
-            { farmacia: "ALBA LUZ", cadena: "DROSAN LTDA", direccion: "CR 33 109-36 FLORIDABLANCA" },
-            { farmacia: "DMAX", cadena: "DROSAN LTDA", direccion: "CL 1 W #5AN -15 BRR REFUGIO PIEDECUESTA" },
-            { farmacia: "DROGAS PLAZA MAYOR", cadena: "DROSAN LTDA", direccion: "AV LOS BUCAROS BLOQ G LOCAL 117 BUCARAMANGA" },
-            { farmacia: "DROGERIA TAYSOFI", cadena: "INDEPENDIENTE", direccion: "CR 7 # 5 - 06 AV CARACOLI" },
-            { farmacia: "DROGUERIA 306 FARMASOLANO", cadena: "DROSAN LTDA", direccion: "CR 22 # 21 - 79 BUCARAMANGA" },
-            { farmacia: "DROGUERIA AHORRA MAX", cadena: "INDEPENDIENTE", direccion: "CL 3 AN # 30 - 09 BRR EL REFUGIO" },
-            { farmacia: "DROGUERIA ALVAREZ", cadena: "INDEPENDIENTE", direccion: "CR 38 # 32 - 121" },
-            { farmacia: "DROGUERIA ANGY MAR", cadena: "DROSAN LTDA", direccion: "AV GUAYACANES T-19 L101 CIUDAD BOLIVAR BUCARAMANGA" },
-            { farmacia: "DROGUERIA ANGYMAR LA CEIBA", cadena: "DROSAN LTDA", direccion: "CR 17A # 61-30 TORRES DE LA CEIBA BUCARAMANGA" },
-            { farmacia: "DROGUERIA ANTOLINEZ", cadena: "INDEPENDIENTE", direccion: "CR 2W # 59 - 23 MUTIS - BUCARAMANGA" },
-            { farmacia: "DROGUERIA ASILO", cadena: "DROSAN LTDA", direccion: "CALLE 2 # 14A-123 BUCARAMANGA" },
-            { farmacia: "DROGUERIA BLANCO", cadena: "DROSAN LTDA", direccion: "CR 6 # 39 - 26 LAGOS II FLORIDABLANCA" },
-            { farmacia: "DROGUERIA BLANTONY", cadena: "INDEPENDIENTE", direccion: "CL 60 # 9 - 103 BRR CIUDADELA" },
-            { farmacia: "DROGUERIA BULEVAR", cadena: "DROSAN LTDA", direccion: "CL 18 # 21 - 74 BUCARAMANGA" },
-            { farmacia: "DROGUERIA CAMELOT", cadena: "DROSAN LTDA", direccion: "CLL 8N #3 -190 LOCAL 4 GUATIGUARA PIEDECUESTA" },
-            { farmacia: "DROGUERIA CAMPO HERMOSO", cadena: "DROSAN LTDA", direccion: "CL 45 # 5 OCC - 10 BUCARAMANGA" },
-            { farmacia: "DROGUERIA CAMPO VERDE", cadena: "DROSAN LTDA", direccion: "CL 1 B # 4 - 12 BRR CAMPO VERDE PIEDECUESTA" },
-            { farmacia: "DROGUERIA CARMENCITA", cadena: "DROSAN LTDA", direccion: "CL 30 # 29 B - 11 FLORIDABLANCA" },
-            { farmacia: "DROGUERIA CENTRAL DESCUENTOS", cadena: "INDEPENDIENTE", direccion: "CL 67 # 17 - 14 BRR LA VICTORIA - BUCARAMANGA" },
-            { farmacia: "DROGUERIA DANNYS", cadena: "INDEPENDIENTE", direccion: "SANANDRESITO ISLA LC 7 - 31 P 3" },
-            { farmacia: "DROGUERIA DISERVAL", cadena: "DROSAN LTDA", direccion: "CL 31 #28-74 B. LA AURORA BUCARAMANGA" },
-            { farmacia: "DROGUERIA DISTRIBUIDORA EL NILO", cadena: "INDEPENDIENTE", direccion: "CC SAN ANDRESITO ISLA P 1 L 7 - 28 Y 7 - 29" },
-            { farmacia: "DROGUERIA DISTRIBUIDORA SANDRA C", cadena: "INDEPENDIENTE", direccion: "CC SAN ANDRESITO ISLA P 3 L 8 - 35 Y 8 - 33" },
-            { farmacia: "DROGUERIA DROGAS SALUD", cadena: "DROSAN LTDA", direccion: "Calle 7 #29 143 OCAÑA" },
-            { farmacia: "DROGUERIA ECOFARMA", cadena: "DROSAN LTDA", direccion: "CR 2 C # 21 - 04 BRR PASEO DEL PUENTE II PIEDECUESTA" },
-            { farmacia: "DROGUERIA ECOFARMA PLUS", cadena: "DROSAN LTDA", direccion: "CR 1W #5AN-15 REFUGIO PIEDECUESTA" },
-            { farmacia: "DROGUERIA EL CARMEN - BUCARAMANGA", cadena: "DROSAN LTDA", direccion: "BUCARAMANGA/02 BRR EL GIRARDOT /CL 28 #6" },
-            { farmacia: "DROGUERIA EL DUENDE", cadena: "DROSAN LTDA", direccion: "KILOMETRO 9 VIA CUROS - LOS SANTOS (MUNICIPIO LOS SANTOS)" },
-            { farmacia: "DROGUERIA EL PAISA", cadena: "DROSAN LTDA", direccion: "CRA 15 # 56 CC SANADRESITO ISLA LC 7 - 8 BUCARAMANGA" },
-            { farmacia: "DROGUERIA EL SEGURO", cadena: "DROSAN LTDA", direccion: "CR 31 # 27 - 48 BUCARAMANGA" },
-            { farmacia: "DROGUERIA FARMA EXPRESS", cadena: "DROSAN LTDA", direccion: "CR 6 #27-02 BRR EL GIRARDOT BUCARAMANGA" },
-            { farmacia: "DROGUERIA FARMA GOMEZ", cadena: "DROSAN LTDA", direccion: "CR 7#29-15 BRR EL GIRARDOT BUCARAMANGA" },
-            { farmacia: "DROGUERIA FARMACIA SALUD FAMILIAR", cadena: "DROSAN LTDA", direccion: "CL 33 # 16 - 34 PLAZA DE MERCADO CENTRO BUCARAMANGA" },
-            { farmacia: "DROGUERIA FARMAMEDICA MUTIS", cadena: "DROSAN LTDA", direccion: "CR 7W#59-22 BUCARAMANGA" },
-            { farmacia: "DROGUERIA FARMAMETROPOLIS", cadena: "DROSAN LTDA", direccion: "CR 8 # 61 - 137 L7 BRR METROPOLIS-BUCARAMANGA" },
-            { farmacia: "DROGUERIA FARMASALUD UNIVERSAL", cadena: "INDEPENDIENTE", direccion: "CR 8 #16-02 SAN MARTIN" },
-            { farmacia: "DROGUERIA FARMASOLANO", cadena: "DROSAN LTDA", direccion: "CL 59 # 18 - 31 BRR TRINIDAD FLORIDABLANCA" },
-            { farmacia: "DROGUERIA FIORELLA", cadena: "INDEPENDIENTE", direccion: "CR 21 B # 111 - 124" },
-            { farmacia: "DROGUERIA FLORIDA", cadena: "DROSAN LTDA", direccion: "CR 8 # 7 - 53 BRR CENTRO FLORIDABLANCA" },
-            { farmacia: "DROGUERIA FOSCAL", cadena: "INDEPENDIENTE", direccion: "CR 24 # 154 - 106 URB EL BOSQUE" },
-            { farmacia: "DROGUERIA GRANADOS CAFASAN", cadena: "DROSAN LTDA", direccion: "FLORIDABLANCA/ 02 CALDAS/CR 37 # 109" },
-            { farmacia: "DROGUERIA JEREZ SAN RAFAEL", cadena: "DROSAN LTDA", direccion: "CR 15 # 7 - 14 SAN RAFAEL PIEDECUESTA" },
-            { farmacia: "DROGUERIA JUSTY MORENO", cadena: "DROSAN LTDA", direccion: "Cl. 12 #10-1, Pelaya, Cesar" },
-            { farmacia: "DROGUERIA KOLSUDROGAS", cadena: "DROSAN LTDA", direccion: "CL 39 # 22 - 30 GIRON" },
-            { farmacia: "DROGUERIA LA SEPTIMA PIEDECUESTA", cadena: "DROSAN LTDA", direccion: "CL 7 # 10 - 99 PIEDECUESTA" },
-            { farmacia: "DROGUERIA LAS PRIMICIAS", cadena: "DROSAN LTDA", direccion: "CL 14B # 12A-76 VILLAS DE DON JUAN GIRON" },
-            { farmacia: "DROGUERIA LAS VILLAS", cadena: "DROSAN LTDA", direccion: "CL 10B # 22 - 09 GIRON" },
-            { farmacia: "DROGUERIA LAS VILLAS DE SAN JUAN", cadena: "DROSAN LTDA", direccion: "CL 10b # 24A - 16 BRR. SAN JUAN DE GIRON GIRON" },
-            { farmacia: "DROGUERIA LEBRI FARMA", cadena: "DROSAN LTDA", direccion: "CL 12 # 13 A - 25 LEBRIJA" },
-            { farmacia: "DROGUERIA LINEAVITAL", cadena: "DROSAN LTDA", direccion: "CR 10E # 67 - 42 PABLO VI BUCARAMANGA" },
-            { farmacia: "DROGUERIA LORENA", cadena: "DROSAN LTDA", direccion: "CR 7 # 10 - 38 PIEDECUESTA" },
-            { farmacia: "DROGUERIA M Y D", cadena: "DROSAN LTDA", direccion: "CR # 53 - 03 BRR EL RECREO FLORIDABLANCA" },
-            { farmacia: "DROGUERIA MARIA REYNA", cadena: "DROSAN LTDA", direccion: "CL 27 #6-44 BRR EL GIRARDOT BUCARAMANGA" },
-            { farmacia: "DROGUERIA MAXIMED", cadena: "DROSAN LTDA", direccion: "CL 30 # 20 - 37 BRR LA CUMBRE FLORIDABLANCA" },
-            { farmacia: "DROGUERIA MEDIEXPREESS", cadena: "DROSAN LTDA", direccion: "CR 15 # 3 - 166 BRR PUERTO MADERO PIEDECUESTA" },
-            { farmacia: "DROGUERIA MEDIFARMA", cadena: "DROSAN LTDA", direccion: "CR 4 # 1 B -28 CAMPO VERDE PIEDECUESTA" },
-            { farmacia: "DROGUERIA MEGAFARMA OCANA", cadena: "INDEPENDIENTE", direccion: "CR.14 # 8-18(B.MERCADO) OCAÑA" },
-            { farmacia: "DROGUERIA MULTIFARMA #1", cadena: "DROSAN LTDA", direccion: "CL 105 # 29A - 21-FLORIDABLANCA" },
-            { farmacia: "DROGUERIA MX ALKOSTO", cadena: "DROSAN LTDA", direccion: "CR 13 # 103 B - 46 BRR SAN FERMIN BUCARAMANGA" },
-            { farmacia: "DROGUERIA NAYIBE", cadena: "DROSAN LTDA", direccion: "CLL 4 #8-31 FLORIDABLANCA" },
-            { farmacia: "DROGUERIA NUEVA SAN CARLOS", cadena: "INDEPENDIENTE", direccion: "CR 25 # 13 - 28 BRR SAN FRANCISCO" },
-            { farmacia: "DROGUERIA PAGUE MENOS", cadena: "DROSAN LTDA", direccion: "CR 6 CL 13 Abrego, Norte de Santander" },
-            { farmacia: "DROGUERIA PAGUE MENOS CABECERA", cadena: "INDEPENDIENTE", direccion: "CR 35 # 52 - 88" },
-            { farmacia: "DROGUERIA PAGUE MENOS CAÑAVERAL", cadena: "INDEPENDIENTE", direccion: "CL 33 # 26 - 27 CAÑAVERAL" },
-            { farmacia: "DROGUERIA PAGUE MENOS FLORIDABLANCA", cadena: "INDEPENDIENTE", direccion: "CR 8 # 4 - 48 Y 52" },
-            { farmacia: "DROGUERIA PAGUE MENOS GIRON", cadena: "INDEPENDIENTE", direccion: "CL 43 # 22 - 92" },
-            { farmacia: "DROGUERIA PAGUE MENOS PIEDECUESTA", cadena: "INDEPENDIENTE", direccion: "CR 8 # 7 - 77" },
-            { farmacia: "DROGUERIA PAGUE MENOS PROVENZA", cadena: "INDEPENDIENTE", direccion: "CL 105 # 21 - 139" },
-            { farmacia: "DROGUERIA PAGUE MENOS SAN FRANCISCO", cadena: "INDEPENDIENTE", direccion: "BLV # 23 - 03" },
-            { farmacia: "DROGUERIA PAGUE MENOS SOTOMAYOR", cadena: "INDEPENDIENTE", direccion: "CL 54 # 24 - 03" },
-            { farmacia: "DROGUERIA PALENQUE", cadena: "INDEPENDIENTE", direccion: "CR 19 # 56 - 58. BRR EL PALENQUE" },
-            { farmacia: "DROGUERIA PHARMACY", cadena: "DROSAN LTDA", direccion: "AV EL BOSQUE # 54 - 52 FLORIDABLANCA" },
-            { farmacia: "DROGUERIA PHARMALAGOS", cadena: "DROSAN LTDA", direccion: "CL 29 # 7 - 08 LAGOS 3 FLORIDABLANCA" },
-            { farmacia: "DROGUERIA PHARMATODO", cadena: "DROSAN LTDA", direccion: "Cl 4 # 4-1, San Alberto, Cesar" },
-            { farmacia: "DROGUERIA PINZON 2", cadena: "DROSAN LTDA", direccion: "CR 38 # 49 - 15 BUCARAMANGA" },
-            { farmacia: "DROGUERIA PROVIDA", cadena: "INDEPENDIENTE", direccion: "CR 22 # 110 - 44" },
-            { farmacia: "DROGUERIA QUINTA REAL LAS PALMAS", cadena: "INDEPENDIENTE", direccion: "CR 15 # 6 N - 03" },
-            { farmacia: "DROGUERIA RIAÑO", cadena: "DROSAN LTDA", direccion: "CR 49 N° 5-06 SANTA CLARA OCAÑA" },
-            { farmacia: "DROGUERIA SALUD Y BELLEZA AGUACHICA", cadena: "DROSAN LTDA", direccion: "CL 5 # 19-43 AGUACHICA" },
-            { farmacia: "DROGUERIA SAN AGUSTIN", cadena: "DROSAN LTDA", direccion: "CL 11 # 16-12 OCAÑA" },
-            { farmacia: "DROGUERIA SAN LUIS - BUCARAMANGA", cadena: "DROSAN LTDA", direccion: "CL 48 # 26 - 19 BRR SOTOMAYOR - BUCARAMANGA" },
-            { farmacia: "DROGUERIA SAN PABLO", cadena: "INDEPENDIENTE", direccion: "CR 22 # 11 - 81 BRR SAN FRANCISCO" },
-            { farmacia: "DROGUERIA SANA SANAR", cadena: "INDEPENDIENTE", direccion: "CL 10B # 20 - 04 -LAS VILLAS - GIRON" },
-            { farmacia: "DROGUERIA SANTA CECILIA", cadena: "DROSAN LTDA", direccion: "CL 21 # 23 - 75 BUCARAMANGA" },
-            { farmacia: "DROGUERIA SANTA LUCIA", cadena: "DROSAN LTDA", direccion: "CR 6 # 42 - 13 LAGOS II FLORIDABLANCA" },
-            { farmacia: "DROGUERIA SERVIFARMA", cadena: "DROSAN LTDA", direccion: "SECTOR 9 BL 16 - 7 FLORIDABLANCA" },
-            { farmacia: "DROGUERIA SILVA", cadena: "DROSAN LTDA", direccion: "FLORIDABLANCA/09/Cl. 57 #3" },
-            { farmacia: "DROGUERIA SOLETH", cadena: "DROSAN LTDA", direccion: "CR. 6 #28-65(B.GIRARDOT) BUCARAMANGA" },
-            { farmacia: "DROGUERIA SUPER ECONOMICA", cadena: "DROSAN LTDA", direccion: "CL 20 C # 19 - 03 BRR SANTA CRUZ GIRON" },
-            { farmacia: "DROGUERIA SUPERDROGAS CONUCOS", cadena: "DROSAN LTDA", direccion: "CL 58 # 29 - 31 LOCAL 5 BUCARAMANGA" },
-            { farmacia: "DROGUERIA SUPERVIDA", cadena: "INDEPENDIENTE", direccion: "CR 8 # 3 - 49" },
-            { farmacia: "DROGUERIA SUTSALUD", cadena: "DROSAN LTDA", direccion: "CL 13AN # 19 - 02 GIRON" },
-            { farmacia: "DROGUERIA TOTAL CONFIANZA", cadena: "DROSAN LTDA", direccion: "Cl. 12 #10-24 SANTA CLARA OCAÑA" },
-            { farmacia: "DROGUERIA UNICA", cadena: "INDEPENDIENTE", direccion: "CR 15 # 3 - 34 PUERTO MADERO" },
-            { farmacia: "DROGUERIA UNIVERSIDAD", cadena: "DROSAN LTDA", direccion: "CR 26 A # 10 - 18 BUCARAMANGA" },
-            { farmacia: "DROGUERIA VALERY", cadena: "DROSAN LTDA", direccion: "CR 23 # 7A-04 BR. MIRADOR ARENALES GIRON" },
-            { farmacia: "DROGUERIA VIDA LTDA", cadena: "INDEPENDIENTE", direccion: "CR 32 # 30A - 20 BRR. AURORA-BUCARAMANGA" },
-            { farmacia: "DROGUERIA VILLABEL", cadena: "DROSAN LTDA", direccion: "FLORIDABLANCA/ 04/CR 11 # 12" },
-            { farmacia: "DROGUERIA VIRTUAL", cadena: "DROSAN LTDA", direccion: "CL 106 # 49 - 19- FLORIDABLANCA" },
-            { farmacia: "DROGUERIA VITAL SALUD", cadena: "DROSAN LTDA", direccion: "CR 15 # 7 - 10 BRR SAN RAFAEL PIEDECUESTA" },
-            { farmacia: "DROGUERIA Y AUTOSERVICIO 20-20", cadena: "INDEPENDIENTE", direccion: "CR.13 # 8-47 (B.DULCE NOMBRE) OCAÑA" },
-            { farmacia: "DROGUERIA Y CACHARRERIA AYS", cadena: "INDEPENDIENTE", direccion: "CC SAN ANDRESITO ISLA P 3 L 8 - 36" },
-            { farmacia: "DROGUERIA Y DISTRIBUCIONES ABASTOS XIMENA", cadena: "INDEPENDIENTE", direccion: "DG 15 # 55 - 56 L F - 02 CC SAN ANDRESITO LA ISLA" },
-            { farmacia: "DROGUERIA Y PERFUMERIA ANTIOQUEÑA", cadena: "INDEPENDIENTE", direccion: "DG 105 # 30B - 13 SATELITE-FLORIDABLANCA" },
-            { farmacia: "DROGUERIAS JEREZ VILLABEL", cadena: "DROSAN LTDA", direccion: "CR 12 # 7 - 11 FLORIDABLANCA" },
-            { farmacia: "EKONOFARMA", cadena: "DROSAN LTDA", direccion: "CR 4 No- 0-20 LOC 1 PALERMO 1- PIEDECUESTA" },
-            { farmacia: "EL FARMACEUTA", cadena: "DROSAN LTDA", direccion: "CL 103 NO. 13B-79-BUCARAMANGA" },
-            { farmacia: "ENTRE PARQUES", cadena: "DROSAN LTDA", direccion: "CR 4 No. 1ND-70 LOC 1- PIEDECUESTA" },
-            { farmacia: "FARMACIA 1A", cadena: "DROSAN LTDA", direccion: "BUCARAMANGA/04 LOC 1/CR 15 103" },
-            { farmacia: "FARMACIA SAN MIGUEL", cadena: "DROSAN LTDA", direccion: "VIA PIEDECUESTA LOS SANTOS CONDOMINIO MESA DE LOS SANTOS LOCAL 3 - LOS SANTOS" },
-            { farmacia: "FARMASAY", cadena: "DROSAN LTDA", direccion: "CR 33 # 111-13 FLORIDABLANCA" },
-            { farmacia: "JEREZ", cadena: "DROSAN LTDA", direccion: "CR 15 E No. 105-61-BUCARAMANGA" },
-            { farmacia: "LA VICTORIA", cadena: "DROSAN LTDA", direccion: "BUCARAMANGA/07/CL 67 13" },
-            { farmacia: "LA Y", cadena: "DROSAN LTDA", direccion: "AV BUCARICA T8-1 FLORIDABLANCA" },
-            { farmacia: "MANUELA BELTRAN", cadena: "DROSAN LTDA", direccion: "CR 13 #104C-34-BUCARAMANGA" },
-            { farmacia: "MI DROGUERIA GB", cadena: "DROSAN LTDA", direccion: "CR 23 #21-78 SAN FRANCISCO BUCARAMANGA" },
-            { farmacia: "PHARMA PROVENZA", cadena: "DROSAN LTDA", direccion: "CL 105 # 23-135 BUCARAMANGA" },
-            { farmacia: "PUNTO FARMACEUTICO", cadena: "INDEPENDIENTE", direccion: "CLL 63 #17E-01B" },
-            { farmacia: "SUPERNOVA", cadena: "DROSAN LTDA", direccion: "CR 40 203-28-FLORIDABLANCA" },
-            { farmacia: "TODO SALUD", cadena: "DROSAN LTDA", direccion: "CR 26 #31-70 BUCARAMANGA" },
-            { farmacia: "VICTORIA DE LOS REYES", cadena: "DROSAN LTDA", direccion: "CL 67 18-25-BUCARAMANGA" }
-        ];
+        let allPharmacies = []; // Almacenamiento local de todas las farmacias para filtrar
 
-        // Función para inicializar la app
-        async function initializeApp() {
-            try {
-                console.log('🚀 Inicializando aplicación...');
-                await checkAndInitializeData();
-                await loadData();
-                setupEventListeners();
-                updateCurrentDate();
-                hideLoading();
-            } catch (error) {
-                console.error('❌ Error al inicializar:', error);
-                showError('Error al conectar con Firebase. Verifica tu conexión.');
+        // Cargar y mostrar las farmacias en tiempo real
+        const q = query(pharmaciesCollectionRef, orderBy('nombre'));
+        onSnapshot(q, (snapshot) => {
+            loadingIndicator.style.display = 'block';
+            tableBody.innerHTML = '';
+            allPharmacies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            populateCadenaFilter();
+            applyFilters();
+            
+            loadingIndicator.style.display = 'none';
+
+            // Ocultar la sección de carga si ya hay datos
+            if(allPharmacies.length > 0) {
+                uploadSection.style.display = 'none';
             }
-        }
 
-        // Verificar e inicializar datos
-        async function checkAndInitializeData() {
-            try {
-                const snapshot = await getDocs(collection(db, 'farmacias'));
-                
-                if (snapshot.empty) {
-                    console.log('📊 Inicializando datos de farmacias...');
-                    
-                    for (const farmacia of farmaciasIniciales) {
-                        await addDoc(collection(db, 'farmacias'), {
-                            ...farmacia,
-                            estadoVisita: 'pendiente',
-                            estadoTransferencia: 'pendiente',
-                            fechaVisita: null,
-                            fechaActualizacion: new Date(),
-                            notas: ''
-                        });
-                    }
-                    
-                    console.log('✅ Datos inicializados correctamente');
-                }
-            } catch (error) {
-                console.error('❌ Error al inicializar datos:', error);
-                throw error;
-            }
-        }
-
-        // Cargar datos desde Firebase
-        async function loadData() {
-            try {
-                const q = query(collection(db, 'farmacias'), orderBy('farmacia'));
-                
-                // Escuchar cambios en tiempo real
-                onSnapshot(q, (snapshot) => {
-                    farmaciasList = [];
-                    snapshot.forEach((doc) => {
-                        farmaciasList.push({
-                            id: doc.id,
-                            ...doc.data()
-                        });
-                    });
-                    
-                    filteredList = [...farmaciasList];
-                    updateStats();
-                    renderPharmacies();
-                    console.log(`📊 Cargadas ${farmaciasList.length} farmacias`);
+        }, (error) => {
+            console.error("Error al obtener farmacias: ", error);
+            loadingIndicator.textContent = "Error al cargar los datos. Revisa la consola y la configuración de Firebase.";
+        });
+        
+        function renderTable(pharmacies) {
+            tableBody.innerHTML = '';
+            if (pharmacies.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.textContent = 'No se encontraron farmacias con los filtros actuales.';
+                td.style.textAlign = 'center';
+                tr.appendChild(td);
+                tableBody.appendChild(tr);
+            } else {
+                pharmacies.forEach(pharmacy => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${pharmacy.nombre}</td>
+                        <td>${pharmacy.cadena}</td>
+                        <td>${pharmacy.direccion}</td>
+                        <td>
+                            <button 
+                                class="status-btn ${pharmacy.visitado.toLowerCase()}" 
+                                data-id="${pharmacy.id}" 
+                                data-field="visitado"
+                                data-current-status="${pharmacy.visitado}">
+                                ${pharmacy.visitado}
+                            </button>
+                        </td>
+                        <td>
+                            <button 
+                                class="status-btn ${pharmacy.transferencia.toLowerCase()}" 
+                                data-id="${pharmacy.id}" 
+                                data-field="transferencia"
+                                data-current-status="${pharmacy.transferencia}">
+                                ${pharmacy.transferencia}
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
                 });
-                
-            } catch (error) {
-                console.error('❌ Error al cargar datos:', error);
-                throw error;
             }
+            recordCount.textContent = `${pharmacies.length} de ${allPharmacies.length} registros encontrados.`;
         }
-
-        // Configurar event listeners
-        function setupEventListeners() {
-            // Búsqueda
-            document.getElementById('search-input').addEventListener('input', filterPharmacies);
-            
-            // Filtros
-            document.getElementById('filter-cadena').addEventListener('change', filterPharmacies);
-            document.getElementById('filter-visita').addEventListener('change', filterPharmacies);
-            document.getElementById('filter-transferencia').addEventListener('change', filterPharmacies);
-            
-            // Modal
-            document.querySelector('.close').addEventListener('click', closeModal);
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    closeModal();
-                }
+        
+        function populateCadenaFilter() {
+            const cadenas = [...new Set(allPharmacies.map(p => p.cadena))].sort();
+            const currentSelection = filterCadena.value;
+            filterCadena.innerHTML = '<option value="">Cadena (Todas)</option>';
+            cadenas.forEach(cadena => {
+                const option = document.createElement('option');
+                option.value = cadena;
+                option.textContent = cadena;
+                filterCadena.appendChild(option);
             });
+            filterCadena.value = currentSelection;
         }
 
-        // Actualizar estadísticas
-        function updateStats() {
-            const total = farmaciasList.length;
-            const visitadas = farmaciasList.filter(f => f.estadoVisita === 'visitada').length;
-            const pendientesVisita = farmaciasList.filter(f => f.estadoVisita === 'pendiente').length;
-            const transferencias = farmaciasList.filter(f => f.estadoTransferencia === 'realizada').length;
-            const pendientesTransferencia = farmaciasList.filter(f => f.estadoTransferencia === 'pendiente').length;
+        function applyFilters() {
+            const searchTerm = searchBox.value.toLowerCase();
+            const visitadoStatus = filterVisitado.value;
+            const transferenciaStatus = filterTransferencia.value;
+            const cadenaFilter = filterCadena.value;
 
-            document.getElementById('total-farmacias').textContent = total;
-            document.getElementById('visitadas').textContent = visitadas;
-            document.getElementById('pendientes-visita').textContent = pendientesVisita;
-            document.getElementById('transferencias').textContent = transferencias;
-            document.getElementById('pendientes-transferencia').textContent = pendientesTransferencia;
+            const filteredPharmacies = allPharmacies.filter(p => {
+                const matchesSearch = p.nombre.toLowerCase().includes(searchTerm) || p.direccion.toLowerCase().includes(searchTerm);
+                const matchesVisitado = !visitadoStatus || p.visitado === visitadoStatus;
+                const matchesTransferencia = !transferenciaStatus || p.transferencia === transferenciaStatus;
+                const matchesCadena = !cadenaFilter || p.cadena === cadenaFilter;
+                
+                return matchesSearch && matchesVisitado && matchesTransferencia && matchesCadena;
+            });
+
+            renderTable(filteredPharmacies);
         }
 
-        // Renderizar farmacias
-        function renderPharmacies() {
-            const grid = document.getElementById('pharmacy-grid');
-            const emptyState = document.getElementById('empty-state');
+        // Event Listeners para filtros
+        searchBox.addEventListener('keyup', applyFilters);
+        filterVisitado.addEventListener('change', applyFilters);
+        filterTransferencia.addEventListener('change', applyFilters);
+        filterCadena.addEventListener('change', applyFilters);
+        
+        btnResetFilters.addEventListener('click', () => {
+            searchBox.value = '';
+            filterVisitado.value = '';
+            filterTransferencia.value = '';
+            filterCadena.value = '';
+            applyFilters();
+        });
+
+        // Event listener para actualizar estado
+        tableBody.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('status-btn')) {
+                const id = e.target.dataset.id;
+                const field = e.target.dataset.field;
+                const currentStatus = e.target.dataset.currentStatus;
+                
+                const newStatus = currentStatus === 'Pendiente' ? 'Realizado' : 'Pendiente';
+                
+                const docRef = doc(db, 'pharmacies', id);
+                try {
+                    await updateDoc(docRef, { [field]: newStatus });
+                } catch (error) {
+                    console.error("Error al actualizar: ", error);
+                }
+            }
+        });
+        
+        // --- FUNCIÓN PARA CARGA INICIAL DE DATOS ---
+        btnUpload.addEventListener('click', async () => {
+            if (!confirm('¿Estás seguro de que quieres cargar los datos iniciales? Esta acción solo debe realizarse una vez.')) {
+                return;
+            }
             
-            if (filteredList.length === 0) {
-                grid.innerHTML = '';
-                emptyState.style.display = 'block';
+            const initialData = `Farmacia	Cadena	Direccion
+BUCARAMANGA/ DROGUERIA COLOMBIA /1688 	COOPIDROGAS	 BUCARAMANGA/ 07 /CL 33 # 15 
+1022_CRUZ_VERDE_CARACOLÍ	CRUZ VERDE	Carrera 27 # 29 – 145 Local 408 FLORIDABLANCA
+10680 - ALTAMIRA	COOPIDROGAS	CR 5 # 94 - 62 - FLORIDABLANCA
+109_CRUZ_VERDE_CALLE_56	CRUZ VERDE	Calle 56 # 32 - 67 Cabecera BUCARAMANGA
+10933 - DROGUERIA SAN JORGE - AGUACHICA	COOPIDROGAS	CL 5 # 15 - 90 - AGUACHICA
+11684 - DROG.GRANADOS II	COOPIDROGAS	CL L35 # 16 A - 65 RINCON DE GIRON - GIRON
+12049 - DROG.Y PERF.FELIX	COOPIDROGAS	 BUCARAMANGA/ 04 /CR 10 OCC # 45 A 
+12494 - SKALA	COOPIDROGAS	 GIRON / 10. BRR. CAMPESTRE /AV LOS CANEYES # 25 
+13695 - DROG. Y PERF. OLIMPICA	COOPIDROGAS	 BUCARAMANGA/06 (B.SAN RAFAEL) /CR.14 # 3
+16201 - DROG.GRANADOS PABLO VI	COOPIDROGAS	CL 11 # 68 - 24 CENTRO - BUCARAMANGA
+16603 - DROG.LUZMABE	COOPIDROGAS	 FLORIDABLANCA/05(B.SANTA ANA) /CL.8 # 9
+174_CRUZ_VERDE_PARQUE_TURBAY	CRUZ VERDE	CR 28 # 48-60 BUCARAMANGA
+17892 - DROG.VITAL	COOPIDROGAS	CL 20 C # 24 - 68 SANTA CRUZ - GIRON
+18049 - DROG.PERFUMERIA GRANADOS	COOPIDROGAS	CL 104 B # 42 A - 48 BRR SAN BERNARDO - FLORIDABLANCA
+18202 - DROGUERIA SUPERDROGAS PARRA	COOPIDROGAS	Cra 8 # 9-51 - PELAYA
+18519 - DROG.LA 16 DE SAN CARLOS	COOPIDROGAS	CR 16 # 1 N - 14 BRR SAN CARLOS - PIEDECUESTA
+18585 - COMERCIALIZADORA OLIMPICA DROG.	COOPIDROGAS	CR.14 # 3-06 (B.SAN RAFAEL)
+18745 - DROG.JACOME Y MISCELANEA	COOPIDROGAS	CR 33 # 52 - 145 - BUCARAMANGA
+19159 - DROG.Y PERFUMERIA DROGFARMA	COOPIDROGAS	 BUCARAMANGA/ 12 BRR ALARCON /CL 28 # 19 
+19178 - SUPERDROGAS PIEDECUESTA	COOPIDROGAS	CR 15 # 3 - 34 PUERTO MADERO - PIEDECUESTA
+19327 - DROG.EL REFUGIO	COOPIDROGAS	CL 3 AN #  3 B - 22 - PIEDECUESTA
+19337 - DROG.EL GALENO DE FLORIDA	COOPIDROGAS	CR 7 # 3 - 50 - FLORIDABLANCA
+19545 - DROG.UMEFA	COOPIDROGAS	CR 6 # 8 - 40 - PIEDECUESTA
+19643- DROGAS CENTRAL DESCUENTOS BUCARAMAN	COOPIDROGAS	CL 34 # 34 C - 61 BRR ALVAREZ - BUCARAMANGA
+19786 - DROG.GRANADOS REPOSO	COOPIDROGAS	CL.56 # 14-83 (B.EL REPOSO) - FLORIDABLANCA
+20251 - DROG.GRANADOS VIVERO	COOPIDROGAS	 FLORIDABLANCA/ 10 BRR CALDAS /CR 33 # 95 
+20524 - DROG.SAN RAFAEL	COOPIDROGAS	 PIEDECUESTA/ 09 BRR SAN RAFAEL /CL 9 # 13 
+20525 - DROG.LICO	COOPIDROGAS	CL 7 # 9 - 86 BRR SAN RAFAEL - PIEDECUESTA
+20771 - DROG. UNIFARMA	COOPIDROGAS	 PIEDECUESTA/ 10 BRR HOYO GRANDE /CR 6 # 14 
+20828 - DROG.NUEVO SOL	COOPIDROGAS	CL 4 # 7 - 34 - FLORIDABLANCA
+21551 - DROG.Y PERFUMERIA EL LAGO	COOPIDROGAS	AV Floridablanca #147-18 EDIF. EQUILIBRIO DE FLORIDABLANCA
+21680 - DROGUERIA LA SEPTIMA DE LEBRIJA	COOPIDROGAS	CR 7 # 10 - 44 LEBRIJA
+21681 - DROG.DIAMANTE II	COOPIDROGAS	AV.89 # 23-135(B.DIAMANTE II) - BUCARAMANGA
+21812 - DROGUERIA OCAÑA	COOPIDROGAS	CL 11 # 13 - 69 - OCAÑA
+21821 - DROGUERIA AVENIDA OCAÑA	COOPIDROGAS	CL 7 # 28 - 55 BRR PRIMAVERA - OCAÑA
+22534 - DROG.LA 62 DISANCOL	COOPIDROGAS	 BUCARAMANGA/ 10 BRR. CONUCOS /CL 62 # 30 
+23127 - DROGUERIA VALERY SOFIA	COOPIDROGAS	 PELAYA/04(B.ALFONSO LOPEZ) /CL.8 # 8
+23250 - DROG.Y PERFUMERIA JAEL	COOPIDROGAS	CL 7 # 10 - 58 - FLORIDABLANCA
+23353 - DROG.PINZON Y CIA. LIMITADA	COOPIDROGAS	CR 17 # 35 - 62 - BUCARAMANGA
+235 - LA CUMBRE	COOPIDROGAS	 FLORIDABLANCA/ 06 BRR LA CUMBRE /CR 9 E # 31 
+23551 - DROG.COMVIDA	COOPIDROGAS	CL 35 # 2 A - 77 LA CUMBRE - FLORIDABLANCA
+23859 - DROG.Y MISCELANEA DROMISALUD	COOPIDROGAS	CL 12 # 9 - 32 LEBRIJA
+24165 - DROG.PAOLA	COOPIDROGAS	CR.27 # 19-04(B.SANTA CRUZ) GIRON
+24583 - DROG.SUPERVIT LOS PINOS	COOPIDROGAS	CL 14 # 34 - 85 BRR PINOS - BUCARAMANGA
+24807 - DROG.LA RECETA PLUS	COOPIDROGAS	 BUCARAMANGA/ 08 /CL 33 # 29 
+24925 - DROG.FARMISALUD FLORIDA	COOPIDROGAS	TV 127 # 62A - 14 AP 101 P 1 BRR CIUDAD VALENCIA - FLORIDABLANCA
+25024 - DROG.J.E.ORTIZ	COOPIDROGAS	CR 22 # 35 - 51 - BUCARAMANGA
+25113 - DROGUERIA CENTRAL OCAÑA	COOPIDROGAS	CR 12 # 9 - 60 - OCAÑA
+25211 - DROGUERIA SERVIC D	COOPIDROGAS	CR 7 # 14 - 26 (B. CENTRO) - SAN MARTIN
+25382 - DROG.Y PERFUMERIA LA VIRTUD SUCURSA	COOPIDROGAS	CL 30 # 10 E - 23 - FLORIDABLANCA
+25491 - DROG.NUEVA MULTICLI.DE BUCARAMANGA	COOPIDROGAS	CR 29 # 17 - 72 BUCARAMANGA
+26043 - DROG. FARMAMESA	COOPIDROGAS	SECT.MIRADOR BRISAS DE LA ACUARELA - LOS SANTOS
+26121 - DROGUERIA NUEVA AVENIDA	COOPIDROGAS	 BUCARAMANGA/04 (B.CAMPOHERMOSO) /CL.45 # 3 OCC
+26177 - GRANADOS LIMONCITO	COOPIDROGAS	 FLORIDABLANCA/09 /CR 15 # 6
+26348 - DROG Y PERFUMERIA HERFRAN	COOPIDROGAS	CR 14 A  # 1- 40 - BUCARAMANGA
+26367 - DROGUERIA LA DOCE	COOPIDROGAS	CL 12 # 6 - 119
+26397 - DROGUERIA INTERMUNDIAL	COOPIDROGAS	CR 11 # 12 - 63 LEBRIJA
+26428 - DROG.Y MISCELANEA D Y J PLUS	COOPIDROGAS	CL 30 # 7 - 81 BRR LA CUMBRE FLORIDABLANCA
+26700 - DROGUERIA DORENA	COOPIDROGAS	CR.19 # 21-78(B.ALARCON) - BUCARAMANGA
+26778 - DROGUERIAS GLOBALFARMA LA CUMBRE	COOPIDROGAS	CR 9 E # 28 - 90 BRR LA CUMBRE - FLORIDABLANCA
+26797 - DROGUERIA LA CURITA PLUS 2	COOPIDROGAS	CL 5 # 22 - 85 - AGUACHICA
+26880 - DROGAS CHICAMOCHA	COOPIDROGAS	CR 27 A # 40 - 35 BRR MEJORAS PUBLICAS - BUCARAMANGA
+26881 - DROGUERIA FAMIPLUS	COOPIDROGAS	CR 37 # 42 - 111 BRR. CABECera - BUCARAMANGA
+26915 - FARMA CITY LA 12	COOPIDROGAS	SRCT C  To.10 APTO 101  bellavista-FLORIDABLANCA
+27116 - FARMACIA BOTICA EXPRESS	COOPIDROGAS	CR 9 # 8 - 75 LC 101 FLORIDABLANCA
+27134 - DROGUERIA PERFUMERIA ECONOMICA	COOPIDROGAS	DG.105 # 31-16 LC. 13 PLAZA SATELITE - FLORIDABLANCA
+27262 - DROGUERIA Y MISCELANEA ALISFA	COOPIDROGAS	CR.24 # 85-29(B.DIAMANTE II) - BUCARAMANGA
+27508 - DROGUERIA LA CAMPINA	COOPIDROGAS	CL 28A # 30 - 33-GIRON
+27525 - DROGUERIA PHARMALUC	COOPIDROGAS	 FLORIDABLANCA/ 11 BRR LA CUMBRE /CL 28 # 5 E 
+27700 - DROGUERIA FARMAKOS	COOPIDROGAS	CR 33 # 41 - 24 BUCARAMANGA
+27725 - DROG.Y CACHARRERIA GRANADOS SAN FRA	COOPIDROGAS	 BUCARAMANGA/ 09 /CL 11 # 23 
+27726 - DROGUERIA GRANADOS BUCARIA	COOPIDROGAS	FLORIDABLANCA/4 local 101/BLOQUE 14
+27727 - DROGUERIA GRANADOS SAN PIO	COOPIDROGAS	CR 29 # 44 - 80 - BUCARAMANGA
+27900 - DROGUERIA LA 10 OCAÑA	COOPIDROGAS	CL 10 # 14 - 81- OCAÑA
+27978 - DROGUERIA Y MICELANEA CARACOLI	COOPIDROGAS	CR 6 # 1 - 17 BRR CARACOLI FLORIDABLANCA
+28558 - DROGUERIA SANTA CRUZ PLUS	COOPIDROGAS	CR.26 # 17-27 (B.SANTA CRUZ) GIRON
+28616 - DROGUERIA LOS ALTOS DEL CACIQUE II	COOPIDROGAS	 FLORIDABLANCA/ 03 BRR ALTOS DEL CACIQUE /CL 85 # 56 
+28819 - DROGUERIA RIVERA PHARMA M	COOPIDROGAS	 PIEDECUESTA/ 04 BRR PASEO DEL PUENTE II /CR 4 # 21 
+28998 - DROGUERIA PERFUMERIA HL	COOPIDROGAS	CR 4 # 4 - 39
+29088 - DROGUERIA PAGUE MENOS LA QUINTA	COOPIDROGAS	CL 5 # 17 - 90 - AGUACHICA
+29094 - DROGUERIA GRANADOS MENDOZA	COOPIDROGAS	CR 6 # 43 - 18 LOCAL 2 BRR LAGOS II FLORIDABLANCA
+29388 - DROGUERIA BENDITA PLUS	COOPIDROGAS	CL.6 # 8-04 (B.ARAUJO) GAMARRA
+29398 - DROG.FARMATOTAL MAS FARMACIA MAS SA	COOPIDROGAS	 BUCARAMANGA/ 02 BRR DELICIAS ALTAS /CR 16 # 104 B 
+294_CRUZ_VERDE_JUMBO_CABECERA_TIENDA	CRUZ VERDE	CR 33 # 41 - 34 BUCARAMANGA
+29567 - DROGUERIA FARMAPAEZ	COOPIDROGAS	CR 5 # 12-73J (B.CALLE REAL) - ABREGO
+29736 - DROGUERIA CAMARGO VALENCIA	COOPIDROGAS	CR 12 # 14 - 34 .3 ESQ BRR CUIDAD VALENCIA-FLORIDABLANCA
+29838 - DROGUERIA MISCELANEA ESPANOLA #2	COOPIDROGAS	CR.24 # 87-14(B.DIAMANTE) - BUCARAMANGA
+29931 - SU SALUD JB DROGUERIA	COOPIDROGAS	CR 24 # 24 - 11 BRR ALARCON BUCARAMANGA
+30058 - DROGUERIA OSORIO SUAREZ	COOPIDROGAS	 BUCARAMANGA/ 11 BRR EL PRADO /CL 33 # 33A 
+30105 - DROGUERIA Y MISCELANEA LORCE	COOPIDROGAS	CL 30 # 1 - 219 BRR LA CUMBRE - FLORIDABLANCA
+30212 - DROGUERIAS LEON S.A.S	COOPIDROGAS	CL 105 15B-45 - BUCARAMANGA
+30338 - DROGUERIA DAFARMA	COOPIDROGAS	GIRON/12/CL 43 # 22
+30465 - DROGUERIA Y MISCELANEA CARIOS	COOPIDROGAS	FLORIDABLANCA/11 loc 102 bucarica/BL 18
+30494 - DROGUERIA BETEL	COOPIDROGAS	Cl. 11 #16a 21 local 3 - OCAÑA
+30644 - DROGUERIA FAMY SALUD	COOPIDROGAS	AV GUAYACANES BL 9 CD REAL DE MINAS - BUCARAMANGA
+30986 - MAFCONT DROGUERIAS EL LAGO I	COOPIDROGAS	Cl. 29 #11-126 FLORIDABLANCA
+31209 - DROGUERIA CLER FLORIDA BLANCA	COOPIDROGAS	CR 10A 42-04 EL CARMEN FLORIDABLANCA
+31292 - DROGUERIA UNIDAD ASITENCIAL ECOMED	COOPIDROGAS	CL 30 # 9 A E - 35 - FLORIDABLANCA
+31355 - DROGUERIA EL SEMBRADOR	COOPIDROGAS	CR 33 # 86-144 T 1 LC 3 CACIQUE C - BUCARAMANGA
+31359 - DROGUERIA Y MISCELANIA SALBE	COOPIDROGAS	AV17 # 15A-16 BRR BARRO BLANCO - PIEDECUESTA
+31407 - DROGAS ESQUINA DE LA 56	COOPIDROGAS	CLL 56 # 30-122
+31618 - DROGUERIA GRANADOS CENTRO	COOPIDROGAS	 BUCARAMANGA/ 03 LC 7 ED UNIDAD RES /CL 37 # 22 
+31786 - DROGUERIA MEGAMODERNA PLUS 24 - 7	COOPIDROGAS	CR 4 # 48 - 07 BRR LAGOS II FLORIDABLANCA
+31996 - DROGUERIA RIONEGRO PLAZA	COOPIDROGAS	CL.12 # 10-10 (B. CENTRO) RIONEGRO
+32268 - DROGUERIA PHARMAKOS	COOPIDROGAS	CR 6 # 12-14 (B. CALLE CENTRAL) - ABREGO
+32542 - DROGUERIAS GRANADOS DIAMANTE	COOPIDROGAS	AV 89 # 23 - 35 - BUCARAMANGA
+32717 - FARMACIA LA LUZ DEL PORVENIR	COOPIDROGAS	CL 104 F # 8 B - 24 LOCAL 8 BLOQUE 3 B - BUCARAMANGA
+32718 - DROGUERIA CAMARGO	COOPIDROGAS	CR 2 N # 21 - 16 BRR PASEO DEL PUENTE 2 - PIEDECUESTA
+32815 - DROGUERIA SUPREMA LA PAZ	COOPIDROGAS	CR.8 # 13-77 (B. VIA AL MAR CENTRO) EL PLAYON
+32820 - DROGUERIA SALUD Y BELLEZA	COOPIDROGAS	AV 17 #2W-144 BRR BARRO BLANCO - PIEDECUESTA
+33062 - DROGUERIA FARMAVILLAS SAS 3	COOPIDROGAS	CR. 13 A # 50-65 (B. VILLA LUZ) - FLORIDABLANCA
+33063 - DROGUERIA FARMAVILLAS 2	COOPIDROGAS	 BUCARAMANGA/ ESQ BRR ALVAREZ /CL 32 # 38 
+33137 - DROGUERIA VELEÑO	COOPIDROGAS	 SAN ALBERTO/04 (B. VILLA FANNY) /CL 2 # 4
+33231 - DROGUERIA VGA 	COOPIDROGAS	CL 113 # 32 - 79 COND T DEL BICENTENARIO - FLORIDABLANCA
+33243 - DROGUERIA Y MINIMARKET GRAND BOULEV	COOPIDROGAS	CR.20 # 16-56 ET.2 TORRE 2 LC.24 BRR. SAN FRANCISCO BUCRAMANGA
+33395 - FARMACIUDADELA	COOPIDROGAS	CL 57 # 16 - 60 BRR GOMEZ NINO - BUCARAMANGA
+33433 - DROGUERIA SANTAFE SALUD	COOPIDROGAS	 FLORIDABLANCA/ 08  BRR SANTA FE /CR 42 # 107 
+34098 - DROGUERIA FARMASED	COOPIDROGAS	CL 14C #11-98 ALMENARES DE SAN GIRON - GIRON
+34192 - DROGUERIA GRANADOS 5	COOPIDROGAS	 BUCARAMANGA/ 06 /CR 27 # 18 
+34290 - DROGUERIA JEREZ PASEO DEL PUENTE II	COOPIDROGAS	 PIEDECUESTA/04 /CR 5B # 22
+34317 - DROGUERIA FARMASED 2	COOPIDROGAS	 GIRON/02 LC 2 /CR 13 # 13C
+34519 - FAMISALUD OASIS	COOPIDROGAS	 FLORIDABLANCA/06 BARRIO EL OASIS /DG 17 #55
+34567 - DROGUERIA LA 13 OCAÑA	COOPIDROGAS	CR 13 # 11 - 56 - OCAÑA
+34842 - DROGUERIA GRANADOS MUTIS 2	COOPIDROGAS	 BUCARAMANGA/04 /CL 59 # 3W
+34847 - DROGUERIA SUPER DROGUERIA S.C	COOPIDROGAS	CR.22 # 32-03 (B. ANTONIA SANTOS) BUCARAMANGA
+34853 - PHARMALIS DROGUERIA	COOPIDROGAS	 BUCARAMANGA/02  BRR EL GIRARDOT /CR 5 # 28
+34867 - DROGUERIA CLER	COOPIDROGAS	CL 197 # 28 - 62 BRR RECREO - FLORIDABLANCA
+34870 - DROGUERIA FARMA GOMEZ MATIAS	COOPIDROGAS	 FLORIDABLANCA/ 09 BRR VALENCIA /CR 12 # 8 
+34876 - DROGUERIAFAMYSALUD 	COOPIDROGAS	CR 3 # 61 - 27 - BUCARAMANGA
+34965 - DROGUERIA BUCARICA	COOPIDROGAS	 FLORIDABLANCA/3 LOC 101 SECTOR 12 BUCARICA/BL 20
+35015 - FARMACLUB 2	COOPIDROGAS	CL 52 # 35 A - 40 - BUCARAMANGA
+35266 - DROGUERIA MEDICAM PLUS	COOPIDROGAS	CR 6 # 14 - 90 - PIEDECUESTA
+35280 - DROGUERIA GRANADOS SAN FRANCISCO PL	COOPIDROGAS	CL 13 # 21 - 48 SAN FRANCISCO - BUCARAMANGA
+35286 - DROGUERIA NUEVA LUZ	COOPIDROGAS	Dg. 45 # 109A-26 - FLORIDABLANCA
+35540 - DROGUERIA GRANADOS EL PUENTE	COOPIDROGAS	CR 6 # 19-13 - PIEDECUESTA
+36061 - MAS X MENOS	COOPIDROGAS	CL 5 # 29-52 - AGUACHICA
+36125 - DROGUERIA Y PERFUMERIA DROETICAS	COOPIDROGAS	CL.2 # 28-100(B.LA VICTORIA) - AGUACHICA
+36127 - DROGUERIA ECOVIDA	COOPIDROGAS	CR 15 # 8 - 22 - PIEDECUESTA
+36217 - DROGUERIA SUPERDROGAS LEBRIJA	COOPIDROGAS	CL 12 # 8 - 12 LEBRIJA
+36385 - DROGUERIA Y PERFUMERIA VIVIR	COOPIDROGAS	CL 32 # 33 A - 54 - BUCARAMANGA
+36557 - DROG. PHARMADESCUENTOS LA UNIVERSID	COOPIDROGAS	 BUCARAMANGA/ 02 BRR LA UNIVERSIDAD /CR 25 # 9 
+36861 - HIPERFARMACIA AG	COOPIDROGAS	CR 11 67 -93 - BUCARAMANGA
+36881 - DROGUERIA UNICENTRO	COOPIDROGAS	CL.18 # 25-114 (B.PORTAL CAMPESTRE) GIRON
+36979 - DROGUERIA Y PERFUMERIA SAN FELIPE	COOPIDROGAS	CL.117 # 27-60 (B.NIZZA) - FLORIDABLANCA
+37491 - DROGUERIA MAXIDROGAS	COOPIDROGAS	CL.6 # 16-66 LC.3 (B.OLYA HERRERA) - AGUACHICA
+37652 - DROGUERIA ZAMBRANO PLUS	COOPIDROGAS	CL. 31 # 20 -17 (B. CENTRO) BUCARAMANGA
+37753 - DROGUERIA FARMACLARO	COOPIDROGAS	CR 3 # 58-17 LOS NARANJOS - BUCARAMANGA
+37955 - DROGUERIA LUPITA	COOPIDROGAS	 OCAÑA/07 SANTA CLARA /CR 49 N° 4
+38008 - DROGUERIA EL DEPOSITO CENTRO	COOPIDROGAS	CL 36 # 13 - 27 BRR CENTRO - BUCARAMANGA
+38009 - DROGUERIA EL DEPOSITO	COOPIDROGAS	CR 21 # 54-34  LA CONCORDIA - BUCARAMANGA
+38812 - DROG.Y PERF.SOTOMAYOR	COOPIDROGAS	 BUCARAMANGA/03(B.SOTOMAYOR) /CL.48 # 26
+39199 - SUPERDROGUERIA LA MEJOR	COOPIDROGAS	CL 11 # 7 - 11 LEBRIJA
+39778 - DROGUERIA CLAVIJO	COOPIDROGAS	CR 13 # 9 - 34 - OCAÑA
+40159 - DROGUERIA LA X 5	COOPIDROGAS	 OCAÑA/03(B.LAS LLAMADAS) /CL 7 # 26
+40336 - DROGUERIA X SANTA CLARA	COOPIDROGAS	CL 5A # 48-75 SANTA CLARA
+40337 - DROGUERIA X SAN AGUSTIN	COOPIDROGAS	CL. 11 # 15 -10 (B. SAN AGUSTIN)
+40369 - FARMACIA Y DROGUERIA SAN JUAN DE GI	COOPIDROGAS	CR 26 # 28 - 05 GIRON
+40459 - DROGUERIA SANTA ISABEL	COOPIDROGAS	CR.6 # 13 - 64 (B. CENTRO)
+40622 - DROGUERIA GRANADOS AMIGA	COOPIDROGAS	CL 10 # 5 - 57 - PIEDECUESTA
+40811 - DROG SANTA CLARA 	COOPIDROGAS	CR.55B # 24-49 (B.SAN ANTONIO) RIONEGRO
+40952 - DROGUERIA PINEDA	COOPIDROGAS	CR.15 A # 11 - 02 (B. SAN AGUSTIN)
+42088 - CURITA PLUS DROGUERIA	COOPIDROGAS	CR 15 # 5 - 02
+42179 - DROGUERIA MAXIDROGAS ABREGO	COOPIDROGAS	CL. 18 # 4 - 02 (B. SANTA BARBARA)
+444_DROGUERIA_CRUZ_VERDE_CARRERA_33	CRUZ VERDE	Carrera 33 # 41 - 45 BUCARAMANGA
+634_CRUZ_VERDE_CABECERA DEL LLANO	CRUZ VERDE	Carrera 33 # 46 - 61 BUCARAMANGA
+831_CRUZ_VERDE_CC_CACIQUE	CRUZ VERDE	Transversal 93 # 34 -99 Local 371 y 372 BUCARAMANGA
+983_FARMACIA_INTERNA_CRUZ_VERDE_CLINICA SAN LUIS	CRUZ VERDE	CL 48 # 25 - 56 BUCARAMANGA
+ALBA LUZ	DROSAN LTDA	CR 33 109-36 FLORIDABLANCA
+ALEMANA 08	UNIDROGAS S.A.S.	CL 60 # 9 - 109 T 4 L 7 - 8 TO SAN REMO BUCARAMANGA
+ALEMANA 12	UNIDROGAS S.A.S.	CR 18 # 34 - 01 BUCARAMANGA
+ALEMANA 160	UNIDROGAS S.A.S.	CL 200 # 13 - 08 LC 3 ED MONTESOL FLORIDABLANCA
+ALEMANA 178	UNIDROGAS S.A.S.	CR 33 # 52 B - ESQ BRR CABECERA BUCARAMANGA
+ALEMANA 26 LA FOSCAL	UNIDROGAS S.A.S.	TV 154 # 150 - 207 BRR BOSQUE FLORIDABLANCA
+ALEMANA 355	UNIDROGAS S.A.S.	CALLE 30 # 25-71 CC CAÑAVERAL LOC 106 FLORIDABLANCA
+ALEMANA 356	UNIDROGAS S.A.S.	CR. 26 # 42-29 GIRON
+ALEMANA 58	UNIDROGAS S.A.S.	CR 6 # 9 - 40 piedecuesta
+ALEMANA 60	UNIDROGAS S.A.S.	CR 26 # 30 - 28 BRR CAÑAVERAL FLORIDABLANCA
+COOFARMA 5	UNIDROGAS S.A.S.	CR 33 # 52 B - 18 BUCARAMANGA
+DMAX	DROSAN LTDA	CL 1 W #5AN -15 BRR REFUGIO PIEDECUESTA
+DROG.ECONOMICA	COOPIDROGAS	CR 26 # 33-96 ESQ. BUCARAMANGA
+DROGAS PLAZA MAYOR	DROSAN LTDA	AV LOS BUCAROS BLOQ G LOCAL 117 BUCARAMANGA
+DROGERIA TAYSOFI	INDEPENDIENTE	CR 7 # 5 - 06 AV CARACOLI
+DROGUERIA 306 FARMASOLANO	DROSAN LTDA	CR 22 # 21 - 79 BUCARAMANGA
+DROGUERIA AHORRA MAX	INDEPENDIENTE	CL 3 AN # 30 - 09 BRR EL REFUGIO
+DROGUERIA AHORRAMEDIC	COOPIDROGAS	CL 52 # 31 - 104 BRR CABECERA
+DROGUERIA ALEMANA 32 CACIQUE	UNIDROGAS S.A.S.	TV ORIENTAL # 35  - 254 MIRADOR DEL CACIQUE BUCARAMANGA
+DROGUERIA ALVAREZ	INDEPENDIENTE	CR 38 # 32 - 121
+DROGUERIA ANGY MAR	DROSAN LTDA	AV GUAYACANES T-19 L101 CIUDAD BOLIVAR BUCARAMANGA
+DROGUERIA ANGYMAR LA CEIBA	DROSAN LTDA	CR 17A # 61-30 TORRES DE LA CEIBA BUCARAMANGA
+DROGUERIA ANTOLINEZ	INDEPENDIENTE	CR 2W # 59 - 23 MUTIS - BUCARAMANGA
+DROGUERIA ASILO	DROSAN LTDA	CALLE 2 # 14A-123 BUCARAMANGA
+DROGUERIA BLANCO	DROSAN LTDA	CR 6 # 39 - 26 LAGOS II FLORIDABLANCA
+DROGUERIA BLANTONY	INDEPENDIENTE	CL 60 # 9 - 103 BRR CIUDADELA
+DROGUERIA BULEVAR	DROSAN LTDA	CL 18 # 21 - 74 BUCARAMANGA
+DROGUERIA CAMELOT	DROSAN LTDA	CLL 8N #3 -190 LOCAL 4 GUATIGUARA PIEDECUESTA
+DROGUERIA CAMPO HERMOSO	DROSAN LTDA	CL 45 # 5 OCC - 10 BUCARAMANGA
+DROGUERIA CAMPO VERDE	DROSAN LTDA	CL 1 B # 4 - 12 BRR CAMPO VERDE PIEDECUESTA
+DROGUERIA CARMENCITA	DROSAN LTDA	CL 30 # 29 B - 11 FLORIDABLANCA
+DROGUERIA CASTILLO	UNIDROGAS S.A.S.	CR 7 # 14-12 SAN MARTIN
+DROGUERIA CENTRAL DESCUENTOS	INDEPENDIENTE	CL 67 # 17 - 14 BRR LA VICTORIA - BUCARAMANGA
+DROGUERIA CONSULTORIO 2 CONSULTORIO ALIRIO LOPEZ NO. 2	UNIDROGAS S.A.S.	CL 30 # 7 E - 95 LA CUMBRE FLORIDABLANCA
+DROGUERIA CRUZ VERDE CAÑAVERAL	CRUZ VERDE	CL 30 # 25-71 CENTRO COMERCIAL CAÑAVERAL LOCAL 31 FLORIDABLANCA
+DROGUERIA DANNYS	INDEPENDIENTE	SANANDRESITO ISLA LC 7 - 31 P 3
+DROGUERIA DISERVAL	DROSAN LTDA	CL 31 #28-74 B. LA AURORA BUCARAMANGA
+DROGUERIA DISTRIBUIDORA EL NILO	INDEPENDIENTE	CC SAN ANDRESITO ISLA P 1 L 7 - 28 Y 7 - 29
+DROGUERIA DISTRIBUIDORA SANDRA C	INDEPENDIENTE	CC SAN ANDRESITO ISLA P 3 L 8 - 35 Y 8 - 33
+DROGUERIA DROGAS SALUD	DROSAN LTDA	Calle 7 #29 143 OCAÑA
+DROGUERIA ECOFARMA	DROSAN LTDA	CR 2 C # 21 - 04 BRR PASEO DEL PUENTE II PIEDECUESTA
+DROGUERIA ECOFARMA PLUS	DROSAN LTDA	CR  1W #5AN-15 REFUGIO PIEDECUESTA
+DROGUERIA EL CARMEN - BUCARAMANGA	DROSAN LTDA	 BUCARAMANGA/02  BRR EL GIRARDOT /CL 28 #6
+DROGUERIA EL DUENDE	DROSAN LTDA	 KILOMETRO 9 VIA CUROS - LOS SANTOS (MUNICIPIO LOS SANTOS)
+DROGUERIA EL PAISA	DROSAN LTDA	CRA 15 # 56 CC SANADRESITO ISLA LC 7 - 8 BUCARAMANGA
+DROGUERIA EL SEGURO	DROSAN LTDA	CR 31 # 27 - 48 BUCARAMANGA
+DROGUERIA FARMA EXPRESS	DROSAN LTDA	CR 6 #27-02  BRR EL GIRARDOT BUCARAMANGA
+DROGUERIA FARMA GOMEZ	DROSAN LTDA	CR 7#29-15 BRR EL GIRARDOT BUCARAMANGA
+DROGUERIA FARMACIA SALUD FAMILIAR	DROSAN LTDA	CL 33 # 16 - 34  PLAZA DE MERCADO CENTRO BUCARAMANGA
+DROGUERIA FARMAMEDICA MUTIS	DROSAN LTDA	CR 7W#59-22 BUCARAMANGA
+DROGUERIA FARMAMETROPOLIS 	DROSAN LTDA	CR 8 # 61 - 137 L7 BRR METROPOLIS-BUCARAMANGA
+DROGUERIA FARMASALUD UNIVERSAL	INDEPENDIENTE	CR 8 #16-02 SAN MARTIN
+DROGUERIA FARMASOLANO	DROSAN LTDA	CL 59 # 18 - 31 BRR TRINIDAD FLORIDABLANCA
+DROGUERIA FARMAVILLAS PROVENZA 	COOPIDROGAS	 BUCARAMANGA/04 /Cl. 105 #15B
+DROGUERIA FIORELLA	INDEPENDIENTE	CR 21 B # 111 - 124
+DROGUERIA FLORIDA	DROSAN LTDA	CR 8 # 7 - 53 BRR CENTRO FLORIDABLANCA
+DROGUERIA FOSCAL	INDEPENDIENTE	CR 24 # 154 - 106 URB EL BOSQUE
+DROGUERIA GRANADOS CAFASAN 	DROSAN LTDA	 FLORIDABLANCA/ 02 CALDAS/CR 37 # 109 
+DROGUERIA JEREZ SAN RAFAEL	DROSAN LTDA	CR 15 # 7 - 14 SAN RAFAEL PIEDECUESTA
+DROGUERIA JUSTY MORENO	DROSAN LTDA	Cl. 12 #10-1, Pelaya, Cesar
+DROGUERIA KOLSUDROGAS	DROSAN LTDA	CL 39 # 22 - 30 GIRON
+DROGUERIA LA GENERICA	UNIDROGAS S.A.S.	CL 113 #32-43 LC 17 T0RRES DEL BICENTENARIO FLORIDABLANCA
+DROGUERIA LA NUEVA	UNIDROGAS S.A.S.	CR 14 # 8 A - 25 OCAÑA
+DROGUERIA LA SEPTIMA PIEDECUESTA	DROSAN LTDA	CL 7 # 10 - 99 PIEDECUESTA
+DROGUERIA LAS PRIMICIAS	DROSAN LTDA	CL 14B # 12A-76 VILLAS DE DON JUAN  GIRON
+DROGUERIA LAS VILLAS	DROSAN LTDA	CL 10B # 22 - 09 GIRON
+DROGUERIA LAS VILLAS DE SAN JUAN	DROSAN LTDA	CL 10b # 24A - 16 BRR. SAN JUAN DE GIRON GIRON
+DROGUERIA LEBRI FARMA	DROSAN LTDA	CL 12 # 13 A - 25 LEBRIJA
+DROGUERIA LINEAVITAL	DROSAN LTDA	CR 10E # 67 - 42 PABLO VI BUCARAMANGA
+DROGUERIA LORENA	DROSAN LTDA	CR 7 # 10 - 38 PIEDECUESTA
+DROGUERIA M Y D	DROSAN LTDA	CR #  53 - 03  BRR EL RECREO FLORIDABLANCA
+DROGUERIA MARIA REYNA	DROSAN LTDA	CL 27 #6-44  BRR EL GIRARDOT BUCARAMANGA
+DROGUERIA MAXIMED	DROSAN LTDA	CL 30 # 20 - 37 BRR LA CUMBRE FLORIDABLANCA
+DROGUERIA MEDIEXPREESS	DROSAN LTDA	CR 15 # 3 - 166 BRR PUERTO MADERO PIEDECUESTA
+DROGUERIA MEDIFARMA	DROSAN LTDA	CR 4 # 1 B -28 CAMPO VERDE PIEDECUESTA
+DROGUERIA MEGAFARMA OCANA	INDEPENDIENTE	CR.14 # 8-18(B.MERCADO) OCAÑA
+DROGUERIA MULTIFARMA #1	DROSAN LTDA	CL 105 # 29A - 21-FLORIDABLANCA
+DROGUERIA MX ALKOSTO	DROSAN LTDA	CR 13 # 103 B - 46 BRR SAN FERMIN BUCARAMANGA
+DROGUERIA NAYIBE	DROSAN LTDA	CLL 4 #8-31 FLORIDABLANCA
+DROGUERIA NUEVA SAN CARLOS	INDEPENDIENTE	CR 25 # 13 - 28 BRR SAN FRANCISCO
+DROGUERIA PAGUE MENOS	DROSAN LTDA	CR 6 CL 13  Abrego, Norte de Santander
+DROGUERIA PAGUE MENOS CABECERA	INDEPENDIENTE	CR 35 # 52 - 88
+DROGUERIA PAGUE MENOS CAÑAVERAL	INDEPENDIENTE	CL 33 # 26 - 27 CAÑAVERAL
+DROGUERIA PAGUE MENOS FLORIDABLANCA	INDEPENDIENTE	CR 8 #  4 - 48 Y 52
+DROGUERIA PAGUE MENOS GIRON	INDEPENDIENTE	CL 43 # 22 - 92
+DROGUERIA PAGUE MENOS PIEDECUESTA	INDEPENDIENTE	CR 8 # 7 - 77
+DROGUERIA PAGUE MENOS PROVENZA	INDEPENDIENTE	CL 105 # 21 - 139
+DROGUERIA PAGUE MENOS SAN FRANCISCO	INDEPENDIENTE	BLV # 23 - 03
+DROGUERIA PAGUE MENOS SOTOMAYOR	INDEPENDIENTE	CL 54 # 24 - 03
+DROGUERIA PALENQUE	INDEPENDIENTE	CR 19 # 56 - 58. BRR EL PALENQUE
+DROGUERIA PHARMACY	DROSAN LTDA	AV EL BOSQUE # 54 - 52 FLORIDABLANCA
+DROGUERIA PHARMALAGOS	DROSAN LTDA	CL 29 # 7 - 08 LAGOS 3 FLORIDABLANCA
+DROGUERIA PHARMATODO	DROSAN LTDA	Cl 4 # 4-1, San Alberto, Cesar
+DROGUERIA PINZON 2	DROSAN LTDA	CR 38 # 49 - 15 BUCARAMANGA
+DROGUERIA PROVIDA	INDEPENDIENTE	CR 22 # 110 - 44
+DROGUERIA QUINTA REAL LAS PALMAS	INDEPENDIENTE	CR 15 # 6 N - 03
+DROGUERIA REBAJA PLUS 9 CACIQUE	COOPSERVIR	AV CRV # 35 - 95 FLORIDABLANCA
+DROGUERIA RIAÑO	DROSAN LTDA	CR 49 N° 5-06 SANTA CLARA OCAÑA
+DROGUERIA SALUD Y BELLEZA AGUACHICA	DROSAN LTDA	CL 5 # 19-43 AGUACHICA
+DROGUERIA SAN AGUSTIN	DROSAN LTDA	CL 11 # 16-12 OCAÑA
+DROGUERIA SAN LUIS - BUCARAMANGA	DROSAN LTDA	CL 48 # 26 - 19 BRR SOTOMAYOR - BUCARAMANGA
+DROGUERIA SAN PABLO	INDEPENDIENTE	CR 22 # 11 - 81 BRR SAN FRANCISCO
+DROGUERIA SANA SANAR	INDEPENDIENTE	CL 10B # 20 - 04 -LAS VILLAS - GIRON
+DROGUERIA SANTA ANA	UNIDROGAS S.A.S.	CR 13 # 10 - 71 OCAÑA
+DROGUERIA SANTA CECILIA	DROSAN LTDA	CL 21 # 23 - 75 BUCARAMANGA
+DROGUERIA SANTA LUCIA	DROSAN LTDA	CR 6 # 42 - 13 LAGOS II FLORIDABLANCA
+DROGUERIA SERVIFARMA	DROSAN LTDA	SECTOR 9 BL 16 - 7 FLORIDABLANCA
+DROGUERIA SILVA 	DROSAN LTDA	FLORIDABLANCA/09/Cl. 57 #3
+DROGUERIA SOLETH	DROSAN LTDA	CR. 6 #28-65(B.GIRARDOT) BUCARAMANGA
+DROGUERIA SUPER ECONOMICA	DROSAN LTDA	CL 20 C # 19 - 03 BRR SANTA CRUZ GIRON
+DROGUERIA SUPERDROGAS CONUCOS	DROSAN LTDA	CL 58 # 29 - 31 LOCAL 5 BUCARAMANGA
+DROGUERIA SUPERVIDA	INDEPENDIENTE	CR 8 # 3 - 49
+DROGUERIA SUTSALUD	DROSAN LTDA	CL 13AN # 19 - 02 GIRON
+DROGUERIA TOTAL CONFIANZA	DROSAN LTDA	Cl. 12 #10-24 SANTA CLARA OCAÑA
+DROGUERIA UNICA	INDEPENDIENTE	CR 15 # 3 - 34 PUERTO MADERO
+DROGUERIA UNIVERSIDAD	DROSAN LTDA	CR 26 A # 10 - 18 BUCARAMANGA
+DROGUERIA VALERY	DROSAN LTDA	CR 23 # 7A-04 BR. MIRADOR ARENALES GIRON
+DROGUERIA VIDA LTDA	INDEPENDIENTE	CR 32 # 30A - 20 BRR. AURORA-BUCARAMANGA
+DROGUERIA VILLABEL 	DROSAN LTDA	FLORIDABLANCA/ 04/CR 11 # 12 
+DROGUERIA VIRTUAL 	DROSAN LTDA	CL 106 # 49 - 19- FLORIDABLANCA
+DROGUERIA VITAL SALUD	DROSAN LTDA	CR 15 # 7 - 10  BRR SAN RAFAEL PIEDECUESTA
+DROGUERIA Y AUTOSERVICIO 20-20	INDEPENDIENTE	CR.13 # 8-47 (B.DULCE NOMBRE) OCAÑA
+DROGUERIA Y CACHARRERIA AYS	INDEPENDIENTE	CC SAN ANDRESITO ISLA P 3 L 8 - 36
+DROGUERIA Y DISTRIBUCIONES ABASTOS XIMENA	INDEPENDIENTE	DG 15 # 55 - 56 L F - 02 CC SAN ANDRESITO LA ISLA
+DROGUERIA Y PERFUMERIA ANTIOQUEÑA	INDEPENDIENTE	DG 105 # 30B - 13 SATELITE-FLORIDABLANCA
+DROGUERIAS JEREZ VILLABEL	DROSAN LTDA	CR 12 # 7 - 11 FLORIDABLANCA
+EKONOFARMA	DROSAN LTDA	CR 4 No- 0-20 LOC 1 PALERMO 1- PIEDECUESTA 
+EL FARMACEUTA	DROSAN LTDA	CL 103 NO. 13B-79-BUCARAMANGA
+ENTRE PARQUES	DROSAN LTDA	CR 4 No. 1ND-70 LOC 1- PIEDECUESTA
+FARMACIA 1A	DROSAN LTDA	BUCARAMANGA/04 LOC 1/CR 15 103
+FARMACIA SAN MIGUEL	DROSAN LTDA	VIA PIEDECUESTA LOS SANTOS CONDOMINIO MESA DE LOS SANTOS LOCAL 3 - LOS SANTOS
+FARMASAY	DROSAN LTDA	CR 33 # 111-13 FLORIDABLANCA
+JEREZ	DROSAN LTDA	CR 15 E No. 105-61-BUCARAMANGA
+LA VICTORIA	DROSAN LTDA	BUCARAMANGA/07/CL 67 13
+LA Y	DROSAN LTDA	AV BUCARICA T8-1 FLORIDABLANCA
+MANUELA BELTRAN	DROSAN LTDA	CR 13 #104C-34-BUCARAMANGA
+MI DROGUERIA GB	DROSAN LTDA	CR 23 #21-78 SAN FRANCISCO BUCARAMANGA
+PHARMA PROVENZA	DROSAN LTDA	CL 105 # 23-135 BUCARAMANGA
+PUNTO FARMACEUTICO	INDEPENDIENTE	CLL 63 #17E-01B
+REBAJA No. 11 BUCARAMANGA RICAURTE	COOPSERVIR	CL 56 # 17 C - 12 BUCARAMANGA
+REBAJA PLUS 5 FLORIDABLANCA	COOPSERVIR	CR 8 # 4 - 76 FLORIDABLANCA
+REBAJA PLUS No. 1 BUCARAMANGA PROVENZA	COOPSERVIR	CL 105 # 22 - 83 BRR PROVENZA BUCARAMANGA
+REBAJA PLUS No. 1 FLORIDABLANCA CANAVERAL	COOPSERVIR	CL 30 # 26 - 10  FLORIDABLANCA
+REBAJA PLUS No. 11 BUCARAMANGA SEDE ADMINISTRATIVA BUCARAMANGA	COOPSERVIR	Carrera 16 No. 47-82 BUCARAMANGA
+REBAJA PLUS No. 14 BUCARAMANGA DIAMANTE II	COOPSERVIR	Carrera 26 No. 85-44 BUCARAMANGA
+REBAJA PLUS No. 2 BUCARAMANGA CIUDADELA REAL DE MINAS	COOPSERVIR	AV SAMANES # 9 - 75 BUCARAMANGA
+REBAJA PLUS No. 3 BUCARAMANGA SOTOMAYOR	COOPSERVIR	CR 27 # 41 - 02 BUCARAMANGA
+REBAJA PLUS No. 4 BUCARAMANGA GUARIN	COOPSERVIR	CR 33 # 30 A - 09 BUCARAMANGA
+REBAJA PLUS No. 6 BUCARAMANGA SAN ALONSO	COOPSERVIR	CR 30 # 14 - 06 BUCARAMANGA
+REBAJA PLUS No. 8 BUCARAMANGA LAS DELICIAS	COOPSERVIR	CL 105 # 15 D - 03 BUCARAMANGA
+SUPERNOVA	DROSAN LTDA	CR 40 203-28-FLORIDABLANCA
+TODO SALUD	DROSAN LTDA	CR 26 #31-70 BUCARAMANGA
+VICTORIA DE LOS REYES	DROSAN LTDA	CL 67 18-25-BUCARAMANGA`;
+            
+            const pharmaciesToUpload = parseAndCleanData(initialData);
+
+            if (pharmaciesToUpload.length === 0) {
+                alert("No se encontraron datos para cargar.");
                 return;
             }
 
-            emptyState.style.display = 'none';
-            
-            grid.innerHTML = filteredList.map(farmacia => `
-                <div class="pharmacy-card ${farmacia.estadoVisita}" data-id="${farmacia.id}">
-                    <div class="card-header">
-                        <h3 class="pharmacy-name">${farmacia.farmacia}</h3>
-                        <span class="pharmacy-chain ${farmacia.cadena === 'INDEPENDIENTE' ? 'independiente' : ''}">
-                            ${farmacia.cadena}
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="pharmacy-address">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${farmacia.direccion}</span>
-                        </div>
-                        <div class="status-row">
-                            <div class="status-item ${farmacia.estadoVisita === 'visitada' ? 'visited' : 'pending'}">
-                                <i class="fas ${farmacia.estadoVisita === 'visitada' ? 'fa-check-circle' : 'fa-clock'}"></i>
-                                <span>${farmacia.estadoVisita === 'visitada' ? '✅ Visitada' : '⏳ Pendiente'}</span>
-                            </div>
-                            <div class="status-item ${farmacia.estadoTransferencia === 'realizada' ? 'transfer-ok' : 'transfer-pending'}">
-                                <i class="fas ${farmacia.estadoTransferencia === 'realizada' ? 'fa-money-bill-transfer' : 'fa-exclamation-triangle'}"></i>
-                                <span>${farmacia.estadoTransferencia === 'realizada' ? '💰 Realizada' : '📋 Pendiente'}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <button class="btn btn-primary" onclick="openEditModal('${farmacia.id}')">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn btn-success" onclick="quickVisit('${farmacia.id}')" ${farmacia.estadoVisita === 'visitada' ? 'disabled' : ''}>
-                                <i class="fas fa-check"></i> Visitar
-                            </button>
-                            <button class="btn btn-warning" onclick="quickTransfer('${farmacia.id}')" ${farmacia.estadoTransferencia === 'realizada' ? 'disabled' : ''}>
-                                <i class="fas fa-money-bill"></i> Transferencia
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Filtrar farmacias
-        function filterPharmacies() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const cadenaFilter = document.getElementById('filter-cadena').value;
-            const visitaFilter = document.getElementById('filter-visita').value;
-            const transferenciaFilter = document.getElementById('filter-transferencia').value;
-
-            filteredList = farmaciasList.filter(farmacia => {
-                const matchSearch = !searchTerm || 
-                    farmacia.farmacia.toLowerCase().includes(searchTerm) ||
-                    farmacia.cadena.toLowerCase().includes(searchTerm) ||
-                    farmacia.direccion.toLowerCase().includes(searchTerm);
-                
-                const matchCadena = !cadenaFilter || farmacia.cadena === cadenaFilter;
-                const matchVisita = !visitaFilter || farmacia.estadoVisita === visitaFilter;
-                const matchTransferencia = !transferenciaFilter || farmacia.estadoTransferencia === transferenciaFilter;
-
-                return matchSearch && matchCadena && matchVisita && matchTransferencia;
+            const batch = writeBatch(db);
+            pharmaciesToUpload.forEach(pharmacy => {
+                const docRef = doc(pharmaciesCollectionRef); // Firestore genera un ID único
+                batch.set(docRef, pharmacy);
             });
 
-            renderPharmacies();
-        }
-
-        // Abrir modal de edición
-        window.openEditModal = function(id) {
-            const farmacia = farmaciasList.find(f => f.id === id);
-            if (!farmacia) return;
-
-            currentEditingId = id;
-            document.getElementById('modal-farmacia').value = farmacia.farmacia;
-            document.getElementById('modal-cadena').value = farmacia.cadena;
-            document.getElementById('modal-direccion').value = farmacia.direccion;
-            document.getElementById('modal-visit-status').value = farmacia.estadoVisita;
-            document.getElementById('modal-transfer-status').value = farmacia.estadoTransferencia;
-            document.getElementById('modal-visit-date').value = farmacia.fechaVisita || '';
-            document.getElementById('modal-notes').value = farmacia.notas || '';
-
-            document.getElementById('pharmacy-modal').style.display = 'block';
-        }
-
-        // Cerrar modal
-        window.closeModal = function() {
-            document.getElementById('pharmacy-modal').style.display = 'none';
-            currentEditingId = null;
-        }
-
-        // Guardar farmacia
-        window.savePharmacy = async function() {
-            if (!currentEditingId) return;
+            btnUpload.disabled = true;
+            btnUpload.textContent = 'Cargando...';
 
             try {
-                const estadoVisita = document.getElementById('modal-visit-status').value;
-                const estadoTransferencia = document.getElementById('modal-transfer-status').value;
-                const fechaVisita = document.getElementById('modal-visit-date').value;
-                const notas = document.getElementById('modal-notes').value;
-
-                await updateDoc(doc(db, 'farmacias', currentEditingId), {
-                    estadoVisita,
-                    estadoTransferencia,
-                    fechaVisita: fechaVisita || null,
-                    notas,
-                    fechaActualizacion: new Date()
-                });
-
-                closeModal();
-                showSuccess('✅ Farmacia actualizada correctamente');
+                await batch.commit();
+                alert(`${pharmaciesToUpload.length} farmacias cargadas exitosamente a Firebase.`);
+                uploadSection.style.display = 'none';
             } catch (error) {
-                console.error('❌ Error al guardar:', error);
-                showError('Error al guardar los cambios');
+                alert('Hubo un error al cargar los datos. Revisa la consola para más detalles.');
+                console.error("Error al cargar datos en lote: ", error);
+                btnUpload.disabled = false;
+                btnUpload.textContent = 'Reintentar Carga';
             }
+        });
+        
+        function parseAndCleanData(rawData) {
+            const lines = rawData.trim().split('\n');
+            const uniqueEntries = new Set();
+            const processedData = [];
+
+            // Empezar desde la segunda línea para omitir la cabecera
+            lines.slice(1).forEach(line => { 
+                const parts = line.split('\t').map(part => part.trim());
+                if (parts.length >= 3) {
+                    const nombre = parts[0];
+                    const cadena = parts[1];
+                    const direccion = parts.slice(2).join(' ');
+                    
+                    const uniqueKey = `${nombre}-${cadena}-${direccion}`;
+                    
+                    if (!uniqueEntries.has(uniqueKey)) {
+                        uniqueEntries.add(uniqueKey);
+                        processedData.push({
+                            nombre: nombre,
+                            cadena: cadena,
+                            direccion: direccion,
+                            visitado: 'Pendiente',
+                            transferencia: 'Pendiente'
+                        });
+                    }
+                }
+            });
+            return processedData;
         }
-
-        // Visita rápida
-        window.quickVisit = async function(id) {
-            try {
-                await updateDoc(doc(db, 'farmacias', id), {
-                    estadoVisita: 'visitada',
-                    fechaVisita: new Date().toISOString().split('T')[0],
-                    fechaActualizacion: new Date()
-                });
-                showSuccess('✅ Farmacia marcada como visitada');
-            } catch (error) {
-                console.error('❌ Error:', error);
-                showError('Error al actualizar');
-            }
-        }
-
-        // Transferencia rápida
-        window.quickTransfer = async function(id) {
-            try {
-                await updateDoc(doc(db, 'farmacias', id), {
-                    estadoTransferencia: 'realizada',
-                    fechaActualizacion: new Date()
-                });
-                showSuccess('💰 Transferencia marcada como realizada');
-            } catch (error) {
-                console.error('❌ Error:', error);
-                showError('Error al actualizar');
-            }
-        }
-
-        // Exportar a CSV
-        window.exportToCSV = function() {
-            const headers = ['Farmacia', 'Cadena', 'Dirección', 'Estado Visita', 'Estado Transferencia', 'Fecha Visita', 'Notas'];
-            const csvContent = [
-                headers.join(','),
-                ...filteredList.map(farmacia => [
-                    `"${farmacia.farmacia}"`,
-                    `"${farmacia.cadena}"`,
-                    `"${farmacia.direccion}"`,
-                    `"${farmacia.estadoVisita}"`,
-                    `"${farmacia.estadoTransferencia}"`,
-                    `"${farmacia.fechaVisita || ''}"`,
-                    `"${farmacia.notas || ''}"`
-                ].join(','))
-            ].join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `CRM_Farmacias_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showSuccess('📊 Datos exportados correctamente');
-        }
-
-        // Utilidades
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-        }
-
-        function updateCurrentDate() {
-            const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                timeZone: 'America/Bogota'
-            };
-            document.querySelector('#current-date span').textContent = now.toLocaleDateString('es-CO', options);
-        }
-
-        function showSuccess(message) {
-            // Crear notificación temporal
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--success-color);
-                color: white;
-                padding: 1rem 2rem;
-                border-radius: 8px;
-                box-shadow: var(--shadow-lg);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-            `;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function showError(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--danger-color);
-                color: white;
-                padding: 1rem 2rem;
-                border-radius: 8px;
-                box-shadow: var(--shadow-lg);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-            `;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', initializeApp);
-
     </script>
 </body>
 </html>
