@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 CRM Farmacias - Panel de Control</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-gray: #f8fafc;
+            --medium-gray: #e2e8f0;
+            --dark-gray: #475569;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        /* Dashboard Stats */
+        .dashboard {
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card.success::before {
+            background: var(--success-color);
+        }
+
+        .stat-card.warning::before {
+            background: var(--warning-color);
+        }
+
+        .stat-card.danger::before {
+            background: var(--danger-color);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .stat-card.success .stat-icon {
+            color: var(--success-color);
+        }
+
+        .stat-card.warning .stat-icon {
+            color: var(--warning-color);
+        }
+
+        .stat-card.danger .stat-icon {
+            color: var(--danger-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+        }
+
+        .stat-label {
+            color: var(--dark-gray);
+            font-weight: 500;
+        }
+
+        /* Controls */
+        .controls {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .controls-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .controls-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn {
+            background: var(--success-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            opacity: 0.6;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--light-gray);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-select {
+            padding: 15px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--light-gray);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--white);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--medium-gray);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Pharmacy Grid */
+        .pharmacy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .pharmacy-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .pharmacy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pharmacy-card.visited {
+            border-left: 5px solid var(--success-color);
+        }
+
+        .pharmacy-card.pending {
+            border-left: 5px solid var(--warning-color);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .pharmacy-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .pharmacy-chain {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--white);
+            background: var(--primary-color);
+        }
+
+        .pharmacy-chain.independiente {
+            background: var(--warning-color);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .pharmacy-address {
+            color: var(--dark-gray);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .status-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            background: var(--light-gray);
+        }
+
+        .status-item.visited {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-item.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-item.transfer-ok {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-item.transfer-pending {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: var(--white);
+        }
+
+        .btn-warning:hover {
+            background: #b45309;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--white);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid var(--medium-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close {
+            color: var(--dark-gray);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--light-gray);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-control[readonly] {
+            background: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background: var(--medium-gray);
+            color: var(--dark-gray);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .pharmacy-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--medium-gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--dark-gray);
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-pills"></i>
+                CRM Farmacias
+            </h1>
+            <div class="header-info">
+                <div><i class="fas fa-map-marker-alt"></i> Bucaramanga, Colombia</div>
+                <div id="current-date"><i class="fas fa-calendar"></i> <span></span></div>
+                <div><i class="fas fa-user"></i> Panel de Gestión</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard Stats -->
+        <section class="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-store stat-icon"></i>
+                    <div class="stat-number" id="total-farmacias">0</div>
+                    <div class="stat-label">Total Farmacias</div>
+                </div>
+                <div class="stat-card success">
+                    <i class="fas fa-check-circle stat-icon"></i>
+                    <div class="stat-number" id="visitadas">0</div>
+                    <div class="stat-label">✅ Visitadas</div>
+                </div>
+                <div class="stat-card warning">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <div class="stat-number" id="pendientes-visita">0</div>
+                    <div class="stat-label">⏳ Pendientes Visita</div>
+                </div>
+                <div class="stat-card success">
+                    <i class="fas fa-money-bill-transfer stat-icon"></i>
+                    <div class="stat-number" id="transferencias">0</div>
+                    <div class="stat-label">💰 Con Transferencia</div>
+                </div>
+                <div class="stat-card danger">
+                    <i class="fas fa-exclamation-triangle stat-icon"></i>
+                    <div class="stat-number" id="pendientes-transferencia">0</div>
+                    <div class="stat-label">📋 Pendientes Transferencia</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls -->
+        <section class="controls">
+            <div class="controls-header">
+                <h2><i class="fas fa-filter"></i> Filtros y Búsqueda</h2>
+                <button class="export-btn" onclick="exportToCSV()">
+                    <i class="fas fa-download"></i>
+                    Exportar Excel
+                </button>
+            </div>
+            <div class="filters-grid">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="Buscar farmacia, cadena o dirección...">
+                </div>
+                <select class="filter-select" id="filter-cadena">
+                    <option value="">🏪 Todas las cadenas</option>
+                    <option value="DROSAN LTDA">DROSAN LTDA</option>
+                    <option value="INDEPENDIENTE">INDEPENDIENTE</option>
+                </select>
+                <select class="filter-select" id="filter-visita">
+                    <option value="">👁️ Estado de visita</option>
+                    <option value="visitada">✅ Visitadas</option>
+                    <option value="pendiente">⏳ Pendientes</option>
+                </select>
+                <select class="filter-select" id="filter-transferencia">
+                    <option value="">💰 Estado transferencia</option>
+                    <option value="realizada">✅ Realizadas</option>
+                    <option value="pendiente">📋 Pendientes</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <h3>Cargando datos...</h3>
+            <p>Conectando con Firebase...</p>
+        </div>
+
+        <!-- Pharmacy Grid -->
+        <main id="main-content" style="display: none;">
+            <div class="pharmacy-grid" id="pharmacy-grid">
+                <!-- Las tarjetas se generarán dinámicamente -->
+            </div>
+        </main>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>No se encontraron farmacias</h3>
+            <p>Ajusta los filtros de búsqueda para ver más resultados</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="pharmacy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Gestionar Farmacia</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="pharmacy-form">
+                    <div class="form-group">
+                        <label class="form-label">Farmacia:</label>
+                        <input type="text" class="form-control" id="modal-farmacia" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cadena:</label>
+                        <input type="text" class="form-control" id="modal-cadena" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dirección:</label>
+                        <input type="text" class="form-control" id="modal-direccion" readonly>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="modal-visit-status">Estado de Visita:</label>
+                            <select class="form-control" id="modal-visit-status">
+                                <option value="pendiente">⏳ Pendiente</option>
+                                <option value="visitada">✅ Visitada</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="modal-transfer-status">Estado Transferencia:</label>
+                            <select class="form-control" id="modal-transfer-status">
+                                <option value="pendiente">📋 Pendiente</option>
+                                <option value="realizada">💰 Realizada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="modal-visit-date">Fecha de Visita:</label>
+                        <input type="date" class="form-control" id="modal-visit-date">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="modal-notes">Observaciones:</label>
+                        <textarea class="form-control" id="modal-notes" rows="4" placeholder="Notas de la visita, comentarios, etc."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-lg" onclick="closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-lg" onclick="savePharmacy()">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, onSnapshot, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Tu configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2glK3jtje7juBG7gMl4bzh6xG_Zz2YNU",
+            authDomain: "crm-farmacias.firebaseapp.com",
+            projectId: "crm-farmacias",
+            storageBucket: "crm-farmacias.firebasestorage.app",
+            messagingSenderId: "251276216502",
+            appId: "1:251276216502:web:374f708e2ff040192d3e17"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables globales
+        let farmaciasList = [];
+        let filteredList = [];
+        let currentEditingId = null;
+
+        // Datos iniciales de las farmacias
+        const farmaciasIniciales = [
+            { farmacia: "ALBA LUZ", cadena: "DROSAN LTDA", direccion: "CR 33 109-36 FLORIDABLANCA" },
+            { farmacia: "DMAX", cadena: "DROSAN LTDA", direccion: "CL 1 W #5AN -15 BRR REFUGIO PIEDECUESTA" },
+            { farmacia: "DROGAS PLAZA MAYOR", cadena: "DROSAN LTDA", direccion: "AV LOS BUCAROS BLOQ G LOCAL 117 BUCARAMANGA" },
+            { farmacia: "DROGERIA TAYSOFI", cadena: "INDEPENDIENTE", direccion: "CR 7 # 5 - 06 AV CARACOLI" },
+            { farmacia: "DROGUERIA 306 FARMASOLANO", cadena: "DROSAN LTDA", direccion: "CR 22 # 21 - 79 BUCARAMANGA" },
+            { farmacia: "DROGUERIA AHORRA MAX", cadena: "INDEPENDIENTE", direccion: "CL 3 AN # 30 - 09 BRR EL REFUGIO" },
+            { farmacia: "DROGUERIA ALVAREZ", cadena: "INDEPENDIENTE", direccion: "CR 38 # 32 - 121" },
+            { farmacia: "DROGUERIA ANGY MAR", cadena: "DROSAN LTDA", direccion: "AV GUAYACANES T-19 L101 CIUDAD BOLIVAR BUCARAMANGA" },
+            { farmacia: "DROGUERIA ANGYMAR LA CEIBA", cadena: "DROSAN LTDA", direccion: "CR 17A # 61-30 TORRES DE LA CEIBA BUCARAMANGA" },
+            { farmacia: "DROGUERIA ANTOLINEZ", cadena: "INDEPENDIENTE", direccion: "CR 2W # 59 - 23 MUTIS - BUCARAMANGA" },
+            { farmacia: "DROGUERIA ASILO", cadena: "DROSAN LTDA", direccion: "CALLE 2 # 14A-123 BUCARAMANGA" },
+            { farmacia: "DROGUERIA BLANCO", cadena: "DROSAN LTDA", direccion: "CR 6 # 39 - 26 LAGOS II FLORIDABLANCA" },
+            { farmacia: "DROGUERIA BLANTONY", cadena: "INDEPENDIENTE", direccion: "CL 60 # 9 - 103 BRR CIUDADELA" },
+            { farmacia: "DROGUERIA BULEVAR", cadena: "DROSAN LTDA", direccion: "CL 18 # 21 - 74 BUCARAMANGA" },
+            { farmacia: "DROGUERIA CAMELOT", cadena: "DROSAN LTDA", direccion: "CLL 8N #3 -190 LOCAL 4 GUATIGUARA PIEDECUESTA" },
+            { farmacia: "DROGUERIA CAMPO HERMOSO", cadena: "DROSAN LTDA", direccion: "CL 45 # 5 OCC - 10 BUCARAMANGA" },
+            { farmacia: "DROGUERIA CAMPO VERDE", cadena: "DROSAN LTDA", direccion: "CL 1 B # 4 - 12 BRR CAMPO VERDE PIEDECUESTA" },
+            { farmacia: "DROGUERIA CARMENCITA", cadena: "DROSAN LTDA", direccion: "CL 30 # 29 B - 11 FLORIDABLANCA" },
+            { farmacia: "DROGUERIA CENTRAL DESCUENTOS", cadena: "INDEPENDIENTE", direccion: "CL 67 # 17 - 14 BRR LA VICTORIA - BUCARAMANGA" },
+            { farmacia: "DROGUERIA DANNYS", cadena: "INDEPENDIENTE", direccion: "SANANDRESITO ISLA LC 7 - 31 P 3" },
+            { farmacia: "DROGUERIA DISERVAL", cadena: "DROSAN LTDA", direccion: "CL 31 #28-74 B. LA AURORA BUCARAMANGA" },
+            { farmacia: "DROGUERIA DISTRIBUIDORA EL NILO", cadena: "INDEPENDIENTE", direccion: "CC SAN ANDRESITO ISLA P 1 L 7 - 28 Y 7 - 29" },
+            { farmacia: "DROGUERIA DISTRIBUIDORA SANDRA C", cadena: "INDEPENDIENTE", direccion: "CC SAN ANDRESITO ISLA P 3 L 8 - 35 Y 8 - 33" },
+            { farmacia: "DROGUERIA DROGAS SALUD", cadena: "DROSAN LTDA", direccion: "Calle 7 #29 143 OCAÑA" },
+            { farmacia: "DROGUERIA ECOFARMA", cadena: "DROSAN LTDA", direccion: "CR 2 C # 21 - 04 BRR PASEO DEL PUENTE II PIEDECUESTA" },
+            { farmacia: "DROGUERIA ECOFARMA PLUS", cadena: "DROSAN LTDA", direccion: "CR 1W #5AN-15 REFUGIO PIEDECUESTA" },
+            { farmacia: "DROGUERIA EL CARMEN - BUCARAMANGA", cadena: "DROSAN LTDA", direccion: "BUCARAMANGA/02 BRR EL GIRARDOT /CL 28 #6" },
+            { farmacia: "DROGUERIA EL DUENDE", cadena: "DROSAN LTDA", direccion: "KILOMETRO 9 VIA CUROS - LOS SANTOS (MUNICIPIO LOS SANTOS)" },
+            { farmacia: "DROGUERIA EL PAISA", cadena: "DROSAN LTDA", direccion: "CRA 15 # 56 CC SANADRESITO ISLA LC 7 - 8 BUCARAMANGA" },
+            { farmacia: "DROGUERIA EL SEGURO", cadena: "DROSAN LTDA", direccion: "CR 31 # 27 - 48 BUCARAMANGA" },
+            { farmacia: "DROGUERIA FARMA EXPRESS", cadena: "DROSAN LTDA", direccion: "CR 6 #27-02 BRR EL GIRARDOT BUCARAMANGA" },
+            { farmacia: "DROGUERIA FARMA GOMEZ", cadena: "DROSAN LTDA", direccion: "CR 7#29-15 BRR EL GIRARDOT BUCARAMANGA" },
+            { farmacia: "DROGUERIA FARMACIA SALUD FAMILIAR", cadena: "DROSAN LTDA", direccion: "CL 33 # 16 - 34 PLAZA DE MERCADO CENTRO BUCARAMANGA" },
+            { farmacia: "DROGUERIA FARMAMEDICA MUTIS", cadena: "DROSAN LTDA", direccion: "CR 7W#59-22 BUCARAMANGA" },
+            { farmacia: "DROGUERIA FARMAMETROPOLIS", cadena: "DROSAN LTDA", direccion: "CR 8 # 61 - 137 L7 BRR METROPOLIS-BUCARAMANGA" },
+            { farmacia: "DROGUERIA FARMASALUD UNIVERSAL", cadena: "INDEPENDIENTE", direccion: "CR 8 #16-02 SAN MARTIN" },
+            { farmacia: "DROGUERIA FARMASOLANO", cadena: "DROSAN LTDA", direccion: "CL 59 # 18 - 31 BRR TRINIDAD FLORIDABLANCA" },
+            { farmacia: "DROGUERIA FIORELLA", cadena: "INDEPENDIENTE", direccion: "CR 21 B # 111 - 124" },
+            { farmacia: "DROGUERIA FLORIDA", cadena: "DROSAN LTDA", direccion: "CR 8 # 7 - 53 BRR CENTRO FLORIDABLANCA" },
+            { farmacia: "DROGUERIA FOSCAL", cadena: "INDEPENDIENTE", direccion: "CR 24 # 154 - 106 URB EL BOSQUE" },
+            { farmacia: "DROGUERIA GRANADOS CAFASAN", cadena: "DROSAN LTDA", direccion: "FLORIDABLANCA/ 02 CALDAS/CR 37 # 109" },
+            { farmacia: "DROGUERIA JEREZ SAN RAFAEL", cadena: "DROSAN LTDA", direccion: "CR 15 # 7 - 14 SAN RAFAEL PIEDECUESTA" },
+            { farmacia: "DROGUERIA JUSTY MORENO", cadena: "DROSAN LTDA", direccion: "Cl. 12 #10-1, Pelaya, Cesar" },
+            { farmacia: "DROGUERIA KOLSUDROGAS", cadena: "DROSAN LTDA", direccion: "CL 39 # 22 - 30 GIRON" },
+            { farmacia: "DROGUERIA LA SEPTIMA PIEDECUESTA", cadena: "DROSAN LTDA", direccion: "CL 7 # 10 - 99 PIEDECUESTA" },
+            { farmacia: "DROGUERIA LAS PRIMICIAS", cadena: "DROSAN LTDA", direccion: "CL 14B # 12A-76 VILLAS DE DON JUAN GIRON" },
+            { farmacia: "DROGUERIA LAS VILLAS", cadena: "DROSAN LTDA", direccion: "CL 10B # 22 - 09 GIRON" },
+            { farmacia: "DROGUERIA LAS VILLAS DE SAN JUAN", cadena: "DROSAN LTDA", direccion: "CL 10b # 24A - 16 BRR. SAN JUAN DE GIRON GIRON" },
+            { farmacia: "DROGUERIA LEBRI FARMA", cadena: "DROSAN LTDA", direccion: "CL 12 # 13 A - 25 LEBRIJA" },
+            { farmacia: "DROGUERIA LINEAVITAL", cadena: "DROSAN LTDA", direccion: "CR 10E # 67 - 42 PABLO VI BUCARAMANGA" },
+            { farmacia: "DROGUERIA LORENA", cadena: "DROSAN LTDA", direccion: "CR 7 # 10 - 38 PIEDECUESTA" },
+            { farmacia: "DROGUERIA M Y D", cadena: "DROSAN LTDA", direccion: "CR # 53 - 03 BRR EL RECREO FLORIDABLANCA" },
+            { farmacia: "DROGUERIA MARIA REYNA", cadena: "DROSAN LTDA", direccion: "CL 27 #6-44 BRR EL GIRARDOT BUCARAMANGA" },
+            { farmacia: "DROGUERIA MAXIMED", cadena: "DROSAN LTDA", direccion: "CL 30 # 20 - 37 BRR LA CUMBRE FLORIDABLANCA" },
+            { farmacia: "DROGUERIA MEDIEXPREESS", cadena: "DROSAN LTDA", direccion: "CR 15 # 3 - 166 BRR PUERTO MADERO PIEDECUESTA" },
+            { farmacia: "DROGUERIA MEDIFARMA", cadena: "DROSAN LTDA", direccion: "CR 4 # 1 B -28 CAMPO VERDE PIEDECUESTA" },
+            { farmacia: "DROGUERIA MEGAFARMA OCANA", cadena: "INDEPENDIENTE", direccion: "CR.14 # 8-18(B.MERCADO) OCAÑA" },
+            { farmacia: "DROGUERIA MULTIFARMA #1", cadena: "DROSAN LTDA", direccion: "CL 105 # 29A - 21-FLORIDABLANCA" },
+            { farmacia: "DROGUERIA MX ALKOSTO", cadena: "DROSAN LTDA", direccion: "CR 13 # 103 B - 46 BRR SAN FERMIN BUCARAMANGA" },
+            { farmacia: "DROGUERIA NAYIBE", cadena: "DROSAN LTDA", direccion: "CLL 4 #8-31 FLORIDABLANCA" },
+            { farmacia: "DROGUERIA NUEVA SAN CARLOS", cadena: "INDEPENDIENTE", direccion: "CR 25 # 13 - 28 BRR SAN FRANCISCO" },
+            { farmacia: "DROGUERIA PAGUE MENOS", cadena: "DROSAN LTDA", direccion: "CR 6 CL 13 Abrego, Norte de Santander" },
+            { farmacia: "DROGUERIA PAGUE MENOS CABECERA", cadena: "INDEPENDIENTE", direccion: "CR 35 # 52 - 88" },
+            { farmacia: "DROGUERIA PAGUE MENOS CAÑAVERAL", cadena: "INDEPENDIENTE", direccion: "CL 33 # 26 - 27 CAÑAVERAL" },
+            { farmacia: "DROGUERIA PAGUE MENOS FLORIDABLANCA", cadena: "INDEPENDIENTE", direccion: "CR 8 # 4 - 48 Y 52" },
+            { farmacia: "DROGUERIA PAGUE MENOS GIRON", cadena: "INDEPENDIENTE", direccion: "CL 43 # 22 - 92" },
+            { farmacia: "DROGUERIA PAGUE MENOS PIEDECUESTA", cadena: "INDEPENDIENTE", direccion: "CR 8 # 7 - 77" },
+            { farmacia: "DROGUERIA PAGUE MENOS PROVENZA", cadena: "INDEPENDIENTE", direccion: "CL 105 # 21 - 139" },
+            { farmacia: "DROGUERIA PAGUE MENOS SAN FRANCISCO", cadena: "INDEPENDIENTE", direccion: "BLV # 23 - 03" },
+            { farmacia: "DROGUERIA PAGUE MENOS SOTOMAYOR", cadena: "INDEPENDIENTE", direccion: "CL 54 # 24 - 03" },
+            { farmacia: "DROGUERIA PALENQUE", cadena: "INDEPENDIENTE", direccion: "CR 19 # 56 - 58. BRR EL PALENQUE" },
+            { farmacia: "DROGUERIA PHARMACY", cadena: "DROSAN LTDA", direccion: "AV EL BOSQUE # 54 - 52 FLORIDABLANCA" },
+            { farmacia: "DROGUERIA PHARMALAGOS", cadena: "DROSAN LTDA", direccion: "CL 29 # 7 - 08 LAGOS 3 FLORIDABLANCA" },
+            { farmacia: "DROGUERIA PHARMATODO", cadena: "DROSAN LTDA", direccion: "Cl 4 # 4-1, San Alberto, Cesar" },
+            { farmacia: "DROGUERIA PINZON 2", cadena: "DROSAN LTDA", direccion: "CR 38 # 49 - 15 BUCARAMANGA" },
+            { farmacia: "DROGUERIA PROVIDA", cadena: "INDEPENDIENTE", direccion: "CR 22 # 110 - 44" },
+            { farmacia: "DROGUERIA QUINTA REAL LAS PALMAS", cadena: "INDEPENDIENTE", direccion: "CR 15 # 6 N - 03" },
+            { farmacia: "DROGUERIA RIAÑO", cadena: "DROSAN LTDA", direccion: "CR 49 N° 5-06 SANTA CLARA OCAÑA" },
+            { farmacia: "DROGUERIA SALUD Y BELLEZA AGUACHICA", cadena: "DROSAN LTDA", direccion: "CL 5 # 19-43 AGUACHICA" },
+            { farmacia: "DROGUERIA SAN AGUSTIN", cadena: "DROSAN LTDA", direccion: "CL 11 # 16-12 OCAÑA" },
+            { farmacia: "DROGUERIA SAN LUIS - BUCARAMANGA", cadena: "DROSAN LTDA", direccion: "CL 48 # 26 - 19 BRR SOTOMAYOR - BUCARAMANGA" },
+            { farmacia: "DROGUERIA SAN PABLO", cadena: "INDEPENDIENTE", direccion: "CR 22 # 11 - 81 BRR SAN FRANCISCO" },
+            { farmacia: "DROGUERIA SANA SANAR", cadena: "INDEPENDIENTE", direccion: "CL 10B # 20 - 04 -LAS VILLAS - GIRON" },
+            { farmacia: "DROGUERIA SANTA CECILIA", cadena: "DROSAN LTDA", direccion: "CL 21 # 23 - 75 BUCARAMANGA" },
+            { farmacia: "DROGUERIA SANTA LUCIA", cadena: "DROSAN LTDA", direccion: "CR 6 # 42 - 13 LAGOS II FLORIDABLANCA" },
+            { farmacia: "DROGUERIA SERVIFARMA", cadena: "DROSAN LTDA", direccion: "SECTOR 9 BL 16 - 7 FLORIDABLANCA" },
+            { farmacia: "DROGUERIA SILVA", cadena: "DROSAN LTDA", direccion: "FLORIDABLANCA/09/Cl. 57 #3" },
+            { farmacia: "DROGUERIA SOLETH", cadena: "DROSAN LTDA", direccion: "CR. 6 #28-65(B.GIRARDOT) BUCARAMANGA" },
+            { farmacia: "DROGUERIA SUPER ECONOMICA", cadena: "DROSAN LTDA", direccion: "CL 20 C # 19 - 03 BRR SANTA CRUZ GIRON" },
+            { farmacia: "DROGUERIA SUPERDROGAS CONUCOS", cadena: "DROSAN LTDA", direccion: "CL 58 # 29 - 31 LOCAL 5 BUCARAMANGA" },
+            { farmacia: "DROGUERIA SUPERVIDA", cadena: "INDEPENDIENTE", direccion: "CR 8 # 3 - 49" },
+            { farmacia: "DROGUERIA SUTSALUD", cadena: "DROSAN LTDA", direccion: "CL 13AN # 19 - 02 GIRON" },
+            { farmacia: "DROGUERIA TOTAL CONFIANZA", cadena: "DROSAN LTDA", direccion: "Cl. 12 #10-24 SANTA CLARA OCAÑA" },
+            { farmacia: "DROGUERIA UNICA", cadena: "INDEPENDIENTE", direccion: "CR 15 # 3 - 34 PUERTO MADERO" },
+            { farmacia: "DROGUERIA UNIVERSIDAD", cadena: "DROSAN LTDA", direccion: "CR 26 A # 10 - 18 BUCARAMANGA" },
+            { farmacia: "DROGUERIA VALERY", cadena: "DROSAN LTDA", direccion: "CR 23 # 7A-04 BR. MIRADOR ARENALES GIRON" },
+            { farmacia: "DROGUERIA VIDA LTDA", cadena: "INDEPENDIENTE", direccion: "CR 32 # 30A - 20 BRR. AURORA-BUCARAMANGA" },
+            { farmacia: "DROGUERIA VILLABEL", cadena: "DROSAN LTDA", direccion: "FLORIDABLANCA/ 04/CR 11 # 12" },
+            { farmacia: "DROGUERIA VIRTUAL", cadena: "DROSAN LTDA", direccion: "CL 106 # 49 - 19- FLORIDABLANCA" },
+            { farmacia: "DROGUERIA VITAL SALUD", cadena: "DROSAN LTDA", direccion: "CR 15 # 7 - 10 BRR SAN RAFAEL PIEDECUESTA" },
+            { farmacia: "DROGUERIA Y AUTOSERVICIO 20-20", cadena: "INDEPENDIENTE", direccion: "CR.13 # 8-47 (B.DULCE NOMBRE) OCAÑA" },
+            { farmacia: "DROGUERIA Y CACHARRERIA AYS", cadena: "INDEPENDIENTE", direccion: "CC SAN ANDRESITO ISLA P 3 L 8 - 36" },
+            { farmacia: "DROGUERIA Y DISTRIBUCIONES ABASTOS XIMENA", cadena: "INDEPENDIENTE", direccion: "DG 15 # 55 - 56 L F - 02 CC SAN ANDRESITO LA ISLA" },
+            { farmacia: "DROGUERIA Y PERFUMERIA ANTIOQUEÑA", cadena: "INDEPENDIENTE", direccion: "DG 105 # 30B - 13 SATELITE-FLORIDABLANCA" },
+            { farmacia: "DROGUERIAS JEREZ VILLABEL", cadena: "DROSAN LTDA", direccion: "CR 12 # 7 - 11 FLORIDABLANCA" },
+            { farmacia: "EKONOFARMA", cadena: "DROSAN LTDA", direccion: "CR 4 No- 0-20 LOC 1 PALERMO 1- PIEDECUESTA" },
+            { farmacia: "EL FARMACEUTA", cadena: "DROSAN LTDA", direccion: "CL 103 NO. 13B-79-BUCARAMANGA" },
+            { farmacia: "ENTRE PARQUES", cadena: "DROSAN LTDA", direccion: "CR 4 No. 1ND-70 LOC 1- PIEDECUESTA" },
+            { farmacia: "FARMACIA 1A", cadena: "DROSAN LTDA", direccion: "BUCARAMANGA/04 LOC 1/CR 15 103" },
+            { farmacia: "FARMACIA SAN MIGUEL", cadena: "DROSAN LTDA", direccion: "VIA PIEDECUESTA LOS SANTOS CONDOMINIO MESA DE LOS SANTOS LOCAL 3 - LOS SANTOS" },
+            { farmacia: "FARMASAY", cadena: "DROSAN LTDA", direccion: "CR 33 # 111-13 FLORIDABLANCA" },
+            { farmacia: "JEREZ", cadena: "DROSAN LTDA", direccion: "CR 15 E No. 105-61-BUCARAMANGA" },
+            { farmacia: "LA VICTORIA", cadena: "DROSAN LTDA", direccion: "BUCARAMANGA/07/CL 67 13" },
+            { farmacia: "LA Y", cadena: "DROSAN LTDA", direccion: "AV BUCARICA T8-1 FLORIDABLANCA" },
+            { farmacia: "MANUELA BELTRAN", cadena: "DROSAN LTDA", direccion: "CR 13 #104C-34-BUCARAMANGA" },
+            { farmacia: "MI DROGUERIA GB", cadena: "DROSAN LTDA", direccion: "CR 23 #21-78 SAN FRANCISCO BUCARAMANGA" },
+            { farmacia: "PHARMA PROVENZA", cadena: "DROSAN LTDA", direccion: "CL 105 # 23-135 BUCARAMANGA" },
+            { farmacia: "PUNTO FARMACEUTICO", cadena: "INDEPENDIENTE", direccion: "CLL 63 #17E-01B" },
+            { farmacia: "SUPERNOVA", cadena: "DROSAN LTDA", direccion: "CR 40 203-28-FLORIDABLANCA" },
+            { farmacia: "TODO SALUD", cadena: "DROSAN LTDA", direccion: "CR 26 #31-70 BUCARAMANGA" },
+            { farmacia: "VICTORIA DE LOS REYES", cadena: "DROSAN LTDA", direccion: "CL 67 18-25-BUCARAMANGA" }
+        ];
+
+        // Función para inicializar la app
+        async function initializeApp() {
+            try {
+                console.log('🚀 Inicializando aplicación...');
+                await checkAndInitializeData();
+                await loadData();
+                setupEventListeners();
+                updateCurrentDate();
+                hideLoading();
+            } catch (error) {
+                console.error('❌ Error al inicializar:', error);
+                showError('Error al conectar con Firebase. Verifica tu conexión.');
+            }
+        }
+
+        // Verificar e inicializar datos
+        async function checkAndInitializeData() {
+            try {
+                const snapshot = await getDocs(collection(db, 'farmacias'));
+                
+                if (snapshot.empty) {
+                    console.log('📊 Inicializando datos de farmacias...');
+                    
+                    for (const farmacia of farmaciasIniciales) {
+                        await addDoc(collection(db, 'farmacias'), {
+                            ...farmacia,
+                            estadoVisita: 'pendiente',
+                            estadoTransferencia: 'pendiente',
+                            fechaVisita: null,
+                            fechaActualizacion: new Date(),
+                            notas: ''
+                        });
+                    }
+                    
+                    console.log('✅ Datos inicializados correctamente');
+                }
+            } catch (error) {
+                console.error('❌ Error al inicializar datos:', error);
+                throw error;
+            }
+        }
+
+        // Cargar datos desde Firebase
+        async function loadData() {
+            try {
+                const q = query(collection(db, 'farmacias'), orderBy('farmacia'));
+                
+                // Escuchar cambios en tiempo real
+                onSnapshot(q, (snapshot) => {
+                    farmaciasList = [];
+                    snapshot.forEach((doc) => {
+                        farmaciasList.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    filteredList = [...farmaciasList];
+                    updateStats();
+                    renderPharmacies();
+                    console.log(`📊 Cargadas ${farmaciasList.length} farmacias`);
+                });
+                
+            } catch (error) {
+                console.error('❌ Error al cargar datos:', error);
+                throw error;
+            }
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Búsqueda
+            document.getElementById('search-input').addEventListener('input', filterPharmacies);
+            
+            // Filtros
+            document.getElementById('filter-cadena').addEventListener('change', filterPharmacies);
+            document.getElementById('filter-visita').addEventListener('change', filterPharmacies);
+            document.getElementById('filter-transferencia').addEventListener('change', filterPharmacies);
+            
+            // Modal
+            document.querySelector('.close').addEventListener('click', closeModal);
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const total = farmaciasList.length;
+            const visitadas = farmaciasList.filter(f => f.estadoVisita === 'visitada').length;
+            const pendientesVisita = farmaciasList.filter(f => f.estadoVisita === 'pendiente').length;
+            const transferencias = farmaciasList.filter(f => f.estadoTransferencia === 'realizada').length;
+            const pendientesTransferencia = farmaciasList.filter(f => f.estadoTransferencia === 'pendiente').length;
+
+            document.getElementById('total-farmacias').textContent = total;
+            document.getElementById('visitadas').textContent = visitadas;
+            document.getElementById('pendientes-visita').textContent = pendientesVisita;
+            document.getElementById('transferencias').textContent = transferencias;
+            document.getElementById('pendientes-transferencia').textContent = pendientesTransferencia;
+        }
+
+        // Renderizar farmacias
+        function renderPharmacies() {
+            const grid = document.getElementById('pharmacy-grid');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (filteredList.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            grid.innerHTML = filteredList.map(farmacia => `
+                <div class="pharmacy-card ${farmacia.estadoVisita}" data-id="${farmacia.id}">
+                    <div class="card-header">
+                        <h3 class="pharmacy-name">${farmacia.farmacia}</h3>
+                        <span class="pharmacy-chain ${farmacia.cadena === 'INDEPENDIENTE' ? 'independiente' : ''}">
+                            ${farmacia.cadena}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="pharmacy-address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${farmacia.direccion}</span>
+                        </div>
+                        <div class="status-row">
+                            <div class="status-item ${farmacia.estadoVisita === 'visitada' ? 'visited' : 'pending'}">
+                                <i class="fas ${farmacia.estadoVisita === 'visitada' ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                <span>${farmacia.estadoVisita === 'visitada' ? '✅ Visitada' : '⏳ Pendiente'}</span>
+                            </div>
+                            <div class="status-item ${farmacia.estadoTransferencia === 'realizada' ? 'transfer-ok' : 'transfer-pending'}">
+                                <i class="fas ${farmacia.estadoTransferencia === 'realizada' ? 'fa-money-bill-transfer' : 'fa-exclamation-triangle'}"></i>
+                                <span>${farmacia.estadoTransferencia === 'realizada' ? '💰 Realizada' : '📋 Pendiente'}</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-primary" onclick="openEditModal('${farmacia.id}')">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-success" onclick="quickVisit('${farmacia.id}')" ${farmacia.estadoVisita === 'visitada' ? 'disabled' : ''}>
+                                <i class="fas fa-check"></i> Visitar
+                            </button>
+                            <button class="btn btn-warning" onclick="quickTransfer('${farmacia.id}')" ${farmacia.estadoTransferencia === 'realizada' ? 'disabled' : ''}>
+                                <i class="fas fa-money-bill"></i> Transferencia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtrar farmacias
+        function filterPharmacies() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const cadenaFilter = document.getElementById('filter-cadena').value;
+            const visitaFilter = document.getElementById('filter-visita').value;
+            const transferenciaFilter = document.getElementById('filter-transferencia').value;
+
+            filteredList = farmaciasList.filter(farmacia => {
+                const matchSearch = !searchTerm || 
+                    farmacia.farmacia.toLowerCase().includes(searchTerm) ||
+                    farmacia.cadena.toLowerCase().includes(searchTerm) ||
+                    farmacia.direccion.toLowerCase().includes(searchTerm);
+                
+                const matchCadena = !cadenaFilter || farmacia.cadena === cadenaFilter;
+                const matchVisita = !visitaFilter || farmacia.estadoVisita === visitaFilter;
+                const matchTransferencia = !transferenciaFilter || farmacia.estadoTransferencia === transferenciaFilter;
+
+                return matchSearch && matchCadena && matchVisita && matchTransferencia;
+            });
+
+            renderPharmacies();
+        }
+
+        // Abrir modal de edición
+        window.openEditModal = function(id) {
+            const farmacia = farmaciasList.find(f => f.id === id);
+            if (!farmacia) return;
+
+            currentEditingId = id;
+            document.getElementById('modal-farmacia').value = farmacia.farmacia;
+            document.getElementById('modal-cadena').value = farmacia.cadena;
+            document.getElementById('modal-direccion').value = farmacia.direccion;
+            document.getElementById('modal-visit-status').value = farmacia.estadoVisita;
+            document.getElementById('modal-transfer-status').value = farmacia.estadoTransferencia;
+            document.getElementById('modal-visit-date').value = farmacia.fechaVisita || '';
+            document.getElementById('modal-notes').value = farmacia.notas || '';
+
+            document.getElementById('pharmacy-modal').style.display = 'block';
+        }
+
+        // Cerrar modal
+        window.closeModal = function() {
+            document.getElementById('pharmacy-modal').style.display = 'none';
+            currentEditingId = null;
+        }
+
+        // Guardar farmacia
+        window.savePharmacy = async function() {
+            if (!currentEditingId) return;
+
+            try {
+                const estadoVisita = document.getElementById('modal-visit-status').value;
+                const estadoTransferencia = document.getElementById('modal-transfer-status').value;
+                const fechaVisita = document.getElementById('modal-visit-date').value;
+                const notas = document.getElementById('modal-notes').value;
+
+                await updateDoc(doc(db, 'farmacias', currentEditingId), {
+                    estadoVisita,
+                    estadoTransferencia,
+                    fechaVisita: fechaVisita || null,
+                    notas,
+                    fechaActualizacion: new Date()
+                });
+
+                closeModal();
+                showSuccess('✅ Farmacia actualizada correctamente');
+            } catch (error) {
+                console.error('❌ Error al guardar:', error);
+                showError('Error al guardar los cambios');
+            }
+        }
+
+        // Visita rápida
+        window.quickVisit = async function(id) {
+            try {
+                await updateDoc(doc(db, 'farmacias', id), {
+                    estadoVisita: 'visitada',
+                    fechaVisita: new Date().toISOString().split('T')[0],
+                    fechaActualizacion: new Date()
+                });
+                showSuccess('✅ Farmacia marcada como visitada');
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showError('Error al actualizar');
+            }
+        }
+
+        // Transferencia rápida
+        window.quickTransfer = async function(id) {
+            try {
+                await updateDoc(doc(db, 'farmacias', id), {
+                    estadoTransferencia: 'realizada',
+                    fechaActualizacion: new Date()
+                });
+                showSuccess('💰 Transferencia marcada como realizada');
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showError('Error al actualizar');
+            }
+        }
+
+        // Exportar a CSV
+        window.exportToCSV = function() {
+            const headers = ['Farmacia', 'Cadena', 'Dirección', 'Estado Visita', 'Estado Transferencia', 'Fecha Visita', 'Notas'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredList.map(farmacia => [
+                    `"${farmacia.farmacia}"`,
+                    `"${farmacia.cadena}"`,
+                    `"${farmacia.direccion}"`,
+                    `"${farmacia.estadoVisita}"`,
+                    `"${farmacia.estadoTransferencia}"`,
+                    `"${farmacia.fechaVisita || ''}"`,
+                    `"${farmacia.notas || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `CRM_Farmacias_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showSuccess('📊 Datos exportados correctamente');
+        }
+
+        // Utilidades
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'America/Bogota'
+            };
+            document.querySelector('#current-date span').textContent = now.toLocaleDateString('es-CO', options);
+        }
+
+        function showSuccess(message) {
+            // Crear notificación temporal
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success-color);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--danger-color);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>
