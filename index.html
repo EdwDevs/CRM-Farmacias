@@ -24,21 +24,89 @@
             margin: 0;
             padding: 20px;
             color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
         .container {
             max-width: 1200px;
+            width: 100%;
             margin: auto;
             background: #fff;
             padding: 25px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
         }
+        
+        /* --- Estilos para el Login --- */
+        #login-container {
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #login-container h1 {
+            color: var(--primary-color);
+        }
+
+        #login-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #login-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #login-form button:hover {
+            background-color: #0056b3;
+        }
+
+        #login-error {
+            color: var(--danger-color);
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        
+        #crm-container {
+            display: none; /* Oculto por defecto */
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-controls h1 {
+            margin: 0;
+        }
+
+        #logout-btn {
+            padding: 10px 15px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
         h1 {
             color: var(--primary-color);
             text-align: center;
-            margin-bottom: 25px;
         }
 
         .filters {
@@ -162,8 +230,23 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>📈 CRM de Gestión de Farmacias</h1>
+    <!-- Contenedor de Login -->
+    <div id="login-container" class="container">
+        <h1>Iniciar Sesión</h1>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="Correo (edward@admin.com)" required>
+            <input type="password" id="login-password" placeholder="Contraseña (123456)" required>
+            <button type="submit">Ingresar</button>
+        </form>
+        <p id="login-error"></p>
+    </div>
+
+    <!-- Contenedor del CRM (inicialmente oculto) -->
+    <div id="crm-container" class="container">
+        <div class="header-controls">
+            <h1>📈 CRM de Gestión de Farmacias</h1>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </div>
 
         <div id="upload-section">
             <h3>Paso Inicial: Cargar Datos a Firebase</h3>
@@ -201,11 +284,9 @@
                         <th>Transferencia</th>
                     </tr>
                 </thead>
-                <tbody id="pharmacy-table-body">
-                    <!-- Las filas se insertarán aquí dinámicamente -->
-                </tbody>
+                <tbody id="pharmacy-table-body"></tbody>
             </table>
-            <div id="loading">Cargando farmacias...</div>
+            <div id="loading">Cargando...</div>
         </div>
     </div>
 
@@ -213,6 +294,7 @@
     <script type="module">
         // Importar funciones de Firebase SDK v9+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
         import { 
             getFirestore, 
             collection, 
@@ -224,12 +306,12 @@
             writeBatch
         } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-        // TU CONFIGURACIÓN DE FIREBASE (YA ACTUALIZADA)
+        // TU CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyB2glK3jtje7juBG7gMl4bzh6xG_Zz2YNU",
             authDomain: "crm-farmacias.firebaseapp.com",
             projectId: "crm-farmacias",
-            storageBucket: "crm-farmacias.appspot.com", // Corregido: .appspot.com es el estándar
+            storageBucket: "crm-farmacias.appspot.com",
             messagingSenderId: "251276216502",
             appId: "1:251276216502:web:374f708e2ff040192d3e17"
         };
@@ -237,9 +319,18 @@
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         const pharmaciesCollectionRef = collection(db, 'pharmacies');
 
         // Referencias a elementos del DOM
+        const loginContainer = document.getElementById('login-container');
+        const crmContainer = document.getElementById('crm-container');
+        const loginForm = document.getElementById('login-form');
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+
         const tableBody = document.getElementById('pharmacy-table-body');
         const loadingIndicator = document.getElementById('loading');
         const searchBox = document.getElementById('search-box');
@@ -251,29 +342,71 @@
         const btnUpload = document.getElementById('upload-initial-data');
         const uploadSection = document.getElementById('upload-section');
 
-        let allPharmacies = []; // Almacenamiento local de todas las farmacias para filtrar
+        let allPharmacies = []; 
+        let unsubscribe; // Para detener la escucha de datos al cerrar sesión
 
-        // Cargar y mostrar las farmacias en tiempo real
-        const q = query(pharmaciesCollectionRef, orderBy('nombre'));
-        onSnapshot(q, (snapshot) => {
-            loadingIndicator.style.display = 'block';
-            tableBody.innerHTML = '';
-            allPharmacies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-            populateCadenaFilter();
-            applyFilters();
-            
-            loadingIndicator.style.display = 'none';
-
-            // Ocultar la sección de carga si ya hay datos
-            if(allPharmacies.length > 0) {
-                uploadSection.style.display = 'none';
+        // --- LÓGICA DE AUTENTICACIÓN ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // El usuario ha iniciado sesión
+                loginContainer.style.display = 'none';
+                crmContainer.style.display = 'block';
+                initializeCRM(); 
+            } else {
+                // El usuario no está logueado
+                loginContainer.style.display = 'block';
+                crmContainer.style.display = 'none';
+                if (unsubscribe) {
+                    unsubscribe(); // Detener la escucha de datos de Firestore
+                }
             }
-
-        }, (error) => {
-            console.error("Error al obtener farmacias: ", error);
-            loadingIndicator.textContent = "Error al cargar los datos. Revisa la consola y la configuración de Firebase.";
         });
+
+        // Event listener para el formulario de login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginEmail.value;
+            const password = loginPassword.value;
+            loginError.textContent = '';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Error de inicio de sesión:", error.code);
+                loginError.textContent = 'Usuario o contraseña incorrectos.';
+            }
+        });
+
+        // Event listener para cerrar sesión
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+
+        function initializeCRM() {
+            const q = query(pharmaciesCollectionRef, orderBy('nombre'));
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                loadingIndicator.style.display = 'block';
+                tableBody.innerHTML = '';
+                allPharmacies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                populateCadenaFilter();
+                applyFilters();
+                
+                loadingIndicator.style.display = 'none';
+
+                if(allPharmacies.length > 0) {
+                    uploadSection.style.display = 'none';
+                }
+
+            }, (error) => {
+                console.error("Error al obtener farmacias: ", error);
+                loadingIndicator.textContent = "Error al cargar los datos. Revisa las reglas de seguridad y la consola.";
+            });
+        }
         
         function renderTable(pharmacies) {
             tableBody.innerHTML = '';
@@ -293,22 +426,10 @@
                         <td>${pharmacy.cadena}</td>
                         <td>${pharmacy.direccion}</td>
                         <td>
-                            <button 
-                                class="status-btn ${pharmacy.visitado.toLowerCase()}" 
-                                data-id="${pharmacy.id}" 
-                                data-field="visitado"
-                                data-current-status="${pharmacy.visitado}">
-                                ${pharmacy.visitado}
-                            </button>
+                            <button class="status-btn ${pharmacy.visitado.toLowerCase()}" data-id="${pharmacy.id}" data-field="visitado" data-current-status="${pharmacy.visitado}">${pharmacy.visitado}</button>
                         </td>
                         <td>
-                            <button 
-                                class="status-btn ${pharmacy.transferencia.toLowerCase()}" 
-                                data-id="${pharmacy.id}" 
-                                data-field="transferencia"
-                                data-current-status="${pharmacy.transferencia}">
-                                ${pharmacy.transferencia}
-                            </button>
+                            <button class="status-btn ${pharmacy.transferencia.toLowerCase()}" data-id="${pharmacy.id}" data-field="transferencia" data-current-status="${pharmacy.transferencia}">${pharmacy.transferencia}</button>
                         </td>
                     `;
                     tableBody.appendChild(tr);
@@ -344,11 +465,9 @@
                 
                 return matchesSearch && matchesVisitado && matchesTransferencia && matchesCadena;
             });
-
             renderTable(filteredPharmacies);
         }
 
-        // Event Listeners para filtros
         searchBox.addEventListener('keyup', applyFilters);
         filterVisitado.addEventListener('change', applyFilters);
         filterTransferencia.addEventListener('change', applyFilters);
@@ -362,15 +481,12 @@
             applyFilters();
         });
 
-        // Event listener para actualizar estado
         tableBody.addEventListener('click', async (e) => {
             if (e.target.classList.contains('status-btn')) {
                 const id = e.target.dataset.id;
                 const field = e.target.dataset.field;
                 const currentStatus = e.target.dataset.currentStatus;
-                
                 const newStatus = currentStatus === 'Pendiente' ? 'Realizado' : 'Pendiente';
-                
                 const docRef = doc(db, 'pharmacies', id);
                 try {
                     await updateDoc(docRef, { [field]: newStatus });
@@ -380,11 +496,8 @@
             }
         });
         
-        // --- FUNCIÓN PARA CARGA INICIAL DE DATOS ---
         btnUpload.addEventListener('click', async () => {
-            if (!confirm('¿Estás seguro de que quieres cargar los datos iniciales? Esta acción solo debe realizarse una vez.')) {
-                return;
-            }
+            if (!confirm('¿Estás seguro de que quieres cargar los datos iniciales? Esta acción solo debe realizarse una vez.')) return;
             
             const initialData = `Farmacia	Cadena	Direccion
 BUCARAMANGA/ DROGUERIA COLOMBIA /1688 	COOPIDROGAS	 BUCARAMANGA/ 07 /CL 33 # 15 
@@ -647,7 +760,7 @@ DROGUERIA PALENQUE	INDEPENDIENTE	CR 19 # 56 - 58. BRR EL PALENQUE
 DROGUERIA PHARMACY	DROSAN LTDA	AV EL BOSQUE # 54 - 52 FLORIDABLANCA
 DROGUERIA PHARMALAGOS	DROSAN LTDA	CL 29 # 7 - 08 LAGOS 3 FLORIDABLANCA
 DROGUERIA PHARMATODO	DROSAN LTDA	Cl 4 # 4-1, San Alberto, Cesar
-DROGUERIA PINZON 2	DROSAN LTDA	CR 38 # 49 - 15 BUCARAMANGA
+DROGUERIA PINZON 2	DROSAN LTDA	CR 38 # 49 - 15 BUCARAMANCA
 DROGUERIA PROVIDA	INDEPENDIENTE	CR 22 # 110 - 44
 DROGUERIA QUINTA REAL LAS PALMAS	INDEPENDIENTE	CR 15 # 6 N - 03
 DROGUERIA REBAJA PLUS 9 CACIQUE	COOPSERVIR	AV CRV # 35 - 95 FLORIDABLANCA
@@ -741,7 +854,6 @@ VICTORIA DE LOS REYES	DROSAN LTDA	CL 67 18-25-BUCARAMANGA`;
             const uniqueEntries = new Set();
             const processedData = [];
 
-            // Empezar desde la segunda línea para omitir la cabecera
             lines.slice(1).forEach(line => { 
                 const parts = line.split('\t').map(part => part.trim());
                 if (parts.length >= 3) {
