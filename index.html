@@ -4,205 +4,280 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRM de Farmacias</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --primary-color: #007bff; /* Azul vibrante */
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d; /* Gris para secundario */
+            --success-color: #28a745; /* Verde para éxito */
+            --danger-color: #dc3545; /* Rojo para peligro */
+            --warning-color: #ffc107; /* Amarillo para advertencia */
+            --info-color: #17a2b8; /* Azul claro para información */
+            --light-bg: #f4f7f6; /* Fondo muy claro */
+            --dark-text: #343a40; /* Texto oscuro */
+            --light-text: #ffffff; /* Texto claro */
+            --card-bg: #ffffff; /* Fondo de tarjetas/paneles */
+            --border-color: #e0e0e0; /* Color de borde suave */
+            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.08); /* Sombra ligera */
+            --font-family: 'Poppins', sans-serif;
+            --border-radius: 10px;
+            --spacing-unit: 1rem; /* 16px */
         }
 
         body {
             font-family: var(--font-family);
-            background-color: var(--light-color);
+            background-color: var(--light-bg);
             margin: 0;
-            padding: 20px;
-            color: var(--dark-color);
+            padding: 0;
+            color: var(--dark-text);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
-            max-width: 1200px;
             width: 100%;
-            margin: auto;
-            background: #fff;
-            padding: 25px;
+            max-width: 1200px;
+            margin: var(--spacing-unit) auto;
+            padding: calc(var(--spacing-unit) * 1.5);
+            background: var(--card-bg);
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--shadow-light);
+            box-sizing: border-box; /* Incluir padding en el ancho */
         }
-        
-        /* --- Estilos para el Login --- */
+
+        /* --- Global Form/Button Styles --- */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+        }
+
+        button {
+            padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            color: var(--light-text);
+            text-align: center;
+            display: inline-block; /* Para botones dentro de flex/grid */
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* --- Login Specific Styles --- */
         #login-container {
             max-width: 400px;
+            padding: calc(var(--spacing-unit) * 2);
             text-align: center;
+            margin-top: calc(var(--spacing-unit) * 4);
         }
 
         #login-container h1 {
             color: var(--primary-color);
-        }
-
-        #login-form input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
+            margin-bottom: calc(var(--spacing-unit) * 2);
+            font-weight: 600;
         }
 
         #login-form button {
             width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #login-form button:hover {
-            background-color: #0056b3;
+            margin-top: var(--spacing-unit);
         }
 
         #login-error {
             color: var(--danger-color);
-            margin-top: 15px;
-            font-weight: bold;
-            min-height: 20px;
+            margin-top: var(--spacing-unit);
+            font-weight: 600;
+            min-height: 20px; /* Para evitar saltos de layout */
         }
-        
+
+        /* --- CRM Main Layout --- */
         #crm-container {
-            display: none; /* Oculto por defecto */
+            display: none;
+            padding-top: var(--spacing-unit);
         }
 
         .header-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+            flex-wrap: wrap; /* Para móviles */
         }
 
         .header-controls h1 {
             margin: 0;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 600;
         }
 
         #logout-btn {
-            padding: 10px 15px;
             background-color: var(--danger-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        #logout-btn:hover {
+            background-color: #c82333;
         }
 
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-        }
-
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding: 20px;
-            background-color: #fdfdfd;
-            border: 1px solid #ddd;
+        /* --- Upload Section --- */
+        #upload-section {
+            background-color: #fff3cd; /* Color de advertencia más suave */
+            color: #664d03;
+            padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
             border-radius: var(--border-radius);
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+            border: 1px solid #ffeeba;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        #upload-section h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        #upload-section p {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
 
-        .filters input, .filters select, .filters button {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
+        #upload-section button {
+            background-color: var(--dark-text);
+            align-self: flex-start; /* Para que el botón no ocupe todo el ancho */
+            font-size: 0.9rem;
+        }
+        #upload-section button:hover {
+            background-color: #212529;
         }
 
-        .filters input[type="text"] {
-            flex-grow: 1;
+        /* --- Filters Section --- */
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptativo */
+            gap: var(--spacing-unit);
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+            padding: var(--spacing-unit);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .filters input, .filters select {
+            margin-bottom: 0; /* Remover margin-bottom redundante */
         }
 
         #btn-reset-filters {
             background-color: var(--secondary-color);
-            color: white;
-            cursor: pointer;
-            border: none;
+            color: var(--light-text);
         }
         #btn-reset-filters:hover {
             background-color: #5a6268;
         }
 
-        #upload-section {
-            background-color: #fff3cd;
-            color: #664d03;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            border: 1px solid #ffecb5;
-        }
-        
-        #upload-section h3 {
-            margin-top: 0;
-        }
-
-        #upload-section button {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
+        /* --- Table Styles --- */
         .table-container {
-            overflow-x: auto;
+            overflow-x: auto; /* Permite desplazamiento horizontal en móviles */
+            -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            padding: var(--spacing-unit);
+        }
+
+        #record-count {
+            text-align: right;
+            margin-bottom: var(--spacing-unit);
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 0;
         }
 
         th, td {
-            padding: 12px;
+            padding: var(--spacing-unit);
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
+            font-size: 0.9rem;
         }
 
         th {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--light-text);
+            font-weight: 600;
+            position: sticky; /* Encabezados fijos al hacer scroll */
+            top: 0;
+            z-index: 10;
         }
+        th:first-child { border-top-left-radius: var(--border-radius); }
+        th:last-child { border-top-right-radius: var(--border-radius); }
 
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #f8fbfb; /* Tono más sutil */
         }
 
         tr:hover {
-            background-color: #e9ecef;
+            background-color: #eaf1f1;
         }
 
         .status-btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            width: 110px;
+            padding: 6px 10px;
+            border-radius: 20px; /* Bordes más redondeados para tags */
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 90px;
             text-align: center;
-            transition: background-color 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .status-btn.pendiente {
@@ -221,37 +296,86 @@
         
         #loading {
             text-align: center;
-            font-size: 1.2em;
-            padding: 40px;
+            font-size: 1.1em;
+            padding: calc(var(--spacing-unit) * 2);
             color: var(--secondary-color);
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+            .container {
+                margin: var(--spacing-unit);
+                padding: var(--spacing-unit);
+            }
+
+            .header-controls {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--spacing-unit);
+            }
+            .header-controls h1 {
+                font-size: 1.5rem;
+            }
+            #logout-btn {
+                width: 100%;
+            }
+
+            .filters {
+                grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+            }
+            
+            th, td {
+                padding: 10px 8px; /* Menos padding en celdas */
+                font-size: 0.8rem;
+            }
+
+            .status-btn {
+                padding: 4px 8px;
+                font-size: 0.75rem;
+                min-width: 70px;
+            }
+
+            #upload-section button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: calc(var(--spacing-unit) * 0.75);
+            }
+            #login-container {
+                padding: var(--spacing-unit);
+            }
+            .header-controls h1 {
+                font-size: 1.3rem;
+            }
         }
 
     </style>
 </head>
 <body>
 
-    <!-- Contenedor de Login -->
     <div id="login-container" class="container">
         <h1>Iniciar Sesión</h1>
         <form id="login-form">
-            <input type="email" id="login-email" placeholder="Correo (edward@admin.com)" required>
-            <input type="password" id="login-password" placeholder="Contraseña (123456)" required>
-            <button type="submit">Ingresar</button>
+            <input type="email" id="login-email" placeholder="Correo (ej: edward@admin.com)" required>
+            <input type="password" id="login-password" placeholder="Contraseña (ej: 123456)" required>
+            <button type="submit" class="btn-primary">Ingresar</button>
         </form>
         <p id="login-error"></p>
     </div>
 
-    <!-- Contenedor del CRM (inicialmente oculto) -->
     <div id="crm-container" class="container">
         <div class="header-controls">
             <h1>📈 CRM de Gestión de Farmacias</h1>
-            <button id="logout-btn">Cerrar Sesión</button>
+            <button id="logout-btn" class="btn-danger">Cerrar Sesión</button>
         </div>
 
         <div id="upload-section">
             <h3>Paso Inicial: Cargar Datos a Firebase</h3>
             <p>Si es la primera vez que usas este CRM, haz clic en el siguiente botón para cargar la lista inicial de farmacias a tu base de datos en la nube. <strong>¡Solo necesitas hacerlo una vez!</strong></p>
-            <button id="upload-initial-data">Cargar Datos Iniciales</button>
+            <button id="upload-initial-data" class="btn-primary">Cargar Datos Iniciales</button>
         </div>
 
         <div class="filters">
@@ -269,7 +393,7 @@
             <select id="filter-cadena">
                 <option value="">Cadena (Todas)</option>
             </select>
-            <button id="btn-reset-filters">Limpiar Filtros</button>
+            <button id="btn-reset-filters" class="btn-secondary">Limpiar Filtros</button>
         </div>
 
         <div class="table-container">
@@ -290,7 +414,6 @@
         </div>
     </div>
 
-    <!-- Usamos type="module" para poder usar 'import' -->
     <script type="module">
         // Importar funciones de Firebase SDK v9+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
@@ -373,7 +496,13 @@
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 console.error("Error de inicio de sesión:", error.code);
-                loginError.textContent = 'Usuario o contraseña incorrectos.';
+                if (error.code === 'auth/invalid-email' || error.code === 'auth/user-not-found') {
+                    loginError.textContent = 'El correo electrónico no está registrado.';
+                } else if (error.code === 'auth/wrong-password') {
+                    loginError.textContent = 'Contraseña incorrecta.';
+                } else {
+                    loginError.textContent = 'Error al iniciar sesión. Inténtalo de nuevo.';
+                }
             }
         });
 
@@ -398,8 +527,11 @@
                 
                 loadingIndicator.style.display = 'none';
 
+                // Mostrar/ocultar la sección de carga inicial
                 if(allPharmacies.length > 0) {
                     uploadSection.style.display = 'none';
+                } else {
+                    uploadSection.style.display = 'flex'; // Usar flex para el layout interno
                 }
 
             }, (error) => {
@@ -554,7 +686,7 @@ BUCARAMANGA/ DROGUERIA COLOMBIA /1688 	COOPIDROGAS	 BUCARAMANGA/ 07 /CL 33 # 15
 26043 - DROG. FARMAMESA	COOPIDROGAS	SECT.MIRADOR BRISAS DE LA ACUARELA - LOS SANTOS
 26121 - DROGUERIA NUEVA AVENIDA	COOPIDROGAS	 BUCARAMANGA/04 (B.CAMPOHERMOSO) /CL.45 # 3 OCC
 26177 - GRANADOS LIMONCITO	COOPIDROGAS	 FLORIDABLANCA/09 /CR 15 # 6
-26348 - DROG Y PERFUMERIA HERFRAN	COOPIDROGAS	CR 14 A  # 1- 40 - BUCARAMANGA
+26348 - DROGUERIA Y PERFUMERIA HERFRAN	COOPIDROGAS	CR 14 A  # 1- 40 - BUCARAMANGA
 26367 - DROGUERIA LA DOCE	COOPIDROGAS	CL 12 # 6 - 119
 26397 - DROGUERIA INTERMUNDIAL	COOPIDROGAS	CR 11 # 12 - 63 LEBRIJA
 26428 - DROG.Y MISCELANEA D Y J PLUS	COOPIDROGAS	CL 30 # 7 - 81 BRR LA CUMBRE FLORIDABLANCA
