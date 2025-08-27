@@ -1,0 +1,345 @@
+:root {
+    --primary-color: #007bff; /* Azul vibrante */
+    --primary-dark: #0056b3;
+    --secondary-color: #6c757d; /* Gris para secundario */
+    --success-color: #28a745; /* Verde para éxito */
+    --danger-color: #dc3545; /* Rojo para peligro */
+    --warning-color: #ffc107; /* Amarillo para advertencia */
+    --info-color: #17a2b8; /* Azul claro para información */
+    --light-bg: #f4f7f6; /* Fondo muy claro */
+    --dark-text: #343a40; /* Texto oscuro */
+    --light-text: #ffffff; /* Texto claro */
+    --card-bg: #ffffff; /* Fondo de tarjetas/paneles */
+    --border-color: #e0e0e0; /* Color de borde suave */
+    --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.08); /* Sombra ligera */
+    --font-family: 'Poppins', sans-serif;
+    --border-radius: 10px;
+    --spacing-unit: 1rem; /* 16px */
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--light-bg);
+    margin: 0;
+    padding: 0;
+    color: var(--dark-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: var(--spacing-unit) auto;
+    padding: calc(var(--spacing-unit) * 1.5);
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    box-sizing: border-box; /* Incluir padding en el ancho */
+}
+
+/* --- Global Form/Button Styles --- */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: var(--spacing-unit);
+    margin-bottom: var(--spacing-unit);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+}
+
+button {
+    padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    color: var(--light-text);
+    text-align: center;
+    display: inline-block; /* Para botones dentro de flex/grid */
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+button:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* --- Login Specific Styles --- */
+#login-container {
+    max-width: 400px;
+    padding: calc(var(--spacing-unit) * 2);
+    text-align: center;
+    margin-top: calc(var(--spacing-unit) * 4);
+}
+
+#login-container h1 {
+    color: var(--primary-color);
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    font-weight: 600;
+}
+
+#login-form button {
+    width: 100%;
+    margin-top: var(--spacing-unit);
+}
+
+#login-error {
+    color: var(--danger-color);
+    margin-top: var(--spacing-unit);
+    font-weight: 600;
+    min-height: 20px; /* Para evitar saltos de layout */
+}
+
+/* --- CRM Main Layout --- */
+#crm-container {
+    display: none;
+    padding-top: var(--spacing-unit);
+}
+
+.header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    flex-wrap: wrap; /* Para móviles */
+}
+
+.header-controls h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+#logout-btn {
+    background-color: var(--danger-color);
+    font-size: 0.9rem;
+}
+#logout-btn:hover {
+    background-color: #c82333;
+}
+
+/* --- Upload Section --- */
+#upload-section {
+    background-color: #fff3cd; /* Color de advertencia más suave */
+    color: #664d03;
+    padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
+    border-radius: var(--border-radius);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    border: 1px solid #ffeeba;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+#upload-section h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+#upload-section p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+#upload-section button {
+    background-color: var(--dark-text);
+    align-self: flex-start; /* Para que el botón no ocupe todo el ancho */
+    font-size: 0.9rem;
+}
+#upload-section button:hover {
+    background-color: #212529;
+}
+
+/* --- Filters Section --- */
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptativo */
+    gap: var(--spacing-unit);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    padding: var(--spacing-unit);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+}
+
+.filters input, .filters select {
+    margin-bottom: 0; /* Remover margin-bottom redundante */
+}
+
+#btn-reset-filters {
+    background-color: var(--secondary-color);
+    color: var(--light-text);
+}
+#btn-reset-filters:hover {
+    background-color: #5a6268;
+}
+
+/* --- Table Styles --- */
+.table-container {
+    overflow-x: auto; /* Permite desplazamiento horizontal en móviles */
+    -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    padding: var(--spacing-unit);
+}
+
+#record-count {
+    text-align: right;
+    margin-bottom: var(--spacing-unit);
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+}
+
+th, td {
+    padding: var(--spacing-unit);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    font-weight: 600;
+    position: sticky; /* Encabezados fijos al hacer scroll */
+    top: 0;
+    z-index: 10;
+}
+th:first-child { border-top-left-radius: var(--border-radius); }
+th:last-child { border-top-right-radius: var(--border-radius); }
+
+tr:nth-child(even) {
+    background-color: #f8fbfb; /* Tono más sutil */
+}
+
+tr:hover {
+    background-color: #eaf1f1;
+}
+
+.status-btn {
+    padding: 6px 10px;
+    border-radius: 20px; /* Bordes más redondeados para tags */
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 90px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.status-btn.pendiente {
+    background-color: var(--danger-color);
+}
+.status-btn.pendiente:hover {
+    background-color: #c82333;
+}
+
+.status-btn.realizado {
+    background-color: var(--success-color);
+}
+.status-btn.realizado:hover {
+    background-color: #218838;
+}
+
+#loading {
+    text-align: center;
+    font-size: 1.1em;
+    padding: calc(var(--spacing-unit) * 2);
+    color: var(--secondary-color);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .container {
+        margin: var(--spacing-unit);
+        padding: var(--spacing-unit);
+    }
+
+    .header-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-unit);
+    }
+    .header-controls h1 {
+        font-size: 1.5rem;
+    }
+    #logout-btn {
+        width: 100%;
+    }
+
+    .filters {
+        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    }
+    
+    th, td {
+        padding: 10px 8px; /* Menos padding en celdas */
+        font-size: 0.8rem;
+    }
+
+    .status-btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        min-width: 70px;
+    }
+
+    #upload-section button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: calc(var(--spacing-unit) * 0.75);
+    }
+    #login-container {
+        padding: var(--spacing-unit);
+    }
+    .header-controls h1 {
+        font-size: 1.3rem;
+    }
+}
