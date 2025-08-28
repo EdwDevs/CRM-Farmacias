@@ -1,7 +1,7 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * 🏥 CRM FARMACIAS - SISTEMA AVANZADO v2.0
- * JavaScript Modernizado con Firebase v9 + Todas las Farmacias
+ * 🏥 CRM FARMACIAS - SISTEMA AVANZADO v2.1
+ * Con métricas de cobertura, objetivos y todas las farmacias
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -40,6 +40,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const pharmaciesCollection = collection(db, 'pharmacies');
 
+// === CONSTANTES ===
+const MONTHLY_GOAL = 120; // Objetivo mensual de transferencias
+
 // === REFERENCIAS DOM ===
 const loginContainer = document.getElementById('login-container');
 const crmContainer = document.getElementById('crm-container');
@@ -63,6 +66,27 @@ const uploadSection = document.getElementById('upload-section');
 const btnUpload = document.getElementById('upload-initial-data');
 const themeToggle = document.getElementById('theme-toggle');
 const toastContainer = document.getElementById('toast-container');
+
+// === REFERENCIAS PARA MÉTRICAS ===
+const resetIndicatorsBtn = document.getElementById('reset-indicators-btn');
+const resetModal = document.getElementById('reset-modal');
+const confirmResetBtn = document.getElementById('confirm-reset');
+const cancelResetBtn = document.getElementById('cancel-reset');
+
+// Elementos de métricas
+const visitsPercentage = document.getElementById('visits-percentage');
+const visitsCount = document.getElementById('visits-count');
+const visitsProgress = document.getElementById('visits-progress');
+const transfersPercentage = document.getElementById('transfers-percentage');
+const transfersCount = document.getElementById('transfers-count');
+const transfersProgress = document.getElementById('transfers-progress');
+const goalRemaining = document.getElementById('goal-remaining');
+const goalProgress = document.getElementById('goal-progress');
+const goalStatus = document.getElementById('goal-status');
+const goalPercentage = document.getElementById('goal-percentage');
+const totalPharmacies = document.getElementById('total-pharmacies');
+const pendingVisits = document.getElementById('pending-visits');
+const pendingTransfers = document.getElementById('pending-transfers');
 
 // === VARIABLES GLOBALES ===
 let allPharmacies = [];
@@ -118,15 +142,12 @@ function showToast(message, type = 'info', duration = 4000) {
         <span class="toast-message">${escapeHtml(message)}</span>
     `;
     
-    // Añadir al container
     toastContainer.appendChild(toast);
     
-    // Auto remove con animación
     const timeoutId = setTimeout(() => {
         removeToast(toast);
     }, duration);
     
-    // Click para cerrar manualmente
     toast.addEventListener('click', () => {
         clearTimeout(timeoutId);
         removeToast(toast);
@@ -175,7 +196,6 @@ loginForm?.addEventListener('submit', async (e) => {
     const email = loginEmail.value.trim();
     const password = loginPassword.value;
     
-    // Validaciones básicas
     if (!email || !password) {
         showLoginError('Todos los campos son requeridos');
         showToast('Completa todos los campos', 'warning');
@@ -193,7 +213,6 @@ loginForm?.addEventListener('submit', async (e) => {
     
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        // El éxito se maneja en onAuthStateChanged
     } catch (error) {
         console.error('❌ Error de login:', error);
         handleLoginError(error);
@@ -260,7 +279,6 @@ logoutBtn?.addEventListener('click', async () => {
         await signOut(auth);
         showToast('Sesión cerrada exitosamente', 'info');
         
-        // Limpiar formulario de login
         if (loginEmail) loginEmail.value = '';
         if (loginPassword) loginPassword.value = '';
         clearLoginError();
@@ -280,12 +298,10 @@ function initializeCRM() {
     
     const q = query(pharmaciesCollection, orderBy('nombre'));
     
-    // Limpiar listener anterior si existe
     if (unsubscribe) {
         unsubscribe();
     }
     
-    // Escuchar cambios en tiempo real
     unsubscribe = onSnapshot(q, (snapshot) => {
         console.log('📡 Datos recibidos desde Firestore');
         handlePharmaciesSnapshot(snapshot);
@@ -299,7 +315,6 @@ function handlePharmaciesSnapshot(snapshot) {
     showLoading(true);
     
     try {
-        // Procesar documentos
         allPharmacies = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
@@ -307,12 +322,14 @@ function handlePharmaciesSnapshot(snapshot) {
         
         console.log(`📋 ${allPharmacies.length} farmacias cargadas`);
         
-        // Actualizar UI
+        // Actualizar métricas PRIMERO
+        updateMetrics();
+        
+        // Luego actualizar UI
         populateCadenaFilter();
         applyFilters();
         updateUploadSectionVisibility();
         
-        // Mostrar notificación de éxito
         if (allPharmacies.length > 0) {
             const message = `${allPharmacies.length} farmacia${allPharmacies.length !== 1 ? 's' : ''} cargada${allPharmacies.length !== 1 ? 's' : ''} correctamente`;
             showToast(message, 'success', 3000);
@@ -343,11 +360,177 @@ function cleanupCRM() {
     }
     allPharmacies = [];
     
-    // Limpiar UI
     if (tableBody) tableBody.innerHTML = '';
     if (recordCount) recordCount.textContent = 'Cargando registros...';
     
+    // Limpiar métricas
+    resetMetricsDisplay();
+    
     console.log('🧹 CRM limpiado');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 📈 SISTEMA DE MÉTRICAS Y OBJETIVOS
+// ═══════════════════════════════════════════════════════════════
+
+function updateMetrics() {
+    if (!allPharmacies.length) {
+        resetMetricsDisplay();
+        return;
+    }
+    
+    // Calcular estadísticas
+    const totalCount = allPharmacies.length;
+    const visitedCount = allPharmacies.filter(p => p.visitado === 'Realizado').length;
+    const transferredCount = allPharmacies.filter(p => p.transferencia === 'Realizado').length;
+    const pendingVisitsCount = allPharmacies.filter(p => p.visitado === 'Pendiente').length;
+    const pendingTransfersCount = allPharmacies.filter(p => p.transferencia === 'Pendiente').length;
+    
+    // Calcular porcentajes
+    const visitsPercentageValue = totalCount > 0 ? Math.round((visitedCount / totalCount) * 100) : 0;
+    const transfersPercentageValue = totalCount > 0 ? Math.round((transferredCount / totalCount) * 100) : 0;
+    const goalPercentageValue = Math.min(Math.round((transferredCount / MONTHLY_GOAL) * 100), 100);
+    const goalRemainingValue = Math.max(MONTHLY_GOAL - transferredCount, 0);
+    
+    // Actualizar métricas de visitas
+    if (visitsPercentage) visitsPercentage.textContent = `${visitsPercentageValue}%`;
+    if (visitsCount) visitsCount.textContent = `${visitedCount} de ${totalCount}`;
+    if (visitsProgress) visitsProgress.style.width = `${visitsPercentageValue}%`;
+    
+    // Actualizar métricas de transferencias
+    if (transfersPercentage) transfersPercentage.textContent = `${transfersPercentageValue}%`;
+    if (transfersCount) transfersCount.textContent = `${transferredCount} de ${totalCount}`;
+    if (transfersProgress) transfersProgress.style.width = `${transfersPercentageValue}%`;
+    
+    // Actualizar objetivo
+    if (goalRemaining) goalRemaining.textContent = goalRemainingValue;
+    if (goalProgress) goalProgress.style.width = `${goalPercentageValue}%`;
+    if (goalPercentage) goalPercentage.textContent = `${goalPercentageValue}%`;
+    
+    // Actualizar estado del objetivo
+    if (goalStatus) {
+        const statusText = transferredCount >= MONTHLY_GOAL 
+            ? '🎉 ¡Objetivo completado!' 
+            : `${goalPercentageValue}% completado`;
+        goalStatus.innerHTML = statusText;
+    }
+    
+    // Actualizar resumen general
+    if (totalPharmacies) totalPharmacies.textContent = totalCount;
+    if (pendingVisits) pendingVisits.textContent = pendingVisitsCount;
+    if (pendingTransfers) pendingTransfers.textContent = pendingTransfersCount;
+    
+    console.log(`📊 Métricas actualizadas: ${visitedCount}/${totalCount} visitas, ${transferredCount}/${totalCount} transferencias`);
+}
+
+function resetMetricsDisplay() {
+    // Reset todas las métricas a 0
+    if (visitsPercentage) visitsPercentage.textContent = '0%';
+    if (visitsCount) visitsCount.textContent = '0 de 0';
+    if (visitsProgress) visitsProgress.style.width = '0%';
+    
+    if (transfersPercentage) transfersPercentage.textContent = '0%';
+    if (transfersCount) transfersCount.textContent = '0 de 0';
+    if (transfersProgress) transfersProgress.style.width = '0%';
+    
+    if (goalRemaining) goalRemaining.textContent = MONTHLY_GOAL;
+    if (goalProgress) goalProgress.style.width = '0%';
+    if (goalPercentage) goalPercentage.textContent = '0%';
+    if (goalStatus) goalStatus.innerHTML = '0% completado';
+    
+    if (totalPharmacies) totalPharmacies.textContent = '0';
+    if (pendingVisits) pendingVisits.textContent = '0';
+    if (pendingTransfers) pendingTransfers.textContent = '0';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🔄 SISTEMA DE REINICIO DE INDICADORES
+// ═══════════════════════════════════════════════════════════════
+
+// Mostrar modal de confirmación
+resetIndicatorsBtn?.addEventListener('click', () => {
+    if (resetModal) {
+        resetModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+});
+
+// Cancelar reinicio
+cancelResetBtn?.addEventListener('click', () => {
+    hideResetModal();
+});
+
+// Confirmar reinicio
+confirmResetBtn?.addEventListener('click', async () => {
+    hideResetModal();
+    await resetAllIndicators();
+});
+
+// Cerrar modal al hacer click fuera
+resetModal?.addEventListener('click', (e) => {
+    if (e.target === resetModal) {
+        hideResetModal();
+    }
+});
+
+function hideResetModal() {
+    if (resetModal) {
+        resetModal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+async function resetAllIndicators() {
+    if (!allPharmacies.length) {
+        showToast('No hay farmacias para reiniciar', 'warning');
+        return;
+    }
+    
+    const confirmMessage = `¿Confirmas el reinicio de ${allPharmacies.length} farmacias?\n\nEsta acción no se puede deshacer.`;
+    
+    if (!confirm(confirmMessage)) return;
+    
+    console.log('🔄 Iniciando reinicio de indicadores...');
+    showToast('Reiniciando indicadores...', 'info');
+    
+    // Deshabilitar botón durante el proceso
+    if (resetIndicatorsBtn) {
+        resetIndicatorsBtn.disabled = true;
+        resetIndicatorsBtn.innerHTML = '<span>Reiniciando...</span><div class="btn-loader"></div>';
+    }
+    
+    try {
+        const batch = writeBatch(db);
+        let processedCount = 0;
+        
+        allPharmacies.forEach(pharmacy => {
+            const docRef = doc(db, 'pharmacies', pharmacy.id);
+            batch.update(docRef, {
+                visitado: 'Pendiente',
+                transferencia: 'Pendiente',
+                updatedAt: new Date().toISOString(),
+                resetDate: new Date().toISOString()
+            });
+            processedCount++;
+        });
+        
+        await batch.commit();
+        
+        console.log(`✅ ${processedCount} farmacias reiniciadas exitosamente`);
+        showToast(`🎉 ${processedCount} indicadores reiniciados exitosamente`, 'success', 5000);
+        
+        // Las métricas se actualizarán automáticamente por el snapshot listener
+        
+    } catch (error) {
+        console.error('❌ Error reiniciando indicadores:', error);
+        showToast('Error al reiniciar los indicadores', 'error');
+    } finally {
+        // Rehabilitar botón
+        if (resetIndicatorsBtn) {
+            resetIndicatorsBtn.disabled = false;
+            resetIndicatorsBtn.innerHTML = '<span>Nuevo Mes</span><span>🔄</span>';
+        }
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -357,7 +540,6 @@ function cleanupCRM() {
 function renderTable(pharmacies) {
     if (!tableBody) return;
     
-    // Limpiar tabla
     tableBody.innerHTML = '';
     
     if (pharmacies.length === 0) {
@@ -368,7 +550,6 @@ function renderTable(pharmacies) {
     
     showEmptyState(false);
     
-    // Crear fragment para mejor performance
     const fragment = document.createDocumentFragment();
     
     pharmacies.forEach((pharmacy, index) => {
@@ -378,8 +559,6 @@ function renderTable(pharmacies) {
     
     tableBody.appendChild(fragment);
     updateRecordCount(pharmacies.length);
-    
-    // Animar entrada de filas
     animateTableRows();
 }
 
@@ -388,7 +567,6 @@ function createPharmacyRow(pharmacy, index) {
     tr.style.opacity = '0';
     tr.style.transform = 'translateY(10px)';
     
-    // Crear celdas con datos seguros
     const nombreCell = `<td><strong title="${escapeHtml(pharmacy.nombre)}">${escapeHtml(pharmacy.nombre)}</strong></td>`;
     const cadenaCell = `<td><span class="cadena-badge">${escapeHtml(pharmacy.cadena)}</span></td>`;
     const direccionCell = `<td><div class="address-text" title="${escapeHtml(pharmacy.direccion)}">${escapeHtml(pharmacy.direccion)}</div></td>`;
@@ -430,18 +608,16 @@ function animateTableRows() {
             row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             row.style.opacity = '1';
             row.style.transform = 'translateY(0)';
-        }, index * 30); // Reducir delay para mejor UX
+        }, index * 30);
     });
 }
 
 function populateCadenaFilter() {
     if (!filterCadena) return;
     
-    // Obtener cadenas únicas y ordenarlas
     const cadenas = [...new Set(allPharmacies.map(p => p.cadena))].sort();
     const currentSelection = filterCadena.value;
     
-    // Limpiar y reconstruir opciones
     filterCadena.innerHTML = '<option value="">Todas las Cadenas</option>';
     
     cadenas.forEach(cadena => {
@@ -451,7 +627,6 @@ function populateCadenaFilter() {
         filterCadena.appendChild(option);
     });
     
-    // Restaurar selección anterior si existe
     if (currentSelection && cadenas.includes(currentSelection)) {
         filterCadena.value = currentSelection;
     }
@@ -465,13 +640,11 @@ function applyFilters() {
         return;
     }
     
-    // Obtener valores de filtros
     const searchTerm = searchBox?.value.toLowerCase().trim() || '';
     const visitadoStatus = filterVisitado?.value || '';
     const transferenciaStatus = filterTransferencia?.value || '';
     const cadenaFilter = filterCadena?.value || '';
     
-    // Aplicar filtros
     const filteredPharmacies = allPharmacies.filter(pharmacy => {
         const matchesSearch = !searchTerm || 
             pharmacy.nombre.toLowerCase().includes(searchTerm) || 
@@ -515,7 +688,6 @@ function updateUploadSectionVisibility() {
 // 🎯 EVENT LISTENERS
 // ═══════════════════════════════════════════════════════════════
 
-// Filtros con debounce para mejor performance
 searchBox?.addEventListener('input', debounce(() => {
     console.log('🔍 Búsqueda:', searchBox.value);
     applyFilters();
@@ -536,7 +708,6 @@ filterCadena?.addEventListener('change', () => {
     applyFilters();
 });
 
-// Reset filters
 btnResetFilters?.addEventListener('click', () => {
     console.log('🧹 Limpiando filtros');
     
@@ -549,12 +720,10 @@ btnResetFilters?.addEventListener('click', () => {
     showToast('Filtros limpiados correctamente', 'info', 2000);
 });
 
-// Refresh button con animación
 refreshBtn?.addEventListener('click', () => {
     console.log('🔄 Refrescando datos');
     showToast('Datos actualizados', 'info', 2000);
     
-    // Animación del botón
     if (refreshBtn) {
         refreshBtn.style.transform = 'rotate(360deg)';
         refreshBtn.style.transition = 'transform 0.5s ease';
@@ -564,7 +733,6 @@ refreshBtn?.addEventListener('click', () => {
     }
 });
 
-// Theme toggle
 themeToggle?.addEventListener('click', () => {
     console.log('🎨 Cambiando tema');
     toggleTheme();
@@ -575,7 +743,6 @@ themeToggle?.addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════
 
 tableBody?.addEventListener('click', async (e) => {
-    // Verificar si se hizo click en un botón de estado o dentro de uno
     const button = e.target.closest('.status-btn');
     if (!button) return;
     
@@ -589,7 +756,6 @@ tableBody?.addEventListener('click', async (e) => {
     
     console.log(`🔄 Actualizando ${field} de ${id}: ${currentStatus} → ${newStatus}`);
     
-    // UI Loading state
     const originalContent = button.innerHTML;
     button.disabled = true;
     button.style.opacity = '0.6';
@@ -607,19 +773,15 @@ tableBody?.addEventListener('click', async (e) => {
     } catch (error) {
         console.error('❌ Error al actualizar estado:', error);
         showToast('Error al actualizar el estado', 'error');
-        
-        // Restaurar contenido original en caso de error
         button.innerHTML = originalContent;
-        
     } finally {
-        // Rehabilitar botón (el contenido se actualizará automáticamente por el snapshot)
         button.disabled = false;
         button.style.opacity = '1';
     }
 });
 
 // ═══════════════════════════════════════════════════════════════
-// ☁️ CARGA DE DATOS INICIALES
+// ☁️ CARGA DE DATOS INICIALES - TODAS LAS 320+ FARMACIAS
 // ═══════════════════════════════════════════════════════════════
 
 btnUpload?.addEventListener('click', async () => {
@@ -649,7 +811,6 @@ btnUpload?.addEventListener('click', async () => {
         
         console.log(`📤 Cargando ${pharmaciesToUpload.length} farmacias...`);
         
-        // Usar batch para cargar todas las farmacias
         const batch = writeBatch(db);
         pharmaciesToUpload.forEach(pharmacy => {
             const docRef = doc(pharmaciesCollection);
@@ -665,7 +826,6 @@ btnUpload?.addEventListener('click', async () => {
         console.log('✅ Datos cargados exitosamente');
         showToast(`🎉 ${pharmaciesToUpload.length} farmacias cargadas exitosamente`, 'success', 5000);
         
-        // Ocultar sección de carga
         if (uploadSection) {
             uploadSection.style.display = 'none';
         }
@@ -900,7 +1060,7 @@ DROGUERIA DISERVAL	DROSAN LTDA	CL 31 #28-74 B. LA AURORA BUCARAMANGA
 DROGUERIA DISTRIBUIDORA EL NILO	INDEPENDIENTE	CC SAN ANDRESITO ISLA P 1 L 7 - 28 Y 7 - 29
 DROGUERIA DISTRIBUIDORA SANDRA C	INDEPENDIENTE	CC SAN ANDRESITO ISLA P 3 L 8 - 35 Y 8 - 33
 DROGUERIA DROGAS SALUD	DROSAN LTDA	Calle 7 #29 143 OCAÑA
-DROGUERIA ECOFARMA	DROSAN LTDA	CR 2 C # 21 - 04 BRR PASEO DEL PUENTE II PIEDECUESTA
+DROGUERIA ECOFARMA		DROSAN LTDA	CR 2 C # 21 - 04 BRR PASEO DEL PUENTE II PIEDECUESTA
 DROGUERIA ECOFARMA PLUS	DROSAN LTDA	CR  1W #5AN-15 REFUGIO PIEDECUESTA
 DROGUERIA EL CARMEN - BUCARAMANGA	DROSAN LTDA	 BUCARAMANGA/02  BRR EL GIRARDOT /CL 28 #6
 DROGUERIA EL DUENDE	DROSAN LTDA	 KILOMETRO 9 VIA CUROS - LOS SANTOS (MUNICIPIO LOS SANTOS)
@@ -1239,7 +1399,7 @@ document.head.appendChild(styleSheet);
 // ═══════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎉 CRM Farmacias v2.0 iniciado correctamente');
+    console.log('🎉 CRM Farmacias v2.1 iniciado correctamente');
     console.log('📱 Dispositivo:', /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Móvil' : 'Desktop');
     
     // Inicializar tema
@@ -1277,7 +1437,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         showToast,
         setTheme,
         triggerAuth: () => auth,
-        triggerDB: () => db
+        triggerDB: () => db,
+        updateMetrics,
+        resetAllIndicators
     };
     console.log('🔧 Modo debug activado. Usa window.CRM_DEBUG para inspeccionar.');
 }
