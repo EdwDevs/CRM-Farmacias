@@ -3,72 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM de Farmacias</title>
+    <title>CRM Farmacias - Sistema Moderno</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">
+        <span class="theme-icon">🌙</span>
+    </button>
 
-    <div id="login-container" class="container">
-        <h1>Iniciar Sesión</h1>
-        <form id="login-form">
-            <input type="email" id="login-email" placeholder="Correo (ej: edward@admin.com)" required>
-            <input type="password" id="login-password" placeholder="Contraseña (ej: 123456)" required>
-            <button type="submit" class="btn-primary">Ingresar</button>
-        </form>
-        <p id="login-error"></p>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Login Container -->
+    <div id="login-container" class="container login-container-modern">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="brand-icon">💊</div>
+                <h1>Bienvenido al CRM</h1>
+                <p class="login-subtitle">Sistema de Gestión de Farmacias</p>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="input-group">
+                    <input type="email" id="login-email" placeholder="Correo (ej: edward@admin.com)" required>
+                    <span class="input-icon">📧</span>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Contraseña (ej: 123456)" required>
+                    <span class="input-icon">🔒</span>
+                    <button type="button" class="password-toggle">👁️</button>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-login">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <div class="btn-loader"></div>
+                </button>
+            </form>
+            
+            <p id="login-error" class="error-message"></p>
+            
+            <div class="demo-info">
+                <strong>Demo:</strong> edward@admin.com / 123456
+            </div>
+        </div>
     </div>
 
-    <div id="crm-container" class="container">
+    <!-- CRM Container -->
+    <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
-            <h1>📈 CRM de Gestión de Farmacias</h1>
-            <button id="logout-btn" class="btn-danger">Cerrar Sesión</button>
+            <div class="header-left">
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.0</span></h1>
+            </div>
+            <div class="header-right">
+                <button id="logout-btn" class="btn-danger">
+                    <span>Cerrar Sesión</span>
+                    <span>🚪</span>
+                </button>
+            </div>
         </div>
 
-        <div id="upload-section">
-            <h3>Paso Inicial: Cargar Datos a Firebase</h3>
-            <p>Si es la primera vez que usas este CRM, haz clic en el siguiente botón para cargar la lista inicial de farmacias a tu base de datos en la nube. <strong>¡Solo necesitas hacerlo una vez!</strong></p>
-            <button id="upload-initial-data" class="btn-primary">Cargar Datos Iniciales</button>
+        <!-- Upload Section -->
+        <div id="upload-section" class="upload-section-modern">
+            <div class="setup-header">
+                <div class="setup-icon">🔧</div>
+                <h3>Configuración Inicial</h3>
+            </div>
+            <div class="setup-content">
+                <p>Si es tu primera vez, carga los datos iniciales en Firebase.</p>
+                <p><strong>Nota:</strong> Solo necesitas hacer esto una vez.</p>
+            </div>
+            <button id="upload-initial-data" class="btn-primary">
+                <span>Cargar Datos Iniciales</span>
+                <span>☁️</span>
+            </button>
         </div>
 
-        <div class="filters">
-            <input type="text" id="search-box" placeholder="Buscar por nombre o dirección...">
-            <select id="filter-visitado">
-                <option value="">Visita (Todos)</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Realizado">Realizado</option>
-            </select>
-            <select id="filter-transferencia">
-                <option value="">Transferencia (Todos)</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Realizado">Realizado</option>
-            </select>
-            <select id="filter-cadena">
-                <option value="">Cadena (Todas)</option>
-            </select>
-            <button id="btn-reset-filters" class="btn-secondary">Limpiar Filtros</button>
+        <!-- Filters -->
+        <div class="filters filters-modern">
+            <div class="filters-header">
+                <h3>🔍 Filtros de Búsqueda</h3>
+                <button id="btn-reset-filters" class="btn-secondary">
+                    <span>Limpiar</span>
+                    <span>🧹</span>
+                </button>
+            </div>
+            
+            <div class="filters-grid">
+                <div class="input-group">
+                    <input type="text" id="search-box" placeholder="Buscar por nombre o dirección...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <select id="filter-visitado">
+                    <option value="">Estado de Visita</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Realizado">Realizado</option>
+                </select>
+                
+                <select id="filter-transferencia">
+                    <option value="">Estado Transferencia</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Realizado">Realizado</option>
+                </select>
+                
+                <select id="filter-cadena">
+                    <option value="">Todas las Cadenas</option>
+                </select>
+            </div>
         </div>
 
-        <div class="table-container">
-            <p id="record-count">Cargando registros...</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Farmacia</th>
-                        <th>Cadena</th>
-                        <th>Dirección</th>
-                        <th>Visita</th>
-                        <th>Transferencia</th>
-                    </tr>
-                </thead>
-                <tbody id="pharmacy-table-body"></tbody>
-            </table>
-            <div id="loading">Cargando...</div>
+        <!-- Data Table -->
+        <div class="table-container table-container-modern">
+            <div class="table-header">
+                <div class="table-info">
+                    <h3>📋 Lista de Farmacias</h3>
+                    <p id="record-count">Cargando registros...</p>
+                </div>
+                <button id="refresh-btn" class="btn-outline">
+                    <span>🔄</span>
+                </button>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>🏪 Farmacia</th>
+                            <th>🏢 Cadena</th>
+                            <th>📍 Dirección</th>
+                            <th>👥 Visita</th>
+                            <th>📦 Transferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pharmacy-table-body">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+                
+                <!-- Loading -->
+                <div id="loading" class="loading-modern">
+                    <div class="loader-spinner"></div>
+                    <p>Cargando datos...</p>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state-modern" style="display: none;">
+                    <div class="empty-icon">📭</div>
+                    <h3>No se encontraron farmacias</h3>
+                    <p>Intenta ajustar los filtros o cargar los datos iniciales.</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script type="module" src="script.js" defer></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
