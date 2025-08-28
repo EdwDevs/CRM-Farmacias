@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Farmacias - Sistema Moderno</title>
+    <title>CRM Farmacias - Sistema Avanzado con Métricas</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -56,15 +56,114 @@
     <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
             <div class="header-left">
-                <h1>📊 CRM Farmacias <span class="version-badge">v2.0</span></h1>
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.1</span></h1>
             </div>
             <div class="header-right">
+                <button id="reset-indicators-btn" class="btn-warning" title="Reiniciar indicadores para nuevo mes">
+                    <span>Nuevo Mes</span>
+                    <span>🔄</span>
+                </button>
                 <button id="logout-btn" class="btn-danger">
                     <span>Cerrar Sesión</span>
                     <span>🚪</span>
                 </button>
             </div>
         </div>
+
+        <!-- Metrics Dashboard -->
+        <section class="metrics-dashboard">
+            <div class="metrics-grid">
+                <!-- Cobertura de Visitas -->
+                <div class="metric-card visits-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-title">
+                            <h3>Cobertura de Visitas</h3>
+                            <p>Farmacias visitadas</p>
+                        </div>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-number">
+                            <span id="visits-percentage">0%</span>
+                            <span class="metric-subtitle" id="visits-count">0 de 0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill visits-progress" id="visits-progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cobertura de Transferencias -->
+                <div class="metric-card transfers-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-title">
+                            <h3>Cobertura de Transferencias</h3>
+                            <p>Farmacias con transferencia</p>
+                        </div>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-number">
+                            <span id="transfers-percentage">0%</span>
+                            <span class="metric-subtitle" id="transfers-count">0 de 0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill transfers-progress" id="transfers-progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Objetivo 120 Transferencias -->
+                <div class="metric-card goal-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-title">
+                            <h3>Objetivo Mensual</h3>
+                            <p>Meta: 120 transferencias</p>
+                        </div>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-number">
+                            <span id="goal-remaining">120</span>
+                            <span class="metric-subtitle">restantes</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill goal-progress" id="goal-progress"></div>
+                        </div>
+                        <div class="goal-status" id="goal-status">
+                            <span id="goal-percentage">0%</span> completado
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen General -->
+                <div class="metric-card summary-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-title">
+                            <h3>Resumen General</h3>
+                            <p>Estadísticas totales</p>
+                        </div>
+                    </div>
+                    <div class="metric-content">
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Farmacias:</span>
+                                <span class="stat-value" id="total-pharmacies">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Pendientes Visita:</span>
+                                <span class="stat-value pending" id="pending-visits">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Pendientes Transfer.:</span>
+                                <span class="stat-value pending" id="pending-transfers">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Upload Section -->
         <div id="upload-section" class="upload-section-modern">
@@ -156,6 +255,37 @@
                     <h3>No se encontraron farmacias</h3>
                     <p>Intenta ajustar los filtros o cargar los datos iniciales.</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔄 Reiniciar Indicadores</h3>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres reiniciar todos los indicadores para iniciar un nuevo mes?</p>
+                <div class="warning-box">
+                    <p><strong>⚠️ Esta acción:</strong></p>
+                    <ul>
+                        <li>Cambiará todas las visitas a "Pendiente"</li>
+                        <li>Cambiará todas las transferencias a "Pendiente"</li>
+                        <li>Reiniciará las métricas de cobertura</li>
+                        <li><strong>No se puede deshacer</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-reset" class="btn-danger">
+                    <span>Confirmar Reinicio</span>
+                    <span>✅</span>
+                </button>
+                <button id="cancel-reset" class="btn-secondary">
+                    <span>Cancelar</span>
+                    <span>❌</span>
+                </button>
             </div>
         </div>
     </div>
