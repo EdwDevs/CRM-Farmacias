@@ -1,7 +1,7 @@
 /**
  * ═══════════════════════════════════════════════════════════════
- * 🏥 CRM FARMACIAS - SISTEMA CORREGIDO v2.1.1
- * Corrección de bugs de métricas y reinicio
+ * 🏥 CRM FARMACIAS - SISTEMA CORREGIDO v2.2.0
+ * Nueva funcionalidad: Control de días laborales y objetivos diarios
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -42,6 +42,16 @@ const pharmaciesCollection = collection(db, 'pharmacies');
 
 // === CONSTANTES ===
 const MONTHLY_GOAL = 120;
+const DEFAULT_PHARMACIES_PER_DAY = 16;
+
+// === CONFIGURACIÓN DE DÍAS LABORALES ===
+let dailyConfig = {
+    currentWorkDay: 1,
+    pharmaciesPerDay: DEFAULT_PHARMACIES_PER_DAY,
+    get totalDailyGoal() {
+        return this.currentWorkDay * this.pharmaciesPerDay;
+    }
+};
 
 // === FUNCIONES DE NORMALIZACIÓN ===
 function normalizeStatus(status) {
@@ -104,10 +114,111 @@ const totalPharmacies = document.getElementById('total-pharmacies');
 const pendingVisits = document.getElementById('pending-visits');
 const pendingTransfers = document.getElementById('pending-transfers');
 
+// === NUEVAS REFERENCIAS PARA CONFIGURACIÓN DIARIA ===
+const currentWorkDayInput = document.getElementById('current-work-day');
+const pharmaciesPerDayInput = document.getElementById('pharmacies-per-day');
+const updateDailyConfigBtn = document.getElementById('update-daily-config');
+const totalDailyGoalElement = document.getElementById('total-daily-goal');
+const displayWorkDaysElement = document.getElementById('display-work-days');
+const dailyStatusElement = document.getElementById('daily-status');
+const visitsDailyTargetElement = document.getElementById('visits-daily-target');
+const transfersDailyTargetElement = document.getElementById('transfers-daily-target');
+
 // === VARIABLES GLOBALES ===
 let allPharmacies = [];
 let unsubscribe = null;
 let hasShownWelcome = false;
+
+// ═══════════════════════════════════════════════════════════════
+// 📅 SISTEMA DE CONFIGURACIÓN DE DÍAS LABORALES
+// ═══════════════════════════════════════════════════════════════
+
+function loadDailyConfig() {
+    const saved = localStorage.getItem('crm-daily-config');
+    if (saved) {
+        try {
+            const parsedConfig = JSON.parse(saved);
+            dailyConfig.currentWorkDay = parsedConfig.currentWorkDay || 1;
+            dailyConfig.pharmaciesPerDay = parsedConfig.pharmaciesPerDay || DEFAULT_PHARMACIES_PER_DAY;
+        } catch (error) {
+            console.warn('Error cargando configuración:', error);
+        }
+    }
+    
+    updateDailyConfigUI();
+    console.log('📅 Configuración diaria cargada:', dailyConfig);
+}
+
+function saveDailyConfig() {
+    localStorage.setItem('crm-daily-config', JSON.stringify({
+        currentWorkDay: dailyConfig.currentWorkDay,
+        pharmaciesPerDay: dailyConfig.pharmaciesPerDay,
+        lastUpdated: new Date().toISOString()
+    }));
+    console.log('💾 Configuración diaria guardada');
+}
+
+function updateDailyConfigUI() {
+    if (currentWorkDayInput) currentWorkDayInput.value = dailyConfig.currentWorkDay;
+    if (pharmaciesPerDayInput) pharmaciesPerDayInput.value = dailyConfig.pharmaciesPerDay;
+    if (totalDailyGoalElement) totalDailyGoalElement.textContent = dailyConfig.totalDailyGoal;
+    if (displayWorkDaysElement) displayWorkDaysElement.textContent = dailyConfig.currentWorkDay;
+    if (visitsDailyTargetElement) visitsDailyTargetElement.textContent = dailyConfig.totalDailyGoal;
+    if (transfersDailyTargetElement) transfersDailyTargetElement.textContent = dailyConfig.totalDailyGoal;
+}
+
+function updateDailyStatus(visitedCount, transferredCount) {
+    if (!dailyStatusElement) return;
+    
+    const dailyGoal = dailyConfig.totalDailyGoal;
+    const isVisitsOnTrack = visitedCount >= dailyGoal;
+    const isTransfersOnTrack = transferredCount >= dailyGoal;
+    
+    let status = '';
+    let className = '';
+    
+    if (isVisitsOnTrack && isTransfersOnTrack) {
+        status = '🎉 ¡Objetivo cumplido!';
+        className = 'status-success';
+    } else if (visitedCount >= dailyGoal * 0.8 || transferredCount >= dailyGoal * 0.8) {
+        status = '⚡ En buen camino';
+        className = 'status-progress';
+    } else {
+        status = '🔥 Necesita impulso';
+        className = 'status-behind';
+    }
+    
+    dailyStatusElement.textContent = status;
+    dailyStatusElement.className = `summary-status ${className}`;
+}
+
+// Event listener para actualizar configuración diaria
+updateDailyConfigBtn?.addEventListener('click', () => {
+    const newWorkDay = parseInt(currentWorkDayInput?.value) || 1;
+    const newPharmaciesPerDay = parseInt(pharmaciesPerDayInput?.value) || DEFAULT_PHARMACIES_PER_DAY;
+    
+    // Validaciones
+    if (newWorkDay < 1 || newWorkDay > 30) {
+        showToast('El día laboral debe estar entre 1 y 30', 'warning');
+        return;
+    }
+    
+    if (newPharmaciesPerDay < 1 || newPharmaciesPerDay > 50) {
+        showToast('Las farmacias por día deben estar entre 1 y 50', 'warning');
+        return;
+    }
+    
+    dailyConfig.currentWorkDay = newWorkDay;
+    dailyConfig.pharmaciesPerDay = newPharmaciesPerDay;
+    
+    saveDailyConfig();
+    updateDailyConfigUI();
+    
+    // Actualizar métricas con nueva configuración
+    updateMetrics();
+    
+    showToast(`📅 Configuración actualizada: Día ${newWorkDay}, ${newPharmaciesPerDay} farmacias/día`, 'success');
+});
 
 // ═══════════════════════════════════════════════════════════════
 // 🎨 SISTEMA DE TEMA
@@ -301,6 +412,9 @@ logoutBtn?.addEventListener('click', async () => {
 function initializeCRM() {
     console.log('🚀 Inicializando CRM...');
     
+    // Cargar configuración diaria
+    loadDailyConfig();
+    
     const q = query(pharmaciesCollection, orderBy('nombre'));
     
     if (unsubscribe) {
@@ -380,11 +494,11 @@ function cleanupCRM() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 📈 SISTEMA DE MÉTRICAS CORREGIDO
+// 📈 SISTEMA DE MÉTRICAS ACTUALIZADO CON DÍAS LABORALES
 // ═══════════════════════════════════════════════════════════════
 
 function updateMetrics() {
-    console.log('📊 Actualizando métricas...');
+    console.log('📊 Actualizando métricas con configuración diaria...');
     
     if (!allPharmacies.length) {
         console.log('⚠️ No hay farmacias para calcular métricas');
@@ -392,8 +506,8 @@ function updateMetrics() {
         return;
     }
     
-    // CORRECCIÓN: Debugging detallado
     const totalCount = allPharmacies.length;
+    const dailyGoal = dailyConfig.totalDailyGoal;
     
     // Contar con logging detallado
     let visitedCount = 0;
@@ -421,24 +535,27 @@ function updateMetrics() {
     });
     
     console.log(`📊 RESULTADOS: Total=${totalCount}, Visitadas=${visitedCount}, Transferidas=${transferredCount}`);
+    console.log(`🎯 OBJETIVO DIARIO: ${dailyGoal} (Día ${dailyConfig.currentWorkDay} × ${dailyConfig.pharmaciesPerDay})`);
     
-    // Calcular porcentajes
-    const visitsPercentageValue = totalCount > 0 ? Math.round((visitedCount / totalCount) * 100) : 0;
-    const transfersPercentageValue = totalCount > 0 ? Math.round((transferredCount / totalCount) * 100) : 0;
+    // Calcular porcentajes basados en objetivo diario
+    const visitsPercentageValue = dailyGoal > 0 ? Math.round((visitedCount / dailyGoal) * 100) : 0;
+    const transfersPercentageValue = dailyGoal > 0 ? Math.round((transferredCount / dailyGoal) * 100) : 0;
     const goalPercentageValue = Math.min(Math.round((transferredCount / MONTHLY_GOAL) * 100), 100);
     const goalRemainingValue = Math.max(MONTHLY_GOAL - transferredCount, 0);
     
-    console.log(`📊 PORCENTAJES: Visitas=${visitsPercentageValue}%, Transferencias=${transfersPercentageValue}%, Objetivo=${goalPercentageValue}%`);
+    console.log(`📊 PORCENTAJES: Visitas=${visitsPercentageValue}% (${visitedCount}/${dailyGoal}), Transferencias=${transfersPercentageValue}% (${transferredCount}/${dailyGoal})`);
     
-    // CORRECCIÓN: Actualizar DOM con validación
-    updateMetricElement(visitsPercentage, `${visitsPercentageValue}%`);
-    updateMetricElement(visitsCount, `${visitedCount} de ${totalCount}`);
-    updateMetricElement(visitsProgress, null, `${visitsPercentageValue}%`);
+    // Actualizar elementos de visitas
+    updateMetricElement(visitsPercentage, `${Math.min(visitsPercentageValue, 100)}%`);
+    updateMetricElement(visitsCount, `${visitedCount} de ${dailyGoal}`);
+    updateMetricElement(visitsProgress, null, `${Math.min(visitsPercentageValue, 100)}%`);
     
-    updateMetricElement(transfersPercentage, `${transfersPercentageValue}%`);
-    updateMetricElement(transfersCount, `${transferredCount} de ${totalCount}`);
-    updateMetricElement(transfersProgress, null, `${transfersPercentageValue}%`);
+    // Actualizar elementos de transferencias
+    updateMetricElement(transfersPercentage, `${Math.min(transfersPercentageValue, 100)}%`);
+    updateMetricElement(transfersCount, `${transferredCount} de ${dailyGoal}`);
+    updateMetricElement(transfersProgress, null, `${Math.min(transfersPercentageValue, 100)}%`);
     
+    // Actualizar objetivo mensual (120)
     updateMetricElement(goalRemaining, goalRemainingValue);
     updateMetricElement(goalProgress, null, `${goalPercentageValue}%`);
     updateMetricElement(goalPercentage, `${goalPercentageValue}%`);
@@ -446,16 +563,20 @@ function updateMetrics() {
     // Estado del objetivo
     if (goalStatus) {
         const statusText = transferredCount >= MONTHLY_GOAL 
-            ? '🎉 ¡Objetivo completado!' 
-            : `${goalPercentageValue}% completado`;
+            ? '🎉 ¡Objetivo mensual completado!' 
+            : `${goalPercentageValue}% del objetivo mensual`;
         goalStatus.innerHTML = statusText;
     }
     
+    // Actualizar resumen general
     updateMetricElement(totalPharmacies, totalCount);
     updateMetricElement(pendingVisits, pendingVisitsCount);
     updateMetricElement(pendingTransfers, pendingTransfersCount);
     
-    console.log('✅ Métricas actualizadas completamente');
+    // Actualizar estado diario
+    updateDailyStatus(visitedCount, transferredCount);
+    
+    console.log('✅ Métricas actualizadas completamente con objetivos diarios');
 }
 
 function updateMetricElement(element, textContent, width = null) {
@@ -470,26 +591,33 @@ function updateMetricElement(element, textContent, width = null) {
 
 function resetMetricsDisplay() {
     console.log('🔄 Reseteando display de métricas');
+    const dailyGoal = dailyConfig.totalDailyGoal;
+    
     updateMetricElement(visitsPercentage, '0%');
-    updateMetricElement(visitsCount, '0 de 0');
+    updateMetricElement(visitsCount, `0 de ${dailyGoal}`);
     updateMetricElement(visitsProgress, null, '0%');
     
     updateMetricElement(transfersPercentage, '0%');
-    updateMetricElement(transfersCount, '0 de 0');
+    updateMetricElement(transfersCount, `0 de ${dailyGoal}`);
     updateMetricElement(transfersProgress, null, '0%');
     
     updateMetricElement(goalRemaining, MONTHLY_GOAL);
     updateMetricElement(goalProgress, null, '0%');
     updateMetricElement(goalPercentage, '0%');
-    if (goalStatus) goalStatus.innerHTML = '0% completado';
+    if (goalStatus) goalStatus.innerHTML = '0% del objetivo mensual';
     
     updateMetricElement(totalPharmacies, '0');
     updateMetricElement(pendingVisits, '0');
     updateMetricElement(pendingTransfers, '0');
+    
+    if (dailyStatusElement) {
+        dailyStatusElement.textContent = 'En progreso';
+        dailyStatusElement.className = 'summary-status status-progress';
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🔄 SISTEMA DE REINICIO CORREGIDO
+// 🔄 SISTEMA DE REINICIO ACTUALIZADO
 // ═══════════════════════════════════════════════════════════════
 
 resetIndicatorsBtn?.addEventListener('click', () => {
@@ -534,7 +662,7 @@ async function resetAllIndicators() {
     }
     
     try {
-        // CORRECCIÓN: Procesar en lotes más pequeños
+        // Procesar en lotes más pequeños
         const BATCH_SIZE = 500; // Firebase tiene límite de 500 operaciones por batch
         let totalProcessed = 0;
         
@@ -565,8 +693,15 @@ async function resetAllIndicators() {
             }
         }
         
+        // Reiniciar configuración diaria
+        dailyConfig.currentWorkDay = 1;
+        dailyConfig.pharmaciesPerDay = DEFAULT_PHARMACIES_PER_DAY;
+        saveDailyConfig();
+        updateDailyConfigUI();
+        
         console.log(`🎉 REINICIO COMPLETADO: ${totalProcessed} farmacias reiniciadas`);
         showToast(`🎉 ${totalProcessed} indicadores reiniciados exitosamente`, 'success', 5000);
+        showToast('📅 Configuración de días laborales reiniciada', 'info', 3000);
         
     } catch (error) {
         console.error('❌ Error en reinicio:', error);
@@ -580,7 +715,7 @@ async function resetAllIndicators() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 📋 RENDERIZADO Y FILTROS
+// 📋 RENDERIZADO Y FILTROS (Sin cambios)
 // ═══════════════════════════════════════════════════════════════
 
 function renderTable(pharmacies) {
@@ -724,7 +859,7 @@ function updateUploadSectionVisibility() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🎯 EVENT LISTENERS
+// 🎯 EVENT LISTENERS (Sin cambios)
 // ═══════════════════════════════════════════════════════════════
 
 searchBox?.addEventListener('input', debounce(applyFilters, 300));
@@ -755,7 +890,7 @@ refreshBtn?.addEventListener('click', () => {
 themeToggle?.addEventListener('click', toggleTheme);
 
 // ═══════════════════════════════════════════════════════════════
-// 🖱️ CLICKS EN TABLA
+// 🖱️ CLICKS EN TABLA (Sin cambios)
 // ═══════════════════════════════════════════════════════════════
 
 tableBody?.addEventListener('click', async (e) => {
@@ -798,7 +933,7 @@ tableBody?.addEventListener('click', async (e) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// ☁️ CARGA DE DATOS INICIALES
+// ☁️ CARGA DE DATOS INICIALES (Sin cambios)
 // ═══════════════════════════════════════════════════════════════
 
 btnUpload?.addEventListener('click', async () => {
@@ -992,6 +1127,8 @@ BUCARAMANGA/ DROGUERIA COLOMBIA /1688 	COOPIDROGAS	 BUCARAMANGA/ 07 /CL 33 # 15
 35286 - DROGUERIA NUEVA LUZ	COOPIDROGAS	Dg. 45 # 109A-26 - FLORIDABLANCA
 35540 - DROGUERIA GRANADOS EL PUENTE	COOPIDROGAS	CR 6 # 19-13 - PIEDECUESTA
 36061 - MAS X MENOS	COOPIDROGAS	CL 5 # 29-52 - AGUACHICA
+// Continuación del parseInitialData() desde donde se cortó...
+
 36125 - DROGUERIA Y PERFUMERIA DROETICAS	COOPIDROGAS	CL.2 # 28-100(B.LA VICTORIA) - AGUACHICA
 36127 - DROGUERIA ECOVIDA	COOPIDROGAS	CR 15 # 8 - 22 - PIEDECUESTA
 36217 - DROGUERIA SUPERDROGAS LEBRIJA	COOPIDROGAS	CL 12 # 8 - 12 LEBRIJA
@@ -1286,6 +1423,192 @@ const additionalStyles = `
     }
 }
 
+/* Estilos para la nueva sección de configuración diaria */
+.daily-config-section {
+    margin-bottom: 2rem;
+}
+
+.daily-config-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.daily-config-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.config-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.config-icon {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.config-title h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.config-title p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.config-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: start;
+}
+
+.config-inputs {
+    display: flex;
+    gap: 1.5rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.input-group.compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 140px;
+}
+
+.input-group.compact label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.input-group.compact input {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.input-group.compact input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-helper {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-top: 0.25rem;
+}
+
+.btn-primary.compact {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    height: fit-content;
+    margin-top: 1.5rem;
+}
+
+.daily-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 200px;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.summary-item.status {
+    border-color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.summary-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.summary-unit {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-left: 0.25rem;
+}
+
+.summary-status {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+}
+
+.summary-status.status-success {
+    background: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+}
+
+.summary-status.status-progress {
+    background: rgba(251, 191, 36, 0.1);
+    color: rgb(251, 191, 36);
+}
+
+.summary-status.status-behind {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(239, 68, 68);
+}
+
+/* Mejoras en métricas */
+.metric-extra {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metric-extra-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.metric-extra span:last-child {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
 /* Estilos mejorados */
 .cadena-badge {
     background: var(--primary-color);
@@ -1352,6 +1675,29 @@ const additionalStyles = `
 }
 
 /* Responsive improvements */
+@media (max-width: 768px) {
+    .config-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .config-inputs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .daily-summary {
+        min-width: auto;
+    }
+    
+    .summary-item {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}
+
 @media (max-width: 640px) {
     .cadena-badge {
         font-size: 0.6875rem;
@@ -1371,6 +1717,14 @@ const additionalStyles = `
     .toast {
         min-width: 280px;
         margin: 0 1rem;
+    }
+    
+    .daily-config-card {
+        padding: 1rem;
+    }
+    
+    .config-inputs {
+        gap: 1rem;
     }
 }
 
@@ -1402,8 +1756,9 @@ document.head.appendChild(styleSheet);
 // ═══════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎉 CRM Farmacias v2.1.1 iniciado correctamente');
+    console.log('🎉 CRM Farmacias v2.2.0 iniciado correctamente');
     console.log('📱 Dispositivo:', /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'Móvil' : 'Desktop');
+    console.log('📅 Nueva funcionalidad: Control de días laborales activada');
     
     // Inicializar tema
     initializeTheme();
@@ -1437,6 +1792,7 @@ window.addEventListener('unhandledrejection', (event) => {
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     window.CRM_DEBUG = {
         allPharmacies: () => allPharmacies,
+        dailyConfig: () => dailyConfig,
         showToast,
         setTheme,
         triggerAuth: () => auth,
@@ -1448,26 +1804,39 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
         debugMetrics: () => {
             console.log('=== DEBUG MÉTRICAS ===');
             console.log('Total farmacias:', allPharmacies.length);
+            console.log('Configuración diaria:', dailyConfig);
             
             const visitadas = allPharmacies.filter(p => p.visitado === 'Realizado');
             const transferidas = allPharmacies.filter(p => p.transferencia === 'Realizado');
             
             console.log('Visitadas:', visitadas.length, visitadas.map(p => p.nombre));
             console.log('Transferidas:', transferidas.length, transferidas.map(p => p.nombre));
+            console.log('Objetivo diario total:', dailyConfig.totalDailyGoal);
             
             // Mostrar primeras 10 con estados
             allPharmacies.slice(0, 10).forEach(p => {
                 console.log(`${p.nombre}: V=${p.visitado}, T=${p.transferencia}`);
             });
+        },
+        // Nueva función para probar configuración diaria
+        debugDailyConfig: () => {
+            console.log('=== DEBUG CONFIGURACIÓN DIARIA ===');
+            console.log('Día laboral actual:', dailyConfig.currentWorkDay);
+            console.log('Farmacias por día:', dailyConfig.pharmaciesPerDay);
+            console.log('Objetivo total calculado:', dailyConfig.totalDailyGoal);
+            console.log('LocalStorage:', localStorage.getItem('crm-daily-config'));
         }
     };
     console.log('🔧 Modo debug activado. Usa window.CRM_DEBUG para inspeccionar.');
     console.log('💡 Ejecuta CRM_DEBUG.debugMetrics() para ver estado de métricas');
+    console.log('📅 Ejecuta CRM_DEBUG.debugDailyConfig() para ver configuración diaria');
 }
 
-console.log('✅ JavaScript del CRM cargado completamente con todas las correcciones');
-console.log('🐛 Correcciones aplicadas:');
-console.log('  - Normalización de estados con función normalizeStatus()');
-console.log('  - Sistema de reinicio con batching mejorado');
-console.log('  - Logging detallado para debugging');
-console.log('  - Función debug para métricas');
+console.log('✅ JavaScript del CRM cargado completamente con todas las funcionalidades');
+console.log('🐛 Nuevas funcionalidades v2.2.0:');
+console.log('  - ✅ Control de días laborales con persistencia');
+console.log('  - ✅ Cálculo automático de objetivos diarios');
+console.log('  - ✅ Métricas actualizadas con objetivos diarios');
+console.log('  - ✅ Estado visual del progreso diario');
+console.log('  - ✅ Validaciones y controles de entrada');
+console.log('  - ✅ Integración completa con sistema existente');
