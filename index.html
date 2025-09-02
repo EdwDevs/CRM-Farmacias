@@ -56,7 +56,7 @@
     <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
             <div class="header-left">
-                <h1>📊 CRM Farmacias <span class="version-badge">v2.1</span></h1>
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.2</span></h1>
             </div>
             <div class="header-right">
                 <button id="reset-indicators-btn" class="btn-warning" title="Reiniciar indicadores para nuevo mes">
@@ -70,6 +70,53 @@
             </div>
         </div>
 
+        <!-- Nueva Sección: Configuración de Días Laborales -->
+        <section class="daily-config-section">
+            <div class="daily-config-card">
+                <div class="config-header">
+                    <div class="config-icon">📅</div>
+                    <div class="config-title">
+                        <h3>Configuración de Días Laborales</h3>
+                        <p>Establece tu progreso diario para calcular objetivos</p>
+                    </div>
+                </div>
+                <div class="config-content">
+                    <div class="config-inputs">
+                        <div class="input-group compact">
+                            <label for="current-work-day">Día Laboral Actual:</label>
+                            <input type="number" id="current-work-day" min="1" max="30" value="1" placeholder="Ej: 1, 2, 3...">
+                            <span class="input-helper">¿Cuántos días laborales has completado?</span>
+                        </div>
+                        <div class="input-group compact">
+                            <label for="pharmacies-per-day">Farmacias por Día:</label>
+                            <input type="number" id="pharmacies-per-day" min="1" max="50" value="16" placeholder="Ej: 16">
+                            <span class="input-helper">Meta diaria de farmacias a visitar</span>
+                        </div>
+                        <button id="update-daily-config" class="btn-primary compact">
+                            <span>Actualizar</span>
+                            <span>💾</span>
+                        </button>
+                    </div>
+                    <div class="daily-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">📋 Objetivo Total:</span>
+                            <span class="summary-value" id="total-daily-goal">16</span>
+                            <span class="summary-unit">farmacias</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">⏰ Días Laborales:</span>
+                            <span class="summary-value" id="display-work-days">1</span>
+                            <span class="summary-unit">días</span>
+                        </div>
+                        <div class="summary-item status">
+                            <span class="summary-label">🎯 Estado:</span>
+                            <span class="summary-status" id="daily-status">En progreso</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Metrics Dashboard -->
         <section class="metrics-dashboard">
             <div class="metrics-grid">
@@ -79,7 +126,7 @@
                         <div class="metric-icon">👥</div>
                         <div class="metric-title">
                             <h3>Cobertura de Visitas</h3>
-                            <p>Farmacias visitadas</p>
+                            <p>Farmacias visitadas vs objetivo diario</p>
                         </div>
                     </div>
                     <div class="metric-content">
@@ -90,6 +137,10 @@
                         <div class="progress-bar">
                             <div class="progress-fill visits-progress" id="visits-progress"></div>
                         </div>
+                        <div class="metric-extra">
+                            <span class="metric-extra-label">Objetivo diario:</span>
+                            <span id="visits-daily-target">0</span>
+                        </div>
                     </div>
                 </div>
 
@@ -99,7 +150,7 @@
                         <div class="metric-icon">📦</div>
                         <div class="metric-title">
                             <h3>Cobertura de Transferencias</h3>
-                            <p>Farmacias con transferencia</p>
+                            <p>Transferencias vs objetivo diario</p>
                         </div>
                     </div>
                     <div class="metric-content">
@@ -109,6 +160,10 @@
                         </div>
                         <div class="progress-bar">
                             <div class="progress-fill transfers-progress" id="transfers-progress"></div>
+                        </div>
+                        <div class="metric-extra">
+                            <span class="metric-extra-label">Objetivo diario:</span>
+                            <span id="transfers-daily-target">0</span>
                         </div>
                     </div>
                 </div>
@@ -273,6 +328,7 @@
                         <li>Cambiará todas las visitas a "Pendiente"</li>
                         <li>Cambiará todas las transferencias a "Pendiente"</li>
                         <li>Reiniciará las métricas de cobertura</li>
+                        <li>Reiniciará la configuración de días laborales</li>
                         <li><strong>No se puede deshacer</strong></li>
                     </ul>
                 </div>
