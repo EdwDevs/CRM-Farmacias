@@ -1057,3 +1057,127 @@ button {
 }
 
 .hidden { display: none !important; }
+/* === MEJORAS MOBILE CRMs VERSION 2.1+ === */
+
+/* TABLA: Scroll horizontal, mejor tacto y legibilidad en móvil */
+@media (max-width: 600px) {
+  .table-container-modern {
+    padding: 0.5rem;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-wrapper {
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    border: none;
+  }
+  .modern-table {
+    width: 640px;
+    min-width: 90vw;
+    font-size: 0.95em;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: none;
+  }
+  .modern-table th,
+  .modern-table td {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.96em;
+    white-space: nowrap;
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  .modern-table th {
+    background: var(--primary-100);
+    color: var(--primary-900);
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 700;
+    font-size: 1em;
+  }
+  .modern-table td {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary);
+  }
+  .modern-table tbody tr:hover {
+    background: var(--primary-50);
+    box-shadow: none;
+    transform: scale(1.01);
+  }
+}
+
+/* CONTAINERS Y METRICS: Columnas apiladas en móvil */
+@media (max-width: 600px) {
+  .container, .filters-modern, .upload-section-modern {
+    padding: 0.4rem 0.25rem;
+    margin: 0.25rem;
+    border-radius: var(--radius-md);
+  }
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+    margin: 0.4rem 0;
+  }
+  .metric-card {
+    padding: 1rem 0.7rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* BOTONES Y TOASTS: Tacto fácil y ancho completo */
+@media (max-width: 600px) {
+  .btn-primary, .btn-danger, .btn-secondary, .btn-warning, .btn-outline, button {
+    padding: 0.7em 1.1em;
+    font-size: 1em;
+    border-radius: var(--radius-md);
+    width: 100%;
+    margin-bottom: 0.5em;
+  }
+  .toast {
+    min-width: 95vw !important;
+    font-size: 1em;
+    padding: 0.7em 1.1em;
+    margin: 0.1rem;
+  }
+}
+
+/* MODAL Y HEADER: Más táctil, más compacto */
+@media (max-width: 600px) {
+  .modal-content {
+    padding: 1em 0.5em;
+    width: 96vw;
+    max-width: 99vw;
+    border-radius: var(--radius-lg);
+  }
+  .header-controls {
+    flex-direction: column;
+    gap: 0.3rem;
+    align-items: stretch;
+  }
+}
+
+/* Status badges: apilados y legibles */
+@media (max-width: 600px) {
+  .status-btn {
+    width: 100%;
+    margin-bottom: 0.35em;
+    font-size: 0.96em;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Input y select: más grandes y táctiles */
+@media (max-width: 600px) {
+  input, select, textarea {
+    font-size: 1em;
+    border-radius: var(--radius-md);
+    padding: 0.7em 1em;
+    width: 100%;
+    margin-bottom: 0.5em;
+  }
+}
