@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Farmacias - Sistema Unificado v2.4</title>
+    <title>CRM Farmacias - Sistema Unificado v2.5</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* ================================
-           MODERN CRM STYLES - v2.4
+           MODERN CRM STYLES - v2.5
            Optimizado para rendimiento y UX
            ================================ */
 
@@ -350,7 +350,7 @@
     <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
             <div class="header-left">
-                <h1>📊 CRM Farmacias <span class="version-badge">v2.4</span></h1>
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.5</span></h1>
             </div>
             <div class="header-right">
                 <button id="reset-indicators-btn" class="btn-warning" title="Reiniciar indicadores para nuevo mes">
@@ -382,9 +382,9 @@
                             <span class="input-helper">¿Día del mes?</span>
                         </div>
                         <div class="input-group compact">
-                            <label for="pharmacies-per-day">Farmacias por Día:</label>
-                            <input type="number" id="pharmacies-per-day" min="1" max="50" value="16" placeholder="Ej: 16">
-                            <span class="input-helper">Meta diaria</span>
+                            <label for="pharmacies-per-day">Meta Diaria (Fija):</label>
+                            <input type="number" id="pharmacies-per-day" value="16" readonly style="background-color: var(--bg-secondary); cursor: not-allowed; opacity: 0.7;">
+                            <span class="input-helper">16 visitas x día</span>
                         </div>
                         <button id="update-daily-config" class="btn-primary compact">
                             <span>Actualizar</span>
@@ -393,7 +393,7 @@
                     </div>
                     <div class="daily-summary">
                         <div class="summary-item">
-                            <span class="summary-label">📋 Meta Diaria Total:</span>
+                            <span class="summary-label">📋 Meta Acumulada:</span>
                             <span class="summary-value" id="total-daily-goal">16</span>
                         </div>
                         <div class="summary-item status">
@@ -622,7 +622,7 @@
     <script type="module">
         /**
          * ═══════════════════════════════════════════════════════════════
-         * 🏥 CRM FARMACIAS - UNIFICADO V2.4
+         * 🏥 CRM FARMACIAS - UNIFICADO V2.5
          * Nueva funcionalidad: Estado "Justificada" y Mejoras de Diseño
          * ═══════════════════════════════════════════════════════════════
          */
@@ -892,21 +892,28 @@
 
         function loadDailyConfig() {
             const saved = localStorage.getItem('crm-daily-config');
-            if (saved) dailyConfig = JSON.parse(saved);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                dailyConfig.currentWorkDay = parsed.currentWorkDay || 1;
+                // Forzamos 16 siempre, ignorando lo guardado para cumplir la regla
+                dailyConfig.pharmaciesPerDay = DEFAULT_PHARMACIES_PER_DAY;
+            }
             if(elements.daily.dayInput) {
                 elements.daily.dayInput.value = dailyConfig.currentWorkDay;
-                elements.daily.goalInput.value = dailyConfig.pharmaciesPerDay;
+                // Aseguramos que el input muestre 16
+                elements.daily.goalInput.value = DEFAULT_PHARMACIES_PER_DAY;
                 elements.daily.totalLabel.textContent = dailyConfig.totalDailyGoal;
             }
         }
 
         elements.daily.btnUpdate?.addEventListener('click', () => {
             dailyConfig.currentWorkDay = parseInt(elements.daily.dayInput.value) || 1;
-            dailyConfig.pharmaciesPerDay = parseInt(elements.daily.goalInput.value) || 16;
+            // Forzamos 16 al guardar también
+            dailyConfig.pharmaciesPerDay = DEFAULT_PHARMACIES_PER_DAY;
             localStorage.setItem('crm-daily-config', JSON.stringify(dailyConfig));
             updateMetrics();
             elements.daily.totalLabel.textContent = dailyConfig.totalDailyGoal;
-            showToast('Configuración actualizada', 'success');
+            showToast('Días laborales actualizados', 'success');
         });
 
         function updateMetrics() {
@@ -1184,7 +1191,146 @@ DROGUERIA Y PERFUMERIA ANTIOQUEÑA	DG 105 # 30B - 13 SATELITE-FLORIDABLANCA
 DROGUERIAS JEREZ VILLABEL	CR 12 # 7 - 11 FLORIDABLANCA
 EL FARMACEUTA	CL 103 NO. 13B-79-BUCARAMANGA
 FARMACIA 1A	BUCARAMANGA/04 LOC 1/CR 15 103
-FARMACIA SAN MIGUEL	VIA PIEDECUESTA LOS SANTOS CONDOMINIO MESA DE LOS SANTOS LOCAL 3 - LOS SANTOS`;
+FARMACIA SAN MIGUEL	VIA PIEDECUESTA LOS SANTOS CONDOMINIO MESA DE LOS SANTOS LOCAL 3 - LOS SANTOS
+JEREZ	CR 15 E No. 105-61-BUCARAMANGA
+MANUELA BELTRAN	CR 13 #104C-34-BUCARAMANGA
+PUNTO FARMACEUTICO	CLL 63 #17E-01B - BUCARAMANGA
+REBAJA No. 11 BUCARAMANGA RICAURTE	CL 56 # 17 C - 12 BUCARAMANGA
+REBAJA PLUS No. 12 BUCARAMANGA PASAJE DE COMERCIO	CR 17 # 35 - 13 - BUCARAMANGA
+REBAJA PLUS No. 2 BUCARAMANGA CIUDADELA REAL DE MINAS	AV SAMANES # 9 - 75 BUCARAMANGA
+REBAJA PLUS No. 8 BUCARAMANGA LAS DELICIAS	CL 105 # 15 D - 03 BUCARAMANGA
+DROGUERIA SANTA LUCIA	CR 6 # 42 - 13 LAGOS II FLORIDABLANCA
+29094 - DROGUERIA GRANADOS MENDOZA	CR 6 # 43 - 18 LOCAL 2 BRR LAGOS II FLORIDABLANCA
+DROGUERIA PHARMALAGOS	CL 29 # 7 - 08 LAGOS 3 FLORIDABLANCA
+30986 - MAFCONT DROGUERIAS EL LAGO I	Cl. 29 #11-126 FLORIDABLANCA
+1022_CRUZ_VERDE_CARACOLÍ	Carrera 27 # 29 – 145 Local 408 FLORIDABLANCA
+10680 - ALTAMIRA	CR 5 # 94 - 62 - FLORIDABLANCA
+23250 - DROG.Y PERFUMERIA JAEL	CL 7 # 10 - 58 - FLORIDABLANCA
+26177 - GRANADOS LIMONCITO	 FLORIDABLANCA/09 /CR 15 # 6
+27726 - DROGUERIA GRANADOS BUCARIA	FLORIDABLANCA/4 local 101/BLOQUE 14
+DROGERIA TAYSOFI	CR 7 # 5 - 06 AV CARACOLI - FLORIDABLANCA
+SUPERNOVA	CR 40 203-28-FLORIDABLANCA
+LA Y	AV BUCARICA T8-1 FLORIDABLANCA
+DROGUERIA SERVIFARMA	SECTOR 9 BL 16 - 7 FLORIDABLANCA
+DROGUERIA BLANCO	CR 6 # 39 - 26 LAGOS II FLORIDABLANCA
+DROGUERIA FLORIDA	CR 8 # 7 - 53 BRR CENTRO FLORIDABLANCA
+41878 - DROGUERIA FARMATECUIDA	CL. 20 C # 19 - 03 (B. PORTAL CAMPE) GIRON
+34098 - DROGUERIA FARMASED	CL 14C #11-98 ALMENARES DE SAN GIRON - GIRON
+DROGUERIA LAS PRIMICIAS	CL 14B # 12A-76 VILLAS DE DON JUAN  GIRON
+34317 - DROGUERIA FARMASED 2	 GIRON/02 LC 2 /CR 13 # 13C
+DROGUERIA VALERY	CR 23 # 7A-04 BR. MIRADOR ARENALES GIRON
+DROGUERIA SANA SANAR	CL 10B # 20 - 04 -LAS VILLAS - GIRON
+DROGUERIA LAS VILLAS	CL 10B # 22 - 09 GIRON
+DROGUERIA LAS VILLAS DE SAN JUAN	CL 10b # 24A - 16 BRR. SAN JUAN DE GIRON GIRON
+36979 - DROGUERIA Y PERFUMERIA SAN FELIPE	CL.117 # 27-60 (B.NIZZA) - FLORIDABLANCA
+DROGUERIA LA GENERICA	CL 113 #32-43 LC 17 T0RRES DEL BICENTENARIO FLORIDABLANCA
+33231 - DROGUERIA VGA 	CL 113 # 32 - 79 COND T DEL BICENTENARIO - FLORIDABLANCA
+FARMASAY	CR 33 # 111-13 FLORIDABLANCA
+ALBA LUZ	CR 33 109-36 FLORIDABLANCA
+27134 - DROGUERIA PERFUMERIA ECONOMICA	DG.105 # 31-16 LC. 13 PLAZA SATELITE - FLORIDABLANCA
+PHARMA PROVENZA	CL 105 # 23-135 BUCARAMANGA
+REBAJA PLUS No. 1 BUCARAMANGA PROVENZA	CL 105 # 22 - 83 BRR PROVENZA BUCARAMANGA
+DROGUERIA PAGUE MENOS PROVENZA	CL 105 # 21 - 139 - BUCARAMANGA
+REBAJA PLUS 5 FLORIDABLANCA	CR 8 # 4 - 76 FLORIDABLANCA
+18745 - DROG.JACOME Y MISCELANEA	CR 33 # 52 - 145 - BUCARAMANGA
+COOFARMA 5	CR 33 # 52 B - 18 BUCARAMANGA
+ALEMANA 178	CR 33 # 52 B - ESQ BRR CABECERA BUCARAMANGA
+DROGUERIA PAGUE MENOS CABECERA	CR 35 # 52 - 88 - BUCARAMANGA
+634_CRUZ_VERDE_CABECERA DEL LLANO	Carrera 33 # 46 - 61 BUCARAMANGA
+33243 - DROGUERIA Y MINIMARKET GRAND BOULEV	CR.20 # 16-56 ET.2 TORRE 2 LC.24 BRR. SAN FRANCISCO BUCRAMANGA
+13695 - DROG. Y PERF. OLIMPICA	 BUCARAMANGA/06 (B.SAN RAFAEL) /CR.14 # 3
+DROGUERIA ASILO	CALLE 2 # 14A-123 BUCARAMANGA
+20816 - DROG.NUEVO MILENIO II	CR.12 # 19-30(B.KENNEDY) BUCARAMANGA
+19159 - DROG.Y PERFUMERIA DROGFARMA	 BUCARAMANGA/ 12 BRR ALARCON /CL 28 # 19 
+TODO SALUD	CR 26 #31-70 BUCARAMANGA
+REBAJA PLUS No. 4 BUCARAMANGA GUARIN	CR 33 # 30 A - 09 BUCARAMANGA
+REBAJA PLUS No. 6 BUCARAMANGA SAN ALONSO	CR 30 # 14 - 06 BUCARAMANGA
+DROGUERIA UNIVERSIDAD	CR 26 A # 10 - 18 BUCARAMANGA
+DROGUERIA PAGUE MENOS FLORIDABLANCA	CR 8 #  4 - 48 Y 52 FLORIDABLANCA
+DROGUERIA SUPERVIDA	CR 8 # 3 - 49 AGUACHICA
+DROGUERIA UNICA	CR 15 # 3 - 34 PUERTO MADERO PIEDECUESTA
+19178 - SUPERDROGAS PIEDECUESTA	CR 15 # 3 - 34 PUERTO MADERO - PIEDECUESTA
+DROGUERIA MEDIEXPREESS	CR 15 # 3 - 166 BRR PUERTO MADERO PIEDECUESTA
+DROGUERIA MEDIFARMA	CR 4 # 1 B -28 CAMPO VERDE PIEDECUESTA
+DROGUERIA JEREZ SAN RAFAEL	CR 15 # 7 - 14 SAN RAFAEL PIEDECUESTA
+30250 - DROGUERIA MOLINOS DEL VIENTO	CR.16 # 14-68(B.MOLINOS DEL VIENTO) - PIEDECUESTA
+28819 - DROGUERIA RIVERA PHARMA M	 PIEDECUESTA/ 04 BRR PASEO DEL PUENTE II /CR 4 # 21 
+DROGUERIA ECOFARMA	CR 2 C # 21 - 04 BRR PASEO DEL PUENTE II PIEDECUESTA
+32718 - DROGUERIA CAMARGO	CR 2 N # 21 - 16 BRR PASEO DEL PUENTE 2 - PIEDECUESTA
+32820 - DROGUERIA SALUD Y BELLEZA	AV 17 #2W-144 BRR BARRO BLANCO - PIEDECUESTA
+31359 - DROGUERIA Y MISCELANIA SALBE	AV17 # 15A-16 BRR BARRO BLANCO - PIEDECUESTA
+EKONOFARMA	CR 4 No- 0-20 LOC 1 PALERMO 1- PIEDECUESTA 
+ALEMANA 160	CL 200 # 13 - 08 LC 3 ED MONTESOL FLORIDABLANCA
+DROGUERIA PAGUE MENOS CAÑAVERAL	CL 33 # 26 - 27 CAÑAVERAL - FLORIDABLANCA
+ALEMANA 60	CR 26 # 30 - 28 BRR CAÑAVERAL FLORIDABLANCA
+831_CRUZ_VERDE_CC_CACIQUE	Transversal 93 # 34 -99 Local 371 y 372 BUCARAMANGA
+DROGUERIA ALEMANA 32 CACIQUE	TV ORIENTAL # 35  - 254 MIRADOR DEL CACIQUE BUCARAMANGA
+174_CRUZ_VERDE_PARQUE_TURBAY	CR 28 # 48-60 BUCARAMANGA
+26880 - DROGAS CHICAMOCHA	CR 27 A # 40 - 35 BRR MEJORAS PUBLICAS - BUCARAMANGA
+27700 - DROGUERIA FARMAKOS	CR 33 # 41 - 24 BUCARAMANGA
+294_CRUZ_VERDE_JUMBO_CABECERA_TIENDA	CR 33 # 41 - 34 BUCARAMANGA
+444_DROGUERIA_CRUZ_VERDE_CARRERA_33	Carrera 33 # 41 - 45 BUCARAMANGA
+36385 - DROGUERIA Y PERFUMERIA VIVIR	CL 32 # 33 A - 54 - BUCARAMANGA
+33063 - DROGUERIA FARMAVILLAS 2	 BUCARAMANGA/ ESQ BRR ALVAREZ /CL 32 # 38 
+DROGUERIA ALVAREZ	CR 38 # 32 - 121 - BUCARAMANGA
+19643- DROGAS CENTRAL DESCUENTOS BUCARAMAN	CL 34 # 34 C - 61 BRR ALVAREZ - BUCARAMANGA
+27134 - DROGUERIA PERFUMERIA ECONOMICA	CR 26 # 33-96 ESQ. BUCARAMANGA
+REBAJA PLUS No. 3 BUCARAMANGA SOTOMAYOR	CR 27 # 41 - 02 BUCARAMANGA
+REBAJA PLUS No. 14 BUCARAMANGA DIAMANTE II	Carrera 26 No. 85-44 BUCARAMANGA
+REBAJA PLUS No. 1 FLORIDABLANCA CANAVERAL	CL 30 # 26 - 10  FLORIDABLANCA
+DROGUERIA FOSCAL	CR 24 # 154 - 106 URB EL BOSQUE - FLORIDABLANCA
+VICTORIA DE LOS REYES	CL 67 18-25-BUCARAMANGA
+DROGUERIA CENTRAL DESCUENTOS	CL 67 # 17 - 14 BRR LA VICTORIA - BUCARAMANGA
+LA VICTORIA	BUCARAMANGA/07/CL 67 13
+36861 - HIPERFARMACIA AG	CR 11 67 -93 - BUCARAMANGA
+16201 - DROG.GRANADOS PABLO VI	CL 11 # 68 - 24 CENTRO - BUCARAMANGA
+DROGUERIA LINEAVITAL	CR 10E # 67 - 42 PABLO VI BUCARAMANGA
+28998 - DROGUERIA PERFUMERIA HL	CR 4 # 4 - 39 - SAN ALBERTO
+DROGUERIA PHARMATODO	Cl 4 # 4-1, San Alberto, Cesar
+DROGUERIA FARMASALUD UNIVERSAL	CR 8 #16-02 SAN MARTIN
+DROGUERIA CASTILLO	CR 7 # 14-12 SAN MARTIN
+25211 - DROGUERIA SERVIC D	CR 7 # 14 - 26 (B. CENTRO) - SAN MARTIN
+18202 - DROGUERIA SUPERDROGAS PARRA	Cra 8 # 9-51 - PELAYA
+DROGUERIA JUSTY MORENO	Cl. 12 #10-1, Pelaya, Cesar
+37491 - DROGUERIA MAXIDROGAS	CL.6 # 16-66 LC.3 (B.OLYA HERRERA) - AGUACHICA
+26797 - DROGUERIA LA CURITA PLUS 2	CL 5 # 22 - 85 - AGUACHICA
+36061 - MAS X MENOS	CL 5 # 29-52 - AGUACHICA
+42088 - CURITA PLUS DROGUERIA	CR 15 # 5 - 02 - AGUACHICA
+29388 - DROGUERIA BENDITA PLUS	CL.6 # 8-04 (B.ARAUJO) GAMARRA
+10933 - DROGUERIA SAN JORGE - AGUACHICA	CL 5 # 15 - 90 - AGUACHICA
+29088 - DROGUERIA PAGUE MENOS LA QUINTA	CL 5 # 17 - 90 - AGUACHICA
+DROGUERIA SALUD Y BELLEZA AGUACHICA	CL 5 # 19-43 AGUACHICA
+PROVEEDORA RICHARD	CL 5#24A-54 AGUACHICA
+DROGUERIA TOTAL CONFIANZA	Cl. 12 #10-24 SANTA CLARA OCAÑA
+DROGUERIA RIAÑO	CR 49 N° 5-06 SANTA CLARA OCAÑA
+40811 - DROG SANTA CLARA 	CR.55B # 24-49 (B.SAN ANTONIO) RIONEGRO
+40336 - DROGUERIA X SANTA CLARA	CL 5A # 48-75 SANTA CLARA
+40159 - DROGUERIA LA X 5	 OCAÑA/03(B.LAS LLAMADAS) /CL 7 # 26
+21821 - DROGUERIA AVENIDA OCAÑA	CL 7 # 28 - 55 BRR PRIMAVERA - OCAÑA
+30494 - DROGUERIA BETEL	Cl. 11 #16a 21 local 3 - OCAÑA
+DROGUERIA LA NUEVA	CR 14 # 8 A - 25 OCAÑA
+DROGUERIA MEGAFARMA OCANA	CR.14 # 8-18(B.MERCADO) OCAÑA
+DROGUERIA Y AUTOSERVICIO 20-20	CR.13 # 8-47 (B.DULCE NOMBRE) OCAÑA
+27900 - DROGUERIA LA 10 OCAÑA	CL 10 # 14 - 81- OCAÑA
+42179 - DROGUERIA MAXIDROGAS ABREGO	CL. 18 # 4 - 02 (B. SANTA BARBARA) - ABREGO
+29567 - DROGUERIA FARMAPAEZ	CR 5 # 12-73J (B.CALLE REAL) - ABREGO
+32268 - DROGUERIA PHARMAKOS	CR 6 # 12-14 (B. CALLE CENTRAL) - ABREGO
+40459 - DROGUERIA SANTA ISABEL	CR.6 # 13 - 64 (B. CENTRO) - OCAÑA
+DROGUERIA PAGUE MENOS	CR 6 CL 13  Abrego, Norte de Santander
+42213 - DROGUERIA UNIDROGAS EDGOSA SAFME	CR 6 # 15-31 ESQUINA ABREGO ABRERO
+27760 - DROGUERIA PAGUE MENOS OCAÑA	CR 11 # 12 - 02 - OCAÑA
+34567 - DROGUERIA LA 13 OCAÑA	CR 13 # 11 - 56 - OCAÑA
+21812 - DROGUERIA OCAÑA	CL 11 # 13 - 69 - OCAÑA
+40952 - DROGUERIA PINEDA	CR.15 A # 11 - 02 (B. SAN AGUSTIN) - OCAÑA
+DROGUERIA SAN AGUSTIN	CL 11 # 16-12 OCAÑA
+40337 - DROGUERIA X SAN AGUSTIN	CL. 11 # 15 -10 (B. SAN AGUSTIN) - OCAÑA
+26367 - DROGUERIA LA DOCE	CL 12 # 6 - 119 - OCAÑA
+39778 - DROGUERIA CLAVIJO	CR 13 # 9 - 34 - OCAÑA
+DROGUERIA SANTA ANA	CR 13 # 10 - 71 OCAÑA
+DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
+25113 - DROGUERIA CENTRAL OCAÑA	CR 12 # 9 - 60 - OCAÑA
+40159 - DROGUERIA LA X 5	 OCAÑA/03(B.LAS LLAMADAS) /CL 7 # 26
+37955 - DROGUERIA LUPITA	 OCAÑA/07 SANTA CLARA /CR 49 N° 4`;
 
             const lines = rawData.split('\n');
             const seen = new Set();
