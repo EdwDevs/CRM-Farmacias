@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Farmacias - Sistema Unificado v2.6</title>
+    <title>CRM Farmacias - Sistema Unificado v2.8</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* ================================
-           MODERN CRM STYLES - v2.6
-           Optimizado para móviles y escritorio
+           MODERN CRM STYLES - v2.8
            ================================ */
 
         :root {
@@ -350,7 +349,7 @@
     <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
             <div class="header-left">
-                <h1>📊 CRM Farmacias <span class="version-badge">v2.6</span></h1>
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.8</span></h1>
             </div>
             <div class="header-right">
                 <button id="reset-indicators-btn" class="btn-warning" title="Reiniciar indicadores para nuevo mes">
@@ -527,7 +526,7 @@
             
             <div class="filters-grid">
                 <div class="input-group">
-                    <input type="text" id="search-box" placeholder="Buscar farmacia, dirección...">
+                    <input type="text" id="search-box" placeholder="Buscar: nombre, dirección, cadena... (ej: cruz bucaramanga)">
                     <span class="search-icon">🔍</span>
                 </div>
                 
@@ -622,8 +621,8 @@
     <script type="module">
         /**
          * ═══════════════════════════════════════════════════════════════
-         * 🏥 CRM FARMACIAS - UNIFICADO V2.6
-         * Corrección de BUG: "undefined" en métricas móviles
+         * 🏥 CRM FARMACIAS - UNIFICADO V2.8
+         * Corrección: Carga de 329 Farmacias (Full List)
          * ═══════════════════════════════════════════════════════════════
          */
 
@@ -665,13 +664,11 @@
         const MONTHLY_GOAL = 120;
         const DEFAULT_PHARMACIES_PER_DAY = 16;
         
-        // BUG FIX: Objeto plano para evitar errores de serialización JSON en móviles
         let dailyConfig = {
             currentWorkDay: 1,
             pharmaciesPerDay: DEFAULT_PHARMACIES_PER_DAY
         };
 
-        // Helper para calcular el objetivo diario sin depender de getters
         function getTotalDailyGoal() {
              return dailyConfig.currentWorkDay * dailyConfig.pharmaciesPerDay;
         }
@@ -798,20 +795,29 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // 🔍 FILTROS Y RENDERIZADO
+        // 🔍 FILTROS Y RENDERIZADO (MEJORADO - INTUITIVO)
         // ═══════════════════════════════════════════════════════════════
 
         function applyFilters() {
-            const search = elements.searchBox.value.toLowerCase();
+            // 1. Obtener texto y dividirlo en palabras (tokens)
+            const searchText = elements.searchBox.value.toLowerCase().trim();
+            const searchTerms = searchText.split(/\s+/).filter(term => term.length > 0);
+            
             const fVisita = elements.filters.visitado.value;
             const fTransf = elements.filters.transferencia.value;
             const fCadena = elements.filters.cadena.value;
 
             const filtered = allPharmacies.filter(p => {
-                const matchSearch = p.nombre.toLowerCase().includes(search) || p.direccion.toLowerCase().includes(search);
+                // 2. Crear un "super string" con todo el contenido buscable
+                const pharmacyContent = `${p.nombre} ${p.direccion} ${p.cadena}`.toLowerCase();
+
+                // 3. Verificar si TODAS las palabras buscadas están en el contenido
+                const matchSearch = searchTerms.length === 0 || searchTerms.every(term => pharmacyContent.includes(term));
+                
                 const matchVisita = !fVisita || p.visitado === fVisita;
                 const matchTransf = !fTransf || p.transferencia === fTransf;
                 const matchCadena = !fCadena || p.cadena === fCadena;
+                
                 return matchSearch && matchVisita && matchTransf && matchCadena;
             });
 
@@ -908,7 +914,6 @@
                 elements.daily.dayInput.value = dailyConfig.currentWorkDay;
                 // Aseguramos que el input muestre 16
                 elements.daily.goalInput.value = DEFAULT_PHARMACIES_PER_DAY;
-                // Usamos la función helper en lugar del getter
                 elements.daily.totalLabel.textContent = getTotalDailyGoal();
             }
         }
@@ -927,19 +932,15 @@
             const visited = allPharmacies.filter(p => p.visitado === 'Realizado').length;
             const transferred = allPharmacies.filter(p => p.transferencia === 'Realizado').length;
             
-            // Contamos las justificadas
             const visitedJustified = allPharmacies.filter(p => p.visitado === 'Justificada').length;
             const transferredJustified = allPharmacies.filter(p => p.transferencia === 'Justificada').length;
             
-            // Cálculo explícito del objetivo diario (sin depender de getters)
             const dailyGoal = getTotalDailyGoal();
 
-            // Calculos
             const vPct = dailyGoal > 0 ? Math.min(100, Math.round((visited / dailyGoal) * 100)) : 0;
             const tPct = dailyGoal > 0 ? Math.min(100, Math.round((transferred / dailyGoal) * 100)) : 0;
             const mPct = Math.min(100, Math.round((transferred / MONTHLY_GOAL) * 100));
 
-            // Update DOM
             elements.metrics.visitsPct.textContent = `${vPct}%`;
             elements.metrics.visitsCount.textContent = `${visited} / ${dailyGoal}`;
             elements.metrics.visitsBar.style.width = `${vPct}%`;
@@ -954,7 +955,6 @@
             
             elements.metrics.total.textContent = allPharmacies.length;
             
-            // Pendientes reales = Total - (Realizados + Justificados)
             const pendingVisits = allPharmacies.length - (visited + visitedJustified);
             elements.metrics.pending.textContent = pendingVisits;
             
@@ -962,7 +962,6 @@
                 elements.metrics.justified.textContent = visitedJustified;
             }
 
-            // Estado Diario
             if (visited >= dailyGoal && transferred >= dailyGoal) {
                 elements.daily.statusLabel.textContent = '🎉 ¡Objetivo Cumplido!';
                 elements.daily.statusLabel.className = 'summary-status status-success';
@@ -1338,7 +1337,6 @@ DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
 37955 - DROGUERIA LUPITA	 OCAÑA/07 SANTA CLARA /CR 49 N° 4`;
 
             const lines = rawData.split('\n');
-            const seen = new Set();
             const parsed = [];
 
             lines.forEach(line => {
@@ -1346,6 +1344,7 @@ DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
                 
                 let parts = line.split('\t');
                 
+                // Si no hay tabs, intentamos separar por 2 o más espacios
                 if (parts.length < 2) {
                      parts = line.split(/\s{2,}/); 
                 }
@@ -1355,9 +1354,11 @@ DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
                     let direccion = parts[parts.length - 1].trim();
                     let cadena = 'General';
 
+                    // Lógica para detectar cadena si existe una columna en medio
                     if (parts.length > 2) {
                         cadena = parts[1].trim(); 
                     } else {
+                        // Inferencia basada en nombre
                         const upperName = nombre.toUpperCase();
                         if (upperName.includes("CRUZ VERDE")) cadena = "Cruz Verde";
                         else if (upperName.includes("ALEMANA")) cadena = "Alemana";
@@ -1365,17 +1366,14 @@ DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
                         else if (upperName.includes("GRANADOS")) cadena = "Granados";
                     }
 
-                    const key = `${nombre}-${direccion}`;
-                    if (!seen.has(key)) {
-                        seen.add(key);
-                        parsed.push({
-                            nombre,
-                            cadena,
-                            direccion,
-                            visitado: 'Pendiente',
-                            transferencia: 'Pendiente'
-                        });
-                    }
+                    // IMPORTANTE: Ya no filtramos duplicados para asegurar que aparezcan las 329 farmacias.
+                    parsed.push({
+                        nombre,
+                        cadena,
+                        direccion,
+                        visitado: 'Pendiente',
+                        transferencia: 'Pendiente'
+                    });
                 }
             });
 
