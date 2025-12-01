@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Farmacias - Sistema Unificado v2.5</title>
+    <title>CRM Farmacias - Sistema Unificado v2.6</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* ================================
-           MODERN CRM STYLES - v2.5
-           Optimizado para rendimiento y UX
+           MODERN CRM STYLES - v2.6
+           Optimizado para móviles y escritorio
            ================================ */
 
         :root {
@@ -350,7 +350,7 @@
     <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
             <div class="header-left">
-                <h1>📊 CRM Farmacias <span class="version-badge">v2.5</span></h1>
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.6</span></h1>
             </div>
             <div class="header-right">
                 <button id="reset-indicators-btn" class="btn-warning" title="Reiniciar indicadores para nuevo mes">
@@ -622,8 +622,8 @@
     <script type="module">
         /**
          * ═══════════════════════════════════════════════════════════════
-         * 🏥 CRM FARMACIAS - UNIFICADO V2.5
-         * Nueva funcionalidad: Estado "Justificada" y Mejoras de Diseño
+         * 🏥 CRM FARMACIAS - UNIFICADO V2.6
+         * Corrección de BUG: "undefined" en métricas móviles
          * ═══════════════════════════════════════════════════════════════
          */
 
@@ -664,11 +664,17 @@
         // === CONSTANTES & CONFIG ===
         const MONTHLY_GOAL = 120;
         const DEFAULT_PHARMACIES_PER_DAY = 16;
+        
+        // BUG FIX: Objeto plano para evitar errores de serialización JSON en móviles
         let dailyConfig = {
             currentWorkDay: 1,
-            pharmaciesPerDay: DEFAULT_PHARMACIES_PER_DAY,
-            get totalDailyGoal() { return this.currentWorkDay * this.pharmaciesPerDay; }
+            pharmaciesPerDay: DEFAULT_PHARMACIES_PER_DAY
         };
+
+        // Helper para calcular el objetivo diario sin depender de getters
+        function getTotalDailyGoal() {
+             return dailyConfig.currentWorkDay * dailyConfig.pharmaciesPerDay;
+        }
 
         // === DOM REFERENCES ===
         const elements = {
@@ -902,7 +908,8 @@
                 elements.daily.dayInput.value = dailyConfig.currentWorkDay;
                 // Aseguramos que el input muestre 16
                 elements.daily.goalInput.value = DEFAULT_PHARMACIES_PER_DAY;
-                elements.daily.totalLabel.textContent = dailyConfig.totalDailyGoal;
+                // Usamos la función helper en lugar del getter
+                elements.daily.totalLabel.textContent = getTotalDailyGoal();
             }
         }
 
@@ -912,7 +919,7 @@
             dailyConfig.pharmaciesPerDay = DEFAULT_PHARMACIES_PER_DAY;
             localStorage.setItem('crm-daily-config', JSON.stringify(dailyConfig));
             updateMetrics();
-            elements.daily.totalLabel.textContent = dailyConfig.totalDailyGoal;
+            elements.daily.totalLabel.textContent = getTotalDailyGoal();
             showToast('Días laborales actualizados', 'success');
         });
 
@@ -924,9 +931,8 @@
             const visitedJustified = allPharmacies.filter(p => p.visitado === 'Justificada').length;
             const transferredJustified = allPharmacies.filter(p => p.transferencia === 'Justificada').length;
             
-            const totalJustified = visitedJustified + transferredJustified; // Solo para mostrar en resumen
-            
-            const dailyGoal = dailyConfig.totalDailyGoal;
+            // Cálculo explícito del objetivo diario (sin depender de getters)
+            const dailyGoal = getTotalDailyGoal();
 
             // Calculos
             const vPct = dailyGoal > 0 ? Math.min(100, Math.round((visited / dailyGoal) * 100)) : 0;
@@ -949,12 +955,11 @@
             elements.metrics.total.textContent = allPharmacies.length;
             
             // Pendientes reales = Total - (Realizados + Justificados)
-            // Calculamos pendientes de visita para el dashboard
             const pendingVisits = allPharmacies.length - (visited + visitedJustified);
             elements.metrics.pending.textContent = pendingVisits;
             
             if (elements.metrics.justified) {
-                elements.metrics.justified.textContent = visitedJustified; // Mostramos solo visitas justificadas aquí para consistencia
+                elements.metrics.justified.textContent = visitedJustified;
             }
 
             // Estado Diario
