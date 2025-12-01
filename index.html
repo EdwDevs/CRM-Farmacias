@@ -3,10 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Farmacias - Sistema Avanzado con Métricas</title>
+    <title>CRM Farmacias - Sistema Unificado v2.4</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* ================================
+           MODERN CRM STYLES - v2.4
+           Optimizado para rendimiento y UX
+           ================================ */
+
+        :root {
+            /* === COLORES === */
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            
+            --success-500: #10b981;
+            --success-600: #059669;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            --warning-500: #f59e0b;
+            --info-500: #06b6d4;
+            
+            /* Color para Justificada */
+            --indigo-100: #e0e7ff;
+            --indigo-500: #6366f1;
+            --indigo-600: #4f46e5;
+            --indigo-700: #4338ca;
+
+            /* === TEMA CLARO === */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border-color: #e2e8f0;
+            
+            /* === UI VARIABLES === */
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --font-primary: 'Inter', system-ui, sans-serif;
+            
+            color-scheme: light;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-color: #374151;
+            
+            /* Ajuste de Indigo para Dark Mode */
+            --indigo-100: #312e81; /* Fondo oscuro */
+            --indigo-500: #818cf8; /* Texto claro */
+            --indigo-600: #6366f1; /* Borde */
+            
+            color-scheme: dark;
+        }
+
+        /* === BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-primary);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* === COMPONENTS === */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Login */
+        .login-container-modern {
+            max-width: 420px;
+            margin-top: 5vh;
+        }
+        .login-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+        .brand-icon { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
+        .login-header h1 { text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .login-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 2rem; }
+
+        .input-group { position: relative; margin-bottom: 1.25rem; }
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .input-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); }
+
+        /* Buttons */
+        .btn-primary, .btn-secondary, .btn-danger, .btn-warning, .btn-outline {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary-600); color: white; width: 100%; }
+        .btn-primary:hover { background: var(--primary-700); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-danger { background: var(--danger-500); color: white; }
+        .btn-warning { background: var(--warning-500); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+
+        /* Dashboard Header */
+        .crm-container-modern { display: none; }
+        .header-controls { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; 
+            background: var(--bg-primary); padding: 1rem; border-radius: var(--radius-xl); border: 1px solid var(--border-color);
+        }
+        .version-badge { background: var(--primary-100); color: var(--primary-700); padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; }
+
+        /* Config Section */
+        .daily-config-section { margin-bottom: 1.5rem; }
+        .daily-config-card {
+            background: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl); padding: 1.5rem;
+        }
+        .config-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .config-icon { font-size: 1.5rem; }
+        .config-inputs { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+        .input-group.compact { margin-bottom: 0; min-width: 150px; }
+        .input-group.compact label { font-size: 0.875rem; display: block; margin-bottom: 0.25rem; }
+        .daily-summary { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; gap: 2rem; }
+        .summary-status { font-weight: 600; color: var(--warning-500); }
+        .summary-status.status-success { color: var(--success-600); }
+
+        /* Metrics */
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl); padding: 1.5rem;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .metric-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        }
+        .visits-card::before { background: var(--primary-500); }
+        .transfers-card::before { background: var(--success-500); }
+        .goal-card::before { background: var(--warning-500); }
+        .summary-card::before { background: #8b5cf6; }
+
+        .metric-header { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+        .metric-icon { font-size: 1.5rem; background: var(--bg-secondary); padding: 0.5rem; border-radius: 0.5rem; }
+        .metric-number span:first-child { font-size: 2rem; font-weight: 700; display: block; }
+        .progress-bar { height: 6px; background: var(--bg-secondary); border-radius: 99px; margin-top: 1rem; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s; }
+        .visits-progress { background: var(--primary-500); }
+        .transfers-progress { background: var(--success-500); }
+        .goal-progress { background: var(--warning-500); }
+        
+        /* Stats inside summary */
+        .stat-item { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.9rem; border-bottom: 1px dashed var(--border-color); }
+        .stat-item:last-child { border-bottom: none; }
+        .stat-value { font-weight: 600; }
+        .stat-value.pending { color: var(--danger-500); }
+        .stat-value.justified { color: var(--indigo-500); }
+
+
+        /* Filters & Table */
+        .filters-modern {
+            background: var(--bg-primary); padding: 1.5rem; border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color); margin-bottom: 1.5rem;
+        }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .filters-grid select, .filters-grid input {
+            width: 100%; padding: 0.6rem; border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); background: var(--bg-primary); color: var(--text-primary);
+        }
+
+        .table-container-modern {
+            background: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl); padding: 1.5rem;
+        }
+        .table-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+        .table-wrapper { overflow-x: auto; }
+        .modern-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .modern-table th { 
+            text-align: left; padding: 1rem; background: var(--bg-secondary); 
+            font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;
+        }
+        .modern-table td { padding: 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; vertical-align: middle; }
+        .modern-table tr:hover { background: var(--bg-secondary); }
+
+        /* Status Badges - Improved Design */
+        .status-btn {
+            padding: 0.4rem 0.8rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;
+            border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s ease; letter-spacing: 0.02em; min-width: 110px; justify-content: center;
+        }
+        /* Pendiente: Rojo suave */
+        .status-btn.pendiente { 
+            background: #fef2f2; color: var(--danger-600); border: 1px solid #fecaca; 
+        }
+        .status-btn.pendiente:hover { background: #fee2e2; }
+
+        /* Realizado: Verde vibrante */
+        .status-btn.realizado { 
+            background: #f0fdf4; color: var(--success-600); border: 1px solid #bbf7d0; 
+        }
+        .status-btn.realizado:hover { background: #dcfce7; }
+
+        /* Justificada: Índigo elegante */
+        .status-btn.justificada {
+            background: var(--indigo-100); color: var(--indigo-700); border: 1px solid var(--indigo-600);
+        }
+        .status-btn.justificada:hover { background: #c7d2fe; }
+
+        .cadena-badge {
+            background: var(--primary-100); color: var(--primary-700);
+            padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+        }
+        
+        .address-cell {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Upload Section */
+        .upload-section-modern {
+            background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--radius-xl);
+            padding: 1.5rem; margin-bottom: 1.5rem; display: none;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: var(--bg-primary); padding: 2rem; border-radius: var(--radius-xl);
+            width: 90%; max-width: 500px; box-shadow: var(--shadow-md);
+        }
+        .warning-box {
+            background: #fff7ed; border: 1px solid #fdba74; color: #9a3412;
+            padding: 1rem; border-radius: var(--radius-lg); margin: 1rem 0; font-size: 0.875rem;
+        }
+        .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 2000; }
+        .toast {
+            background: var(--bg-primary); color: var(--text-primary); padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.5rem;
+            animation: slideDown 0.3s;
+        }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed; top: 1rem; right: 1rem; width: 40px; height: 40px;
+            background: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 100; box-shadow: var(--shadow-sm);
+        }
+
+        @media (max-width: 768px) {
+            .header-controls { flex-direction: column; gap: 1rem; }
+            .table-wrapper { margin: 0 -1rem; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
     <!-- Theme Toggle -->
@@ -56,7 +350,7 @@
     <div id="crm-container" class="container crm-container-modern">
         <div class="header-controls">
             <div class="header-left">
-                <h1>📊 CRM Farmacias <span class="version-badge">v2.2</span></h1>
+                <h1>📊 CRM Farmacias <span class="version-badge">v2.4</span></h1>
             </div>
             <div class="header-right">
                 <button id="reset-indicators-btn" class="btn-warning" title="Reiniciar indicadores para nuevo mes">
@@ -84,13 +378,13 @@
                     <div class="config-inputs">
                         <div class="input-group compact">
                             <label for="current-work-day">Día Laboral Actual:</label>
-                            <input type="number" id="current-work-day" min="1" max="30" value="1" placeholder="Ej: 1, 2, 3...">
-                            <span class="input-helper">¿Cuántos días laborales has completado?</span>
+                            <input type="number" id="current-work-day" min="1" max="30" value="1" placeholder="Ej: 1">
+                            <span class="input-helper">¿Día del mes?</span>
                         </div>
                         <div class="input-group compact">
                             <label for="pharmacies-per-day">Farmacias por Día:</label>
                             <input type="number" id="pharmacies-per-day" min="1" max="50" value="16" placeholder="Ej: 16">
-                            <span class="input-helper">Meta diaria de farmacias a visitar</span>
+                            <span class="input-helper">Meta diaria</span>
                         </div>
                         <button id="update-daily-config" class="btn-primary compact">
                             <span>Actualizar</span>
@@ -99,14 +393,8 @@
                     </div>
                     <div class="daily-summary">
                         <div class="summary-item">
-                            <span class="summary-label">📋 Objetivo Total:</span>
+                            <span class="summary-label">📋 Meta Diaria Total:</span>
                             <span class="summary-value" id="total-daily-goal">16</span>
-                            <span class="summary-unit">farmacias</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">⏰ Días Laborales:</span>
-                            <span class="summary-value" id="display-work-days">1</span>
-                            <span class="summary-unit">días</span>
                         </div>
                         <div class="summary-item status">
                             <span class="summary-label">🎯 Estado:</span>
@@ -126,7 +414,7 @@
                         <div class="metric-icon">👥</div>
                         <div class="metric-title">
                             <h3>Cobertura de Visitas</h3>
-                            <p>Farmacias visitadas vs objetivo diario</p>
+                            <p>Farmacias visitadas vs objetivo</p>
                         </div>
                     </div>
                     <div class="metric-content">
@@ -137,10 +425,6 @@
                         <div class="progress-bar">
                             <div class="progress-fill visits-progress" id="visits-progress"></div>
                         </div>
-                        <div class="metric-extra">
-                            <span class="metric-extra-label">Objetivo diario:</span>
-                            <span id="visits-daily-target">0</span>
-                        </div>
                     </div>
                 </div>
 
@@ -149,8 +433,8 @@
                     <div class="metric-header">
                         <div class="metric-icon">📦</div>
                         <div class="metric-title">
-                            <h3>Cobertura de Transferencias</h3>
-                            <p>Transferencias vs objetivo diario</p>
+                            <h3>Transferencias</h3>
+                            <p>Pedidos realizados vs objetivo</p>
                         </div>
                     </div>
                     <div class="metric-content">
@@ -160,10 +444,6 @@
                         </div>
                         <div class="progress-bar">
                             <div class="progress-fill transfers-progress" id="transfers-progress"></div>
-                        </div>
-                        <div class="metric-extra">
-                            <span class="metric-extra-label">Objetivo diario:</span>
-                            <span id="transfers-daily-target">0</span>
                         </div>
                     </div>
                 </div>
@@ -196,8 +476,8 @@
                     <div class="metric-header">
                         <div class="metric-icon">📈</div>
                         <div class="metric-title">
-                            <h3>Resumen General</h3>
-                            <p>Estadísticas totales</p>
+                            <h3>Resumen Total</h3>
+                            <p>Estado de la base de datos</p>
                         </div>
                     </div>
                     <div class="metric-content">
@@ -207,12 +487,12 @@
                                 <span class="stat-value" id="total-pharmacies">0</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">Pendientes Visita:</span>
-                                <span class="stat-value pending" id="pending-visits">0</span>
+                                <span class="stat-label">Justificadas:</span>
+                                <span class="stat-value justified" id="justified-count">0</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">Pendientes Transfer.:</span>
-                                <span class="stat-value pending" id="pending-transfers">0</span>
+                                <span class="stat-label">Pendientes Reales:</span>
+                                <span class="stat-value pending" id="pending-visits">0</span>
                             </div>
                         </div>
                     </div>
@@ -224,14 +504,13 @@
         <div id="upload-section" class="upload-section-modern">
             <div class="setup-header">
                 <div class="setup-icon">🔧</div>
-                <h3>Configuración Inicial</h3>
+                <h3>Carga de Datos Inicial</h3>
             </div>
             <div class="setup-content">
-                <p>Si es tu primera vez, carga los datos iniciales en Firebase.</p>
-                <p><strong>Nota:</strong> Solo necesitas hacer esto una vez.</p>
+                <p>Carga el listado maestro de farmacias actualizado.</p>
             </div>
             <button id="upload-initial-data" class="btn-primary">
-                <span>Cargar Datos Iniciales</span>
+                <span>Cargar Listado Maestro</span>
                 <span>☁️</span>
             </button>
         </div>
@@ -239,7 +518,7 @@
         <!-- Filters -->
         <div class="filters filters-modern">
             <div class="filters-header">
-                <h3>🔍 Filtros de Búsqueda</h3>
+                <h3>🔍 Filtros</h3>
                 <button id="btn-reset-filters" class="btn-secondary">
                     <span>Limpiar</span>
                     <span>🧹</span>
@@ -248,20 +527,22 @@
             
             <div class="filters-grid">
                 <div class="input-group">
-                    <input type="text" id="search-box" placeholder="Buscar por nombre o dirección...">
+                    <input type="text" id="search-box" placeholder="Buscar farmacia, dirección...">
                     <span class="search-icon">🔍</span>
                 </div>
                 
                 <select id="filter-visitado">
-                    <option value="">Estado de Visita</option>
+                    <option value="">Estado Visita</option>
                     <option value="Pendiente">Pendiente</option>
                     <option value="Realizado">Realizado</option>
+                    <option value="Justificada">Justificada</option>
                 </select>
                 
                 <select id="filter-transferencia">
                     <option value="">Estado Transferencia</option>
                     <option value="Pendiente">Pendiente</option>
                     <option value="Realizado">Realizado</option>
+                    <option value="Justificada">Justificada</option>
                 </select>
                 
                 <select id="filter-cadena">
@@ -274,8 +555,8 @@
         <div class="table-container table-container-modern">
             <div class="table-header">
                 <div class="table-info">
-                    <h3>📋 Lista de Farmacias</h3>
-                    <p id="record-count">Cargando registros...</p>
+                    <h3>📋 Listado de Farmacias</h3>
+                    <p id="record-count">Cargando...</p>
                 </div>
                 <button id="refresh-btn" class="btn-outline">
                     <span>🔄</span>
@@ -286,15 +567,15 @@
                 <table class="modern-table">
                     <thead>
                         <tr>
-                            <th>🏪 Farmacia</th>
-                            <th>🏢 Cadena</th>
-                            <th>📍 Dirección</th>
-                            <th>👥 Visita</th>
-                            <th>📦 Transferencia</th>
+                            <th>Farmacia</th>
+                            <th>Cadena</th>
+                            <th>Dirección</th>
+                            <th class="text-center">Visita</th>
+                            <th class="text-center">Transferencia</th>
                         </tr>
                     </thead>
                     <tbody id="pharmacy-table-body">
-                        <!-- Dynamic content -->
+                        <!-- Content -->
                     </tbody>
                 </table>
                 
@@ -307,45 +588,696 @@
                 <!-- Empty State -->
                 <div id="empty-state" class="empty-state-modern" style="display: none;">
                     <div class="empty-icon">📭</div>
-                    <h3>No se encontraron farmacias</h3>
-                    <p>Intenta ajustar los filtros o cargar los datos iniciales.</p>
+                    <h3>Sin resultados</h3>
+                    <p>Ajusta los filtros o carga los datos iniciales.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Reset Confirmation Modal -->
+    <!-- Reset Modal -->
     <div id="reset-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🔄 Reiniciar Indicadores</h3>
+                <h3>🔄 Nuevo Mes</h3>
             </div>
             <div class="modal-body">
-                <p>¿Estás seguro de que quieres reiniciar todos los indicadores para iniciar un nuevo mes?</p>
+                <p>¿Reiniciar todos los indicadores a "Pendiente"?</p>
                 <div class="warning-box">
-                    <p><strong>⚠️ Esta acción:</strong></p>
+                    <p><strong>⚠️ Advertencia:</strong></p>
                     <ul>
-                        <li>Cambiará todas las visitas a "Pendiente"</li>
-                        <li>Cambiará todas las transferencias a "Pendiente"</li>
-                        <li>Reiniciará las métricas de cobertura</li>
-                        <li>Reiniciará la configuración de días laborales</li>
-                        <li><strong>No se puede deshacer</strong></li>
+                        <li>Se borrará el progreso de visitas y transferencias.</li>
+                        <li>Las justificaciones también se reiniciarán.</li>
+                        <li>Esta acción no se puede deshacer.</li>
                     </ul>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="confirm-reset" class="btn-danger">
-                    <span>Confirmar Reinicio</span>
-                    <span>✅</span>
-                </button>
-                <button id="cancel-reset" class="btn-secondary">
-                    <span>Cancelar</span>
-                    <span>❌</span>
-                </button>
+                <button id="confirm-reset" class="btn-danger">Confirmar</button>
+                <button id="cancel-reset" class="btn-secondary">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module">
+        /**
+         * ═══════════════════════════════════════════════════════════════
+         * 🏥 CRM FARMACIAS - UNIFICADO V2.4
+         * Nueva funcionalidad: Estado "Justificada" y Mejoras de Diseño
+         * ═══════════════════════════════════════════════════════════════
+         */
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged, 
+            signOut
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            onSnapshot, 
+            doc, 
+            updateDoc, 
+            query, 
+            orderBy,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // === CONFIGURACIÓN FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2glK3jtje7juBG7gMl4bzh6xG_Zz2YNU",
+            authDomain: "crm-farmacias.firebaseapp.com",
+            projectId: "crm-farmacias",
+            storageBucket: "crm-farmacias.appspot.com",
+            messagingSenderId: "251276216502",
+            appId: "1:251276216502:web:374f708e2ff040192d3e17"
+        };
+
+        // === INICIALIZACIÓN ===
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const pharmaciesCollection = collection(db, 'pharmacies');
+
+        // === CONSTANTES & CONFIG ===
+        const MONTHLY_GOAL = 120;
+        const DEFAULT_PHARMACIES_PER_DAY = 16;
+        let dailyConfig = {
+            currentWorkDay: 1,
+            pharmaciesPerDay: DEFAULT_PHARMACIES_PER_DAY,
+            get totalDailyGoal() { return this.currentWorkDay * this.pharmaciesPerDay; }
+        };
+
+        // === DOM REFERENCES ===
+        const elements = {
+            loginContainer: document.getElementById('login-container'),
+            crmContainer: document.getElementById('crm-container'),
+            loginForm: document.getElementById('login-form'),
+            tableBody: document.getElementById('pharmacy-table-body'),
+            loadingIndicator: document.getElementById('loading'),
+            emptyState: document.getElementById('empty-state'),
+            searchBox: document.getElementById('search-box'),
+            recordCount: document.getElementById('record-count'),
+            btnUpload: document.getElementById('upload-initial-data'),
+            uploadSection: document.getElementById('upload-section'),
+            filters: {
+                visitado: document.getElementById('filter-visitado'),
+                transferencia: document.getElementById('filter-transferencia'),
+                cadena: document.getElementById('filter-cadena')
+            },
+            metrics: {
+                visitsPct: document.getElementById('visits-percentage'),
+                visitsCount: document.getElementById('visits-count'),
+                visitsBar: document.getElementById('visits-progress'),
+                transfersPct: document.getElementById('transfers-percentage'),
+                transfersCount: document.getElementById('transfers-count'),
+                transfersBar: document.getElementById('transfers-progress'),
+                goalRemaining: document.getElementById('goal-remaining'),
+                goalBar: document.getElementById('goal-progress'),
+                goalPct: document.getElementById('goal-percentage'),
+                total: document.getElementById('total-pharmacies'),
+                pending: document.getElementById('pending-visits'),
+                justified: document.getElementById('justified-count')
+            },
+            daily: {
+                dayInput: document.getElementById('current-work-day'),
+                goalInput: document.getElementById('pharmacies-per-day'),
+                btnUpdate: document.getElementById('update-daily-config'),
+                statusLabel: document.getElementById('daily-status'),
+                totalLabel: document.getElementById('total-daily-goal')
+            }
+        };
+
+        let allPharmacies = [];
+        let unsubscribe = null;
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🔐 AUTENTICACIÓN
+        // ═══════════════════════════════════════════════════════════════
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                elements.loginContainer.style.display = 'none';
+                elements.crmContainer.style.display = 'block';
+                initializeCRM();
+                showToast(`Bienvenido ${user.email}`, 'success');
+            } else {
+                elements.loginContainer.style.display = 'block';
+                elements.crmContainer.style.display = 'none';
+                if (unsubscribe) unsubscribe();
+            }
+        });
+
+        elements.loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            const btn = e.target.querySelector('button');
+            
+            try {
+                btn.classList.add('loading');
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (error) {
+                showToast('Error de credenciales', 'error');
+                console.error(error);
+            } finally {
+                btn.classList.remove('loading');
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📊 LÓGICA CORE CRM
+        // ═══════════════════════════════════════════════════════════════
+
+        function initializeCRM() {
+            loadDailyConfig();
+            
+            const q = query(pharmaciesCollection, orderBy('nombre'));
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                elements.loadingIndicator.style.display = 'block';
+                
+                allPharmacies = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    cadena: doc.data().cadena || 'General',
+                    visitado: normalizeStatus(doc.data().visitado),
+                    transferencia: normalizeStatus(doc.data().transferencia)
+                }));
+
+                updateUI();
+                elements.loadingIndicator.style.display = 'none';
+                
+                if (elements.uploadSection) {
+                    elements.uploadSection.style.display = allPharmacies.length === 0 ? 'block' : 'none';
+                }
+            });
+        }
+
+        function updateUI() {
+            populateCadenaFilter();
+            applyFilters();
+            updateMetrics();
+        }
+
+        function normalizeStatus(status) {
+            if (!status) return 'Pendiente';
+            const s = status.toLowerCase();
+            if (['realizado', 'completed', 'done'].includes(s)) return 'Realizado';
+            if (['justificada', 'justified'].includes(s)) return 'Justificada';
+            return 'Pendiente';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🔍 FILTROS Y RENDERIZADO
+        // ═══════════════════════════════════════════════════════════════
+
+        function applyFilters() {
+            const search = elements.searchBox.value.toLowerCase();
+            const fVisita = elements.filters.visitado.value;
+            const fTransf = elements.filters.transferencia.value;
+            const fCadena = elements.filters.cadena.value;
+
+            const filtered = allPharmacies.filter(p => {
+                const matchSearch = p.nombre.toLowerCase().includes(search) || p.direccion.toLowerCase().includes(search);
+                const matchVisita = !fVisita || p.visitado === fVisita;
+                const matchTransf = !fTransf || p.transferencia === fTransf;
+                const matchCadena = !fCadena || p.cadena === fCadena;
+                return matchSearch && matchVisita && matchTransf && matchCadena;
+            });
+
+            renderTable(filtered);
+            elements.recordCount.textContent = `${filtered.length} farmacias`;
+        }
+
+        function renderTable(pharmacies) {
+            elements.tableBody.innerHTML = '';
+            
+            if (pharmacies.length === 0) {
+                elements.emptyState.style.display = 'block';
+                return;
+            }
+            
+            elements.emptyState.style.display = 'none';
+            const fragment = document.createDocumentFragment();
+
+            pharmacies.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${p.nombre}</strong></td>
+                    <td><span class="cadena-badge">${p.cadena}</span></td>
+                    <td class="address-cell" title="${p.direccion}">${p.direccion}</td>
+                    <td class="text-center">
+                        ${renderStatusButton(p.id, 'visitado', p.visitado)}
+                    </td>
+                    <td class="text-center">
+                        ${renderStatusButton(p.id, 'transferencia', p.transferencia)}
+                    </td>
+                `;
+                fragment.appendChild(tr);
+            });
+
+            elements.tableBody.appendChild(fragment);
+        }
+
+        function renderStatusButton(id, field, status) {
+            let label, icon;
+            if (status === 'Realizado') { label = 'Realizado'; icon = '✅'; }
+            else if (status === 'Justificada') { label = 'Justificada'; icon = '🛡️'; }
+            else { label = 'Pendiente'; icon = '⏳'; }
+            
+            return `
+                <button class="status-btn ${status.toLowerCase()}" onclick="toggleStatus('${id}', '${field}', '${status}')">
+                    <span>${icon}</span> <span>${label}</span>
+                </button>
+            `;
+        }
+
+        window.toggleStatus = async (id, field, current) => {
+            // Ciclo de estados: Pendiente -> Realizado -> Justificada -> Pendiente
+            let newVal;
+            if (current === 'Pendiente') newVal = 'Realizado';
+            else if (current === 'Realizado') newVal = 'Justificada';
+            else newVal = 'Pendiente'; // De Justificada vuelve a Pendiente
+
+            const docRef = doc(db, 'pharmacies', id);
+            try {
+                await updateDoc(docRef, { [field]: newVal });
+                showToast(`Estado cambiado a: ${newVal}`, newVal === 'Pendiente' ? 'info' : 'success');
+            } catch (e) {
+                showToast('Error al actualizar', 'error');
+            }
+        };
+
+        function populateCadenaFilter() {
+            const cadenas = [...new Set(allPharmacies.map(p => p.cadena))].sort();
+            const select = elements.filters.cadena;
+            const current = select.value;
+            select.innerHTML = '<option value="">Todas las Cadenas</option>';
+            cadenas.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                select.appendChild(opt);
+            });
+            select.value = current;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📈 MÉTRICAS Y OBJETIVOS
+        // ═══════════════════════════════════════════════════════════════
+
+        function loadDailyConfig() {
+            const saved = localStorage.getItem('crm-daily-config');
+            if (saved) dailyConfig = JSON.parse(saved);
+            if(elements.daily.dayInput) {
+                elements.daily.dayInput.value = dailyConfig.currentWorkDay;
+                elements.daily.goalInput.value = dailyConfig.pharmaciesPerDay;
+                elements.daily.totalLabel.textContent = dailyConfig.totalDailyGoal;
+            }
+        }
+
+        elements.daily.btnUpdate?.addEventListener('click', () => {
+            dailyConfig.currentWorkDay = parseInt(elements.daily.dayInput.value) || 1;
+            dailyConfig.pharmaciesPerDay = parseInt(elements.daily.goalInput.value) || 16;
+            localStorage.setItem('crm-daily-config', JSON.stringify(dailyConfig));
+            updateMetrics();
+            elements.daily.totalLabel.textContent = dailyConfig.totalDailyGoal;
+            showToast('Configuración actualizada', 'success');
+        });
+
+        function updateMetrics() {
+            const visited = allPharmacies.filter(p => p.visitado === 'Realizado').length;
+            const transferred = allPharmacies.filter(p => p.transferencia === 'Realizado').length;
+            
+            // Contamos las justificadas
+            const visitedJustified = allPharmacies.filter(p => p.visitado === 'Justificada').length;
+            const transferredJustified = allPharmacies.filter(p => p.transferencia === 'Justificada').length;
+            
+            const totalJustified = visitedJustified + transferredJustified; // Solo para mostrar en resumen
+            
+            const dailyGoal = dailyConfig.totalDailyGoal;
+
+            // Calculos
+            const vPct = dailyGoal > 0 ? Math.min(100, Math.round((visited / dailyGoal) * 100)) : 0;
+            const tPct = dailyGoal > 0 ? Math.min(100, Math.round((transferred / dailyGoal) * 100)) : 0;
+            const mPct = Math.min(100, Math.round((transferred / MONTHLY_GOAL) * 100));
+
+            // Update DOM
+            elements.metrics.visitsPct.textContent = `${vPct}%`;
+            elements.metrics.visitsCount.textContent = `${visited} / ${dailyGoal}`;
+            elements.metrics.visitsBar.style.width = `${vPct}%`;
+
+            elements.metrics.transfersPct.textContent = `${tPct}%`;
+            elements.metrics.transfersCount.textContent = `${transferred} / ${dailyGoal}`;
+            elements.metrics.transfersBar.style.width = `${tPct}%`;
+
+            elements.metrics.goalRemaining.textContent = Math.max(0, MONTHLY_GOAL - transferred);
+            elements.metrics.goalBar.style.width = `${mPct}%`;
+            elements.metrics.goalPct.textContent = `${mPct}%`;
+            
+            elements.metrics.total.textContent = allPharmacies.length;
+            
+            // Pendientes reales = Total - (Realizados + Justificados)
+            // Calculamos pendientes de visita para el dashboard
+            const pendingVisits = allPharmacies.length - (visited + visitedJustified);
+            elements.metrics.pending.textContent = pendingVisits;
+            
+            if (elements.metrics.justified) {
+                elements.metrics.justified.textContent = visitedJustified; // Mostramos solo visitas justificadas aquí para consistencia
+            }
+
+            // Estado Diario
+            if (visited >= dailyGoal && transferred >= dailyGoal) {
+                elements.daily.statusLabel.textContent = '🎉 ¡Objetivo Cumplido!';
+                elements.daily.statusLabel.className = 'summary-status status-success';
+            } else {
+                elements.daily.statusLabel.textContent = 'En Progreso';
+                elements.daily.statusLabel.className = 'summary-status';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ☁️ CARGA DE DATOS NUEVA (DATA ACTUALIZADA)
+        // ═══════════════════════════════════════════════════════════════
+
+        elements.btnUpload?.addEventListener('click', async () => {
+            if (!confirm('¿Seguro? Esto cargará la nueva base de datos.')) return;
+            
+            elements.btnUpload.classList.add('loading');
+            const batch = writeBatch(db);
+            
+            try {
+                const data = parseNewData();
+                console.log(`Procesando ${data.length} registros...`);
+                
+                data.forEach(p => {
+                    const ref = doc(pharmaciesCollection);
+                    batch.set(ref, {
+                        ...p,
+                        createdAt: new Date().toISOString()
+                    });
+                });
+
+                await batch.commit();
+                showToast(`Base de datos actualizada: ${data.length} farmacias`, 'success');
+                elements.uploadSection.style.display = 'none';
+            } catch (e) {
+                console.error(e);
+                showToast('Error en carga masiva', 'error');
+            } finally {
+                elements.btnUpload.classList.remove('loading');
+            }
+        });
+
+        function parseNewData() {
+            // NUEVA DATA PROVISTA POR EL USUARIO
+            const rawData = `109_CRUZ_VERDE_CALLE_56	Calle 56 # 32 - 67 Cabecera BUCARAMANGA
+11684 - DROG.GRANADOS II	CL L35 # 16 A - 65 RINCON DE GIRON - GIRON
+12049 - DROG.Y PERF.FELIX	 BUCARAMANGA/ 04 /CR 10 OCC # 45 A 
+12494 - SKALA	 GIRON / 10. BRR. CAMPESTRE /AV LOS CANEYES # 25 
+13695 - DROG. Y PERF. OLIMPICA	 BUCARAMANGA/06 (B.SAN RAFAEL) /CR.14 # 3
+16603 - DROG.LUZMABE	 FLORIDABLANCA/05(B.SANTA ANA) /CL.8 # 9
+16882 - LA COLOMBIA	 BUCARAMANGA/ 07 /CL 33 # 15 
+17892 - DROG.VITAL	CL 20 C # 24 - 68 SANTA CRUZ - GIRON
+18049 - DROG.PERFUMERIA GRANADOS	CL 104 B # 42 A - 48 BRR SAN BERNARDO - FLORIDABLANCA
+18519 - DROG.LA 16 DE SAN CARLOS	CR 16 # 1 N - 14 BRR SAN CARLOS - PIEDECUESTA
+19327 - DROG.EL REFUGIO	CL 3 AN #  3 B - 22 - PIEDECUESTA
+19337 - DROG.EL GALENO DE FLORIDA	CR 7 # 3 - 50 - FLORIDABLANCA
+19545 - DROG.UMEFA	CR 6 # 8 - 40 - PIEDECUESTA
+19786 - DROG.GRANADOS REPOSO	CL.56 # 14-83 (B.EL REPOSO) - FLORIDABLANCA
+20251 - DROG.GRANADOS VIVERO	 FLORIDABLANCA/ 10 BRR CALDAS /CR 33 # 95 
+20524 - DROG.SAN RAFAEL	 PIEDECUESTA/ 09 BRR SAN RAFAEL /CL 9 # 13 
+20525 - DROG.LICO	CL 7 # 9 - 86 BRR SAN RAFAEL - PIEDECUESTA
+20771 - DROG. UNIFARMA	 PIEDECUESTA/ 10 BRR HOYO GRANDE /CR 6 # 14 
+20828 - DROG.NUEVO SOL	CL 4 # 7 - 34 - FLORIDABLANCA
+21551 - DROG.Y PERFUMERIA EL LAGO	 AV Floridablanca #147-18 EDIF. EQUILIBRIO DE FLORIDABLANCA
+21680 - DROGUERIA LA SEPTIMA DE LEBRIJA	CR 7 # 10 - 44 LEBRIJA
+21681 - DROG.DIAMANTE II	AV.89 # 23-135(B.DIAMANTE II) - BUCARAMANGA
+22534 - DROG.LA 62 DISANCOL	 BUCARAMANGA/ 10 BRR. CONUCOS /CL 62 # 30 
+23353 - DROG.PINZON Y CIA. LIMITADA	CR 17 # 35 - 62 - BUCARAMANGA
+235 - LA CUMBRE	 FLORIDABLANCA/ 06 BRR LA CUMBRE /CR 9 E # 31 
+23551 - DROG.COMVIDA	CL 35 # 2 A - 77 LA CUMBRE - FLORIDABLANCA
+23859 - DROG.Y MISCELANEA DROMISALUD	CL 12 # 9 - 32 LEBRIJA
+23876 - DROG.UNIFARMA PLUS	CL.2 # 16-28 MZ.K LC.5 (B.SAN FRANC PIEDECUESTA
+24165 - DROG.PAOLA	CR.27 # 19-04(B.SANTA CRUZ) GIRON
+24583 - DROG.SUPERVIT LOS PINOS	CL 14 # 34 - 85 BRR PINOS - BUCARAMANGA
+24807 - DROG.LA RECETA PLUS	 BUCARAMANGA/ 08 /CL 33 # 29 
+24925 - DROG.FARMISALUD FLORIDA	TV 127 # 62A - 14 AP 101 P 1 BRR CIUDAD VALENCIA - FLORIDABLANCA
+25024 - DROG.J.E.ORTIZ	CR 22 # 35 - 51 - BUCARAMANGA
+25382 - DROG.Y PERFUMERIA LA VIRTUD SUCURSA	CL 30 # 10 E - 23 - FLORIDABLANCA
+25491 - DROG.NUEVA MULTICLI.DE BUCARAMANGA	CR 29 # 17 - 72 BUCARAMANGA
+26043 - DROG. FARMAMESA	SECT.MIRADOR BRISAS DE LA ACUARELA - LOS SANTOS
+26121 - DROGUERIA NUEVA AVENIDA	 BUCARAMANGA/04 (B.CAMPOHERMOSO) /CL.45 # 3 OCC
+26348 - DROG Y PERFUMERIA HERFRAN	CR 14 A  # 1- 40 - BUCARAMANGA
+26397 - DROGUERIA INTERMUNDIAL	CR 11 # 12 - 63 LEBRIJA
+26428 - DROG.Y MISCELANEA D Y J PLUS	CL 30 # 7 - 81 BRR LA CUMBRE FLORIDABLANCA
+26700 - DROGUERIA DORENA	CR.19 # 21-78(B.ALARCON) - BUCARAMANGA
+26778 - DROGUERIAS GLOBALFARMA LA CUMBRE	CR 9 E # 28 - 90 BRR LA CUMBRE - FLORIDABLANCA
+26881 - DROGUERIA FAMIPLUS	CR 37 # 42 - 111 BRR. CABECERA - BUCARAMANGA
+26915 - FARMA CITY LA 12	SRCT C  To.10 APTO 101  bellavista-FLORIDABLANCA
+26915 - FARMA CITY LA 12	SRCT C  To.10 APTO 101  bellavista-FLORIDABLANCA
+27116 - FARMACIA BOTICA EXPRESS	CR 9 # 8 - 75 LC 101 FLORIDABLANCA
+27262 - DROGUERIA Y MISCELANEA ALISFA	CR.24 # 85-29(B.DIAMANTE II) - BUCARAMANGA
+27508 - DROGUERIA LA CAMPINA	CL 28A # 30 - 33-GIRON
+27525 - DROGUERIA PHARMALUC	 FLORIDABLANCA/ 11 BRR LA CUMBRE /CL 28 # 5 E 
+27725 - DROG.Y CACHARRERIA GRANADOS SAN FRA	 BUCARAMANGA/ 09 /CL 11 # 23 
+27727 - DROGUERIA GRANADOS SAN PIO	CR 29 # 44 - 80 - BUCARAMANGA
+27978 - DROGUERIA Y MICELANEA CARACOLI	CR 6 # 1 - 17 BRR CARACOLI FLORIDABLANCA
+28053 - DROGUERIA GRANADOS NUEVO SOTO MAYOR	CL 50 # 23 - 08 BUCARAMANGA
+28558 - DROGUERIA SANTA CRUZ PLUS	CR.26 # 17-27 (B.SANTA CRUZ) GIRON
+28616 - DROGUERIA LOS ALTOS DEL CACIQUE II	 FLORIDABLANCA/ 03 BRR ALTOS DEL CACIQUE /CL 85 # 56 
+29153 - DROGUERIA GRANADOS KENNEDY	CL.12 # 17N-05(B.KENEDY) BUCARAMANGA
+29398 - DROG.FARMATOTAL MAS FARMACIA MAS SA	 BUCARAMANGA/ 02 BRR DELICIAS ALTAS /CR 16 # 104 B 
+29736 - DROGUERIA CAMARGO VALENCIA	CR 12 # 14 - 34 .3 ESQ BRR CUIDAD VALENCIA-FLORIDABLANCA
+29838 - DROGUERIA MISCELANEA ESPANOLA #2	CR.24 # 87-14(B.DIAMANTE) - BUCARAMANGA
+29931 - SU SALUD JB DROGUERIA	CR 24 # 24 - 11 BRR ALARCON BUCARAMANGA
+29931 - SU SALUD JB DROGUERIA	CR 24 # 24 - 11 BRR ALARCON BUCARAMANGA
+30058 - DROGUERIA OSORIO SUAREZ	 BUCARAMANGA/ 11 BRR EL PRADO /CL 33 # 33A 
+30105 - DROGUERIA Y MISCELANEA LORCE	CL 30 # 1 - 219 BRR LA CUMBRE - FLORIDABLANCA
+30212 - DROGUERIAS LEON S.A.S	CL 105 15B-45 - BUCARAMANGA
+30338 - DROGUERIA DAFARMA	GIRON/12/CL 43 # 22
+30465 - DROGUERIA Y MISCELANEA CARIOS	FLORIDABLANCA/11 loc 102 bucarica/BL 18
+30644 - DROGUERIA FAMY SALUD	AV GUAYACANES BL 9 CD REAL DE MINAS - BUCARAMANGA
+31209 - DROGUERIA CLER FLORIDA BLANCA	CR 10A 42-04 EL CARMEN FLORIDABLANCA
+31292 - DROGUERIA UNIDAD ASITENCIAL ECOMED	CL 30 # 9 A E - 35 - FLORIDABLANCA
+31355 - DROGUERIA EL SEMBRADOR	CR 33 # 86-144 T 1 LC 3 CACIQUE C - BUCARAMANGA
+31407 - DROGAS ESQUINA DE LA 56	CLL 56 # 30-122 BUCARAMANGA
+31618 - DROGUERIA GRANADOS CENTRO	 BUCARAMANGA/ 03 LC 7 ED UNIDAD RES /CL 37 # 22 
+31786 - DROGUERIA MEGAMODERNA PLUS 24 - 7	CR 4 # 48 - 07 BRR LAGOS II FLORIDABLANCA
+31903 - FARMAHOGAR CENTRAL	MESA DE LOS SANTOS GUAYABAL LC.9 VD MESA DE LOS SANTOS
+31996 - DROGUERIA RIONEGRO PLAZA	CL.12 # 10-10 (B. CENTRO) RIONEGRO
+32542 - DROGUERIAS GRANADOS DIAMANTE	AV 89 # 23 - 35 - BUCARAMANGA
+32717 - FARMACIA LA LUZ DEL PORVENIR	CL 104 F # 8 B - 24 LOCAL 8 BLOQUE 3 B - BUCARAMANGA
+32815 - DROGUERIA SUPREMA LA PAZ	CR.8 # 13-77 (B. VIA AL MAR CENTRO) EL PLAYON
+33062 - DROGUERIA FARMAVILLAS SAS 3	CR. 13 A # 50-65 (B. VILLA LUZ) - FLORIDABLANCA
+33137 - DROGUERIA VELEÑO	 SAN ALBERTO/04 (B. VILLA FANNY) /CL 2 # 4
+33243 - DROGUERIA Y MINIMARKET GRAND BOULEV	CR.20 # 16-56 ET.2 TORRE 2 LC.24 BRR. SAN FRANCISCO BUCRAMANGA
+33395 - FARMACIUDADELA	CL 57 # 16 - 60 BRR GOMEZ NINO - BUCARAMANGA
+33433 - DROGUERIA SANTAFE SALUD	 FLORIDABLANCA/ 08  BRR SANTA FE /CR 42 # 107 
+34192 - DROGUERIA GRANADOS 5	 BUCARAMANGA/ 06 /CR 27 # 18 
+34290 - DROGUERIA JEREZ PASEO DEL PUENTE II	 PIEDECUESTA/04 /CR 5B # 22
+34519 - FAMIRSALUD OASIS	 FLORIDABLANCA/06 BARRIO EL OASIS /DG 17 #55
+34632 - DROGUERIA Y PERFUMERIA FAMAVILLAS	 BUCARAMANGA/04 /Cl. 105 #15B
+34840 - DROGUERIA SANEDIL	CR.24 # 31-04 (B. ANTONIA SANTOS) BUCARAMANGA
+34842 - DROGUERIA GRANADOS MUTIS 2	 BUCARAMANGA/04 /CL 59 # 3W
+34847 - DROGUERIA SUPER DROGUERIA S.C	CR.22 # 32-03 (B. ANTONIA SANTOS) BUCARAMANGA
+34847 - DROGUERIA SUPER DROGUERIA S.C	CR.22 # 32-03 (B. ANTONIA SANTOS) BUCARAMANGA
+34853 - PHARMALIS DROGUERIA	 BUCARAMANGA/02  BRR EL GIRARDOT /CR 5 # 28
+34867 - DROGUERIA CLER	CL 197 # 28 - 62 BRR RECREO - FLORIDABLANCA
+34870 - DROGUERIA FARMA GOMEZ MATIAS	 FLORIDABLANCA/ 09 BRR VALENCIA /CR 12 # 8 
+34876 - DROGUERIAFAMYSALUD 	CR 3 # 61 - 27 - BUCARAMANGA
+34965 - DROGUERIA BUCARICA	 FLORIDABLANCA/3 LOC 101 SECTOR 12 BUCARICA/BL 20
+35015 - FARMACLUB 2	CL 52 # 35 A - 40 - BUCARAMANGA
+35266 - DROGUERIA MEDICAM PLUS	CR 6 # 14 - 90 - PIEDECUESTA
+35280 - DROGUERIA GRANADOS SAN FRANCISCO PL	CL 13 # 21 - 48 SAN FRANCISCO - BUCARAMANGA
+35286 - DROGUERIA NUEVA LUZ	Dg. 45 # 109A-26 - FLORIDABLANCA
+35540 - DROGUERIA GRANADOS EL PUENTE	CR 6 # 19-13 - PIEDECUESTA
+36127 - DROGUERIA ECOVIDA	CR 15 # 8 - 22 - PIEDECUESTA
+36217 - DROGUERIA SUPERDROGAS LEBRIJA	CL 12 # 8 - 12 LEBRIJA
+36557 - DROG. PHARMADESCUENTOS LA UNIVERSID	 BUCARAMANGA/ 02 BRR LA UNIVERSIDAD /CR 25 # 9 
+36779 - DROGUERIA EL ATRIO	CR. 3A # 7N-36(B. JUNIN 1) PIEDECUESTA
+36881 - DROGUERIA UNICENTRO	CL.18 # 25-114 (B.PORTAL CAMPESTRE) GIRON
+37652 - DROGUERIA ZAMBRANO PLUS	CL. 31 # 20 -17 (B. CENTRO) BUCARAMANGA
+37652 - DROGUERIA ZAMBRANO PLUS	CL. 31 # 20 -17 (B. CENTRO) BUCARAMANGA
+37753 - DROGUERIA FARMACLARO	CR 3 # 58-17 LOS NARANJOS - BUCARAMANGA
+37992 -DROGUERIA LA FLORESTA PLUS	CR 22#54-50 BUCARAMANGA
+38008 - DROGUERIA EL DEPOSITO CENTRO	CL 36 # 13 - 27 BRR CENTRO - BUCARAMANGA
+38009 - DROGUERIA EL DEPOSITO	CR 21 # 54-34  LA CONCORDIA - BUCARAMANGA
+38812 - DROG.Y PERF.SOTOMAYOR	 BUCARAMANGA/03(B.SOTOMAYOR) /CL.48 # 26
+39199 - SUPERDROGUERIA LA MEJOR	CL 11 # 7 - 11 LEBRIJA
+39216 - DROGUERIA GRANADOS LA OCTAVA	CL.6 # 8-10(B.CASCO ANTIGUO FLORIDA FLORIDABLANCA
+40369 - FARMACIA Y DROGUERIA SAN JUAN DE GI	CR 26 # 28 - 05 GIRON
+40535 - DROGUERIA FARMASAYE	CR.8 # 8-43 (B. CASCO ANTIGUO) FLORIDABLANCA
+40622 - DROGUERIA GRANADOS AMIGA	CL 10 # 5 - 57 - PIEDECUESTA
+40961 - DROGUERIA J - MAX	CR 1W # 5AN - 15 MZ 31(B. REFUGIO) PIEDECUESTA
+41806- DROGUERIA BOSQUES DE ARANJUEZ	CR 4 # 1 N B - 10 (B. BOSQUES DE ARANJUEZ) PIEDECUESTA
+983_FARMACIA_INTERNA_CRUZ_VERDE_CLINICA SAN LUIS	CL 48 # 25 - 56 BUCARAMANGA
+ALEMANA 08	CL 60 # 9 - 109 T 4 L 7 - 8 TO SAN REMO BUCARAMANGA
+ALEMANA 12	CR 18 # 34 - 01 BUCARAMANGA
+ALEMANA 26 LA FOSCAL	TV 154 # 150 - 207 BRR BOSQUE FLORIDABLANCA
+ALEMANA 355	CALLE 30 # 25-71 CC CAÑAVERAL LOC 106 FLORIDABLANCA
+ALEMANA 356	CR. 26 # 42-29 GIRON
+ALEMANA 58	CR 6 # 9 - 40 piedecuesta
+DROGUERIA 306 FARMASOLANO	CR 22 # 21 - 79 BUCARAMANGA
+DROGUERIA AHORRA MAX	CL 3 AN # 30 - 09 BRR EL REFUGIO - PIEDECUESTA
+DROGUERIA AHORRAMEDIC	CL 52 # 31 - 104 BRR CABECERA - BUCARAMANGA
+DROGUERIA ANGY MAR	AV GUAYACANES T-19 L101 CIUDAD BOLIVAR BUCARAMANGA
+DROGUERIA ANTOLINEZ	CR 2W # 59 - 23 MUTIS - BUCARAMANGA
+DROGUERIA BLANTONY	CL 60 # 9 - 103 BRR CIUDADELA - BUCARAMANGA
+DROGUERIA BULEVAR	CL 18 # 21 - 74 BUCARAMANGA
+DROGUERIA CAMELOT	CLL 8N #3 -190 LOCAL 4 GUATIGUARA PIEDECUESTA
+DROGUERIA CAMPO HERMOSO	CL 45 # 5 OCC - 10 BUCARAMANGA
+DROGUERIA CARMENCITA	CL 30 # 29 B - 11 FLORIDABLANCA
+DROGUERIA CONSULTORIO 2 CONSULTORIO ALIRIO LOPEZ NO. 2	CL 30 # 7 E - 95 LA CUMBRE FLORIDABLANCA
+DROGUERIA CRUZ VERDE CAÑAVERAL	CL 30 # 25-71 CENTRO COMERCIAL CAÑAVERAL LOCAL 31 FLORIDABLANCA
+DROGUERIA DANNYS	SANANDRESITO ISLA LC 7 - 31 P 3 - BUCARAMANGA
+DROGUERIA DISERVAL	CL 31 #28-74 B. LA AURORA BUCARAMANGA
+DROGUERIA DISTRIBUIDORA EL NILO	CC SAN ANDRESITO ISLA P 1 L 7 - 28 Y 7 - 29 - BUCARAMANGA
+DROGUERIA DISTRIBUIDORA SANDRA C	CC SAN ANDRESITO ISLA P 3 L 8 - 35 Y 8 - 33 - BUCARAMANGA
+DROGUERIA EL CARMEN - BUCARAMANGA	 BUCARAMANGA/02  BRR EL GIRARDOT /CL 28 #6
+DROGUERIA EL DUENDE	 KILOMETRO 9 VIA CUROS - LOS SANTOS (MUNICIPIO LOS SANTOS)
+DROGUERIA EL PAISA	CRA 15 # 56 CC SANADRESITO ISLA LC 7 - 8 BUCARAMANGA
+DROGUERIA EL SEGURO	CR 31 # 27 - 48 BUCARAMANGA
+DROGUERIA FARMA EXPRESS	CR 6 #27-02  BRR EL GIRARDOT BUCARAMANGA
+DROGUERIA FARMA GOMEZ	CR 7#29-15 BRR EL GIRARDOT BUCARAMANGA
+DROGUERIA FARMACIA SALUD FAMILIAR	CL 33 # 16 - 34  PLAZA DE MERCADO CENTRO BUCARAMANGA
+DROGUERIA FARMAMEDICA MUTIS	CR 7W#59-22 BUCARAMANGA
+DROGUERIA FARMAMETROPOLIS 	CR 8 # 61 - 137 L7 BRR METROPOLIS-BUCARAMANGA
+DROGUERIA FARMASOLANO	CL 59 # 18 - 31 BRR TRINIDAD FLORIDABLANCA
+DROGUERIA FIORELLA	CR 21 B # 111 - 124 - BUCARAMANGA
+DROGUERIA GRANADOS CAFASAN 	 FLORIDABLANCA/ 02 CALDAS/CR 37 # 109 
+DROGUERIA KOLSUDROGAS	CL 39 # 22 - 30 GIRON
+DROGUERIA LA SEPTIMA PIEDECUESTA	CL 7 # 10 - 99 PIEDECUESTA
+DROGUERIA LEBRI FARMA	CL 12 # 13 A - 25 LEBRIJA
+DROGUERIA LORENA	CR 7 # 10 - 38 PIEDECUESTA
+DROGUERIA M Y D	CR #  53 - 03  BRR EL RECREO FLORIDABLANCA
+DROGUERIA MARIA REYNA	CL 27 #6-44  BRR EL GIRARDOT BUCARAMANGA
+DROGUERIA MULTIFARMA #1	CL 105 # 29A - 21-FLORIDABLANCA
+DROGUERIA MX ALKOSTO	CR 13 # 103 B - 46 BRR SAN FERMIN BUCARAMANGA
+DROGUERIA NAYIBE	CLL 4 #8-31 FLORIDABLANCA
+DROGUERIA NUEVA SAN CARLOS	CR 25 # 13 - 28 BRR SAN FRANCISCO
+DROGUERIA PAGUE MENOS GIRON	CL 43 # 22 - 92 - GIRON
+DROGUERIA PAGUE MENOS PIEDECUESTA	CR 8 # 7 - 77 - PIEDECUESTA
+DROGUERIA PAGUE MENOS SAN FRANCISCO	BLV # 23 - 03 - BUCARAMANGA
+DROGUERIA PAGUE MENOS SOTOMAYOR	CL 54 # 24 - 03 - BUCARAMANGA
+DROGUERIA PALENQUE	CR 19 # 56 - 58. BRR EL PALENQUE - GIRON
+DROGUERIA PHARMACY	AV EL BOSQUE # 54 - 52 FLORIDABLANCA
+DROGUERIA PINZON 2	CR 38 # 49 - 15 BUCARAMANGA
+DROGUERIA PROVIDA	CR 22 # 110 - 44 - BUCARAMANGA
+DROGUERIA QUINTA REAL LAS PALMAS	CR 15 # 6 N - 03 - PIEDECUESTA
+DROGUERIA REBAJA PLUS 9 CACIQUE	AV CRV # 35 - 95 FLORIDABLANCA
+DROGUERIA SAN LUIS - BUCARAMANGA	CL 48 # 26 - 19 BRR SOTOMAYOR - BUCARAMANGA
+DROGUERIA SAN PABLO	CR 22 # 11 - 81 BRR SAN FRANCISCO - BUCARAMANGA
+DROGUERIA SANTA CECILIA	CL 21 # 23 - 75 BUCARAMANGA
+DROGUERIA SILVA 	FLORIDABLANCA/09/Cl. 57 #3
+DROGUERIA SOLETH	CR. 6 #28-65(B.GIRARDOT) BUCARAMANGA
+DROGUERIA SUPERDROGAS CONUCOS	CL 58 # 29 - 31 LOCAL 5 BUCARAMANGA
+DROGUERIA VIDA LTDA	CR 32 # 30A - 20 BRR. AURORA-BUCARAMANGA
+DROGUERIA VILLABEL 	FLORIDABLANCA/ 04/CR 11 # 12 
+DROGUERIA Y CACHARRERIA AYS	CC SAN ANDRESITO ISLA P 3 L 8 - 36 - BUCARAMANGA
+DROGUERIA Y DISTRIBUCIONES ABASTOS XIMENA	DG 15 # 55 - 56 L F - 02 CC SAN ANDRESITO LA ISLA - BUCARAMANGA
+DROGUERIA Y PERFUMERIA ANTIOQUEÑA	DG 105 # 30B - 13 SATELITE-FLORIDABLANCA
+DROGUERIAS JEREZ VILLABEL	CR 12 # 7 - 11 FLORIDABLANCA
+EL FARMACEUTA	CL 103 NO. 13B-79-BUCARAMANGA
+FARMACIA 1A	BUCARAMANGA/04 LOC 1/CR 15 103
+FARMACIA SAN MIGUEL	VIA PIEDECUESTA LOS SANTOS CONDOMINIO MESA DE LOS SANTOS LOCAL 3 - LOS SANTOS`;
+
+            const lines = rawData.split('\n');
+            const seen = new Set();
+            const parsed = [];
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                
+                let parts = line.split('\t');
+                
+                if (parts.length < 2) {
+                     parts = line.split(/\s{2,}/); 
+                }
+
+                if (parts.length >= 2) {
+                    let nombre = parts[0].trim();
+                    let direccion = parts[parts.length - 1].trim();
+                    let cadena = 'General';
+
+                    if (parts.length > 2) {
+                        cadena = parts[1].trim(); 
+                    } else {
+                        const upperName = nombre.toUpperCase();
+                        if (upperName.includes("CRUZ VERDE")) cadena = "Cruz Verde";
+                        else if (upperName.includes("ALEMANA")) cadena = "Alemana";
+                        else if (upperName.includes("PAGUE MENOS")) cadena = "Pague Menos";
+                        else if (upperName.includes("GRANADOS")) cadena = "Granados";
+                    }
+
+                    const key = `${nombre}-${direccion}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        parsed.push({
+                            nombre,
+                            cadena,
+                            direccion,
+                            visitado: 'Pendiente',
+                            transferencia: 'Pendiente'
+                        });
+                    }
+                }
+            });
+
+            return parsed;
+        }
+
+        // === UTILS ===
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeft = `4px solid var(--${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'}-500)`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span> ${msg}`;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Event Listeners (Filtros)
+        Object.values(elements.filters).forEach(f => f.addEventListener('change', applyFilters));
+        elements.searchBox.addEventListener('input', (e) => {
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(applyFilters, 300);
+        });
+        document.getElementById('btn-reset-filters').addEventListener('click', () => {
+            elements.searchBox.value = '';
+            elements.filters.visitado.value = '';
+            elements.filters.transferencia.value = '';
+            elements.filters.cadena.value = '';
+            applyFilters();
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', () => {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            themeToggle.querySelector('span').textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Reinicio de Mes
+        document.getElementById('reset-indicators-btn')?.addEventListener('click', () => document.getElementById('reset-modal').style.display = 'flex');
+        document.getElementById('cancel-reset')?.addEventListener('click', () => document.getElementById('reset-modal').style.display = 'none');
+        document.getElementById('confirm-reset')?.addEventListener('click', async () => {
+            document.getElementById('reset-modal').style.display = 'none';
+            showToast('Reiniciando indicadores...', 'info');
+            const batch = writeBatch(db);
+            allPharmacies.forEach(p => {
+                batch.update(doc(db, 'pharmacies', p.id), { visitado: 'Pendiente', transferencia: 'Pendiente' });
+            });
+            await batch.commit();
+            showToast('Indicadores reiniciados', 'success');
+        });
+    </script>
 </body>
 </html>
