@@ -201,6 +201,11 @@
             width: 100%; padding: 0.6rem; border: 1px solid var(--border-color);
             border-radius: var(--radius-lg); background: var(--bg-primary); color: var(--text-primary);
         }
+        @media (max-width: 600px) {
+            .filters-modern { padding: 1rem; }
+            .filters-grid { grid-template-columns: 1fr; }
+            .filters-grid select, .filters-grid input { padding: 0.5rem; font-size: 0.95rem; }
+        }
 
         .table-container-modern {
             background: var(--bg-primary); border: 1px solid var(--border-color);
