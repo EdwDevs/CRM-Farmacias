@@ -444,6 +444,9 @@ button { font-family: inherit; }
 }
 .empty-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
 .empty-state-modern h3 { font-size: 1.125rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+.empty-hint { font-size: 0.9rem; margin-top: 0.35rem; color: var(--text-tertiary); }
+.empty-actions { margin-top: 1rem; display: flex; justify-content: center; }
+.empty-actions .btn-primary { width: auto; }
 
 /* === ERROR MESSAGE === */
 .error-message {
@@ -526,6 +529,9 @@ button { font-family: inherit; }
     .modal-content { padding: var(--space-4); width: 95%; }
     .modal-footer { flex-direction: column; }
     .modal-footer button { width: 100%; }
+    .loader-spinner { width: 36px; height: 36px; border-width: 3px; }
+    .empty-icon { font-size: 3rem; }
+    .empty-actions .btn-primary { width: 100%; }
 }
 @media (max-width: 480px) {
     .dashboard-title { font-size: 1.5rem; }
