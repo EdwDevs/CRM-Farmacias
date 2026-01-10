@@ -238,15 +238,24 @@
             background: var(--bg-primary); padding: 1.5rem; border-radius: var(--radius-xl);
             border: 1px solid var(--border-color); margin-bottom: 1.5rem;
         }
-        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .filter-field { display: flex; flex-direction: column; gap: 0.35rem; }
+        .filter-field label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        .filter-action { display: flex; align-items: flex-end; }
+        .filter-action .btn-secondary { width: auto; }
         .filters-grid select, .filters-grid input {
             width: 100%; padding: 0.6rem; border: 1px solid var(--border-color);
             border-radius: var(--radius-lg); background: var(--bg-primary); color: var(--text-primary);
         }
+        .filters-grid .input-group { margin-bottom: 0; }
+        @media (max-width: 900px) {
+            .filters-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 600px) {
             .filters-modern { padding: 1rem; }
-            .filters-grid { grid-template-columns: 1fr; }
+            .filters-grid { grid-template-columns: 1fr; gap: 0.5rem; }
             .filters-grid select, .filters-grid input { padding: 0.5rem; font-size: 0.95rem; }
+            .filter-action .btn-secondary { width: 100%; }
         }
 
         .table-container-modern {
@@ -600,35 +609,50 @@
         <div class="filters filters-modern">
             <div class="filters-header">
                 <h3>🔍 Filtros</h3>
-                <button id="btn-reset-filters" class="btn-secondary">
-                    <span>Limpiar</span>
-                    <span>🧹</span>
-                </button>
             </div>
             
             <div class="filters-grid">
-                <div class="input-group">
-                    <input type="text" id="search-box" placeholder="Buscar: nombre, dirección, cadena... (ej: cruz bucaramanga)">
-                    <span class="search-icon">🔍</span>
+                <div class="filter-field">
+                    <label for="search-box">Búsqueda</label>
+                    <div class="input-group">
+                        <input type="text" id="search-box" placeholder="Buscar: nombre, dirección, cadena... (ej: cruz bucaramanga)">
+                        <span class="search-icon">🔍</span>
+                    </div>
                 </div>
                 
-                <select id="filter-visitado">
-                    <option value="">Estado Visita</option>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Realizado">Realizado</option>
-                    <option value="Justificada">Justificada</option>
-                </select>
+                <div class="filter-field">
+                    <label for="filter-visitado">Estado visita</label>
+                    <select id="filter-visitado">
+                        <option value="">Estado Visita</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Realizado">Realizado</option>
+                        <option value="Justificada">Justificada</option>
+                    </select>
+                </div>
                 
-                <select id="filter-transferencia">
-                    <option value="">Estado Transferencia</option>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="Realizado">Realizado</option>
-                    <option value="Justificada">Justificada</option>
-                </select>
+                <div class="filter-field">
+                    <label for="filter-transferencia">Estado transferencia</label>
+                    <select id="filter-transferencia">
+                        <option value="">Estado Transferencia</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Realizado">Realizado</option>
+                        <option value="Justificada">Justificada</option>
+                    </select>
+                </div>
                 
-                <select id="filter-cadena">
-                    <option value="">Todas las Cadenas</option>
-                </select>
+                <div class="filter-field">
+                    <label for="filter-cadena">Cadena</label>
+                    <select id="filter-cadena">
+                        <option value="">Todas las Cadenas</option>
+                    </select>
+                </div>
+
+                <div class="filter-action">
+                    <button id="btn-reset-filters" class="btn-secondary">
+                        <span>Limpiar</span>
+                        <span>🧹</span>
+                    </button>
+                </div>
             </div>
         </div>
 
