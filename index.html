@@ -295,7 +295,18 @@
         }
 
         @media (max-width: 768px) {
-            .header-controls { flex-direction: column; gap: 1rem; }
+            .header-controls { flex-direction: column; gap: 1rem; width: 100%; }
+            .header-left { width: 100%; }
+            .header-right {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                width: 100%;
+            }
+            .btn-warning,
+            .btn-danger {
+                width: 100%;
+            }
             .table-wrapper { margin: 0 -1rem; }
             .metrics-grid { grid-template-columns: 1fr; }
         }
