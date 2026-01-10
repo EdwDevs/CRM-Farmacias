@@ -709,6 +709,13 @@
                     <div class="empty-icon">📭</div>
                     <h3>Sin resultados</h3>
                     <p>Ajusta los filtros o carga los datos iniciales.</p>
+                    <p class="empty-hint">Prueba quitar filtros o cargar datos.</p>
+                    <div class="empty-actions">
+                        <a href="#upload-section" id="empty-upload-button" class="btn-primary">
+                            <span>Ir a carga</span>
+                            <span>☁️</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -801,6 +808,7 @@
             tableBody: document.getElementById('pharmacy-table-body'),
             loadingIndicator: document.getElementById('loading'),
             emptyState: document.getElementById('empty-state'),
+            emptyUploadButton: document.getElementById('empty-upload-button'),
             searchBox: document.getElementById('search-box'),
             recordCount: document.getElementById('record-count'),
             btnUpload: document.getElementById('upload-initial-data'),
@@ -950,10 +958,16 @@
             
             if (pharmacies.length === 0) {
                 elements.emptyState.style.display = 'block';
+                if (elements.emptyUploadButton) {
+                    elements.emptyUploadButton.style.display = allPharmacies.length === 0 ? 'inline-flex' : 'none';
+                }
                 return;
             }
             
             elements.emptyState.style.display = 'none';
+            if (elements.emptyUploadButton) {
+                elements.emptyUploadButton.style.display = 'none';
+            }
             const fragment = document.createDocumentFragment();
 
             pharmacies.forEach(p => {
