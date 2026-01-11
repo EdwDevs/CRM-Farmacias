@@ -103,13 +103,19 @@ const cancelResetBtn = document.getElementById('cancel-reset');
 const visitsPercentage = document.getElementById('visits-percentage');
 const visitsCount = document.getElementById('visits-count');
 const visitsProgress = document.getElementById('visits-progress');
+const visitsCard = document.getElementById('visits-card');
+const visitsStatusBadge = document.getElementById('visits-status');
 const transfersPercentage = document.getElementById('transfers-percentage');
 const transfersCount = document.getElementById('transfers-count');
 const transfersProgress = document.getElementById('transfers-progress');
+const transfersCard = document.getElementById('transfers-card');
+const transfersStatusBadge = document.getElementById('transfers-status');
 const goalRemaining = document.getElementById('goal-remaining');
 const goalProgress = document.getElementById('goal-progress');
 const goalStatus = document.getElementById('goal-status');
 const goalPercentage = document.getElementById('goal-percentage');
+const goalCard = document.getElementById('goal-card');
+const goalStatusBadge = document.getElementById('goal-status-badge');
 const totalPharmacies = document.getElementById('total-pharmacies');
 const pendingVisits = document.getElementById('pending-visits');
 const pendingTransfers = document.getElementById('pending-transfers');
@@ -549,16 +555,19 @@ function updateMetrics() {
     updateMetricElement(visitsPercentage, `${Math.min(visitsPercentageValue, 100)}%`);
     updateMetricElement(visitsCount, `${visitedCount} de ${dailyGoal}`);
     updateMetricElement(visitsProgress, null, `${Math.min(visitsPercentageValue, 100)}%`);
+    applyMetricStatus(visitsCard, visitsStatusBadge, visitsPercentageValue);
     
     // Actualizar elementos de transferencias
     updateMetricElement(transfersPercentage, `${Math.min(transfersPercentageValue, 100)}%`);
     updateMetricElement(transfersCount, `${transferredCount} de ${dailyGoal}`);
     updateMetricElement(transfersProgress, null, `${Math.min(transfersPercentageValue, 100)}%`);
+    applyMetricStatus(transfersCard, transfersStatusBadge, transfersPercentageValue);
     
     // Actualizar objetivo mensual (120)
     updateMetricElement(goalRemaining, goalRemainingValue);
     updateMetricElement(goalProgress, null, `${goalPercentageValue}%`);
     updateMetricElement(goalPercentage, `${goalPercentageValue}%`);
+    applyMetricStatus(goalCard, goalStatusBadge, goalPercentageValue);
     
     // Estado del objetivo
     if (goalStatus) {
@@ -589,6 +598,23 @@ function updateMetricElement(element, textContent, width = null) {
     }
 }
 
+function applyMetricStatus(cardElement, badgeElement, percentageValue) {
+    if (!cardElement || !badgeElement) return;
+
+    const normalizedPercentage = Number.isFinite(percentageValue) ? percentageValue : 0;
+    let statusClass = 'status-danger';
+    if (normalizedPercentage >= 90) {
+        statusClass = 'status-success';
+    } else if (normalizedPercentage >= 60) {
+        statusClass = 'status-warning';
+    }
+
+    cardElement.classList.remove('status-success', 'status-warning', 'status-danger');
+    cardElement.classList.add(statusClass);
+
+    badgeElement.textContent = normalizedPercentage >= 100 ? 'Cumplido' : 'En progreso';
+}
+
 function resetMetricsDisplay() {
     console.log('🔄 Reseteando display de métricas');
     const dailyGoal = dailyConfig.totalDailyGoal;
@@ -596,15 +622,18 @@ function resetMetricsDisplay() {
     updateMetricElement(visitsPercentage, '0%');
     updateMetricElement(visitsCount, `0 de ${dailyGoal}`);
     updateMetricElement(visitsProgress, null, '0%');
+    applyMetricStatus(visitsCard, visitsStatusBadge, 0);
     
     updateMetricElement(transfersPercentage, '0%');
     updateMetricElement(transfersCount, `0 de ${dailyGoal}`);
     updateMetricElement(transfersProgress, null, '0%');
+    applyMetricStatus(transfersCard, transfersStatusBadge, 0);
     
     updateMetricElement(goalRemaining, MONTHLY_GOAL);
     updateMetricElement(goalProgress, null, '0%');
     updateMetricElement(goalPercentage, '0%');
     if (goalStatus) goalStatus.innerHTML = '0% del objetivo mensual';
+    applyMetricStatus(goalCard, goalStatusBadge, 0);
     
     updateMetricElement(totalPharmacies, '0');
     updateMetricElement(pendingVisits, '0');
