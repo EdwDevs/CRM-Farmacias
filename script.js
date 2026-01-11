@@ -81,6 +81,7 @@ const logoutBtn = document.getElementById('logout-btn');
 const tableBody = document.getElementById('pharmacy-table-body');
 const loadingIndicator = document.getElementById('loading');
 const emptyState = document.getElementById('empty-state');
+const emptyMasterButton = document.getElementById('empty-master-button');
 const searchBox = document.getElementById('search-box');
 const filterVisitado = document.getElementById('filter-visitado');
 const filterTransferencia = document.getElementById('filter-transferencia');
@@ -1457,6 +1458,10 @@ function showLoading(show) {
 function showEmptyState(show) {
     if (emptyState) {
         emptyState.style.display = show ? 'block' : 'none';
+    }
+    if (emptyMasterButton) {
+        const shouldShowMasterButton = show && allPharmacies.length === 0;
+        emptyMasterButton.style.display = shouldShowMasterButton ? 'inline-flex' : 'none';
     }
 }
 
