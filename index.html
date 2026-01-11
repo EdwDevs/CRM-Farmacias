@@ -174,16 +174,44 @@
             border-radius: var(--radius-xl); padding: 1.5rem;
             position: relative; overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
-            min-height: 260px;
+            min-height: 280px;
+            --metric-accent: var(--primary-500);
+            --metric-badge-bg: var(--primary-100);
+            --metric-badge-text: var(--primary-700);
+            --metric-badge-border: var(--primary-500);
         }
         .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .metric-card::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: var(--metric-accent);
         }
-        .visits-card::before { background: var(--primary-500); }
-        .transfers-card::before { background: var(--success-500); }
-        .goal-card::before { background: var(--warning-500); }
-        .summary-card::before { background: #8b5cf6; }
+        .visits-card { --metric-accent: var(--primary-500); }
+        .transfers-card { --metric-accent: var(--success-500); }
+        .goal-card { --metric-accent: var(--warning-500); }
+        .summary-card { --metric-accent: #8b5cf6; }
+        .metric-card.status-success {
+            --metric-accent: var(--success-500);
+            --metric-badge-bg: #ecfdf3;
+            --metric-badge-text: var(--success-600);
+            --metric-badge-border: #bbf7d0;
+        }
+        .metric-card.status-warning {
+            --metric-accent: var(--warning-500);
+            --metric-badge-bg: #fef3c7;
+            --metric-badge-text: #b45309;
+            --metric-badge-border: #fcd34d;
+        }
+        .metric-card.status-danger {
+            --metric-accent: var(--danger-500);
+            --metric-badge-bg: #fef2f2;
+            --metric-badge-text: var(--danger-600);
+            --metric-badge-border: #fecaca;
+        }
+        .metric-card.status-neutral {
+            --metric-badge-bg: var(--primary-100);
+            --metric-badge-text: var(--primary-700);
+            --metric-badge-border: var(--primary-500);
+        }
 
         .metric-header { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
         .metric-icon { font-size: 1.5rem; background: var(--bg-secondary); padding: 0.5rem; border-radius: 0.5rem; }
@@ -200,30 +228,18 @@
             gap: 0.35rem;
             letter-spacing: 0.02em;
             text-transform: uppercase;
-        }
-        .metric-status.in-progress {
-            background: #fef3c7;
-            color: #b45309;
-            border: 1px solid #fcd34d;
-        }
-        .metric-status.success {
-            background: #ecfdf3;
-            color: var(--success-600);
-            border: 1px solid #bbf7d0;
-        }
-        .metric-status.neutral {
-            background: var(--primary-100);
-            color: var(--primary-700);
-            border: 1px solid var(--primary-500);
+            background: var(--metric-badge-bg);
+            color: var(--metric-badge-text);
+            border: 1px solid var(--metric-badge-border);
         }
         .metric-number span:first-child { font-size: 2rem; font-weight: 700; display: block; color: var(--text-primary); }
         .metric-subtitle { color: var(--text-secondary); font-weight: 600; }
         .goal-status { color: var(--text-secondary); font-weight: 600; }
         .progress-bar { height: 6px; background: var(--bg-secondary); border-radius: 99px; margin-top: 1rem; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s; }
-        .visits-progress { background: var(--primary-500); }
-        .transfers-progress { background: var(--success-500); }
-        .goal-progress { background: var(--warning-500); }
+        .progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s; background: var(--metric-accent); }
+        .visits-progress { background: var(--metric-accent); }
+        .transfers-progress { background: var(--metric-accent); }
+        .goal-progress { background: var(--metric-accent); }
         
         /* Stats inside summary */
         .stat-item { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.9rem; border-bottom: 1px dashed var(--border-color); }
@@ -380,11 +396,11 @@
             }
             .table-wrapper { margin: 0 -1rem; }
             .metrics-grid { grid-template-columns: 1fr; }
-            .metric-card { padding: 1.25rem; min-height: 240px; }
+            .metric-card { padding: 1.25rem; min-height: 250px; }
             .metric-title-row { align-items: flex-start; }
         }
         @media (max-width: 600px) {
-            .metric-card { padding: 1rem; min-height: 0; }
+            .metric-card { padding: 1rem; min-height: 220px; }
             .metric-header { gap: 0.5rem; margin-bottom: 0.85rem; }
             .metric-number span:first-child { font-size: 1.75rem; }
         }
@@ -501,13 +517,13 @@
         <section class="metrics-dashboard">
             <div class="metrics-grid">
                 <!-- Cobertura de Visitas -->
-                <div class="metric-card visits-card">
+                <div class="metric-card visits-card status-danger" id="visits-card">
                     <div class="metric-header">
                         <div class="metric-icon">👥</div>
                         <div class="metric-title">
                             <div class="metric-title-row">
                                 <h3>Cobertura de Visitas</h3>
-                                <span class="metric-status in-progress">En progreso</span>
+                                <span class="metric-status" id="visits-status">En progreso</span>
                             </div>
                             <p>Farmacias visitadas vs objetivo</p>
                         </div>
@@ -524,13 +540,13 @@
                 </div>
 
                 <!-- Cobertura de Transferencias -->
-                <div class="metric-card transfers-card">
+                <div class="metric-card transfers-card status-danger" id="transfers-card">
                     <div class="metric-header">
                         <div class="metric-icon">📦</div>
                         <div class="metric-title">
                             <div class="metric-title-row">
                                 <h3>Transferencias</h3>
-                                <span class="metric-status in-progress">En progreso</span>
+                                <span class="metric-status" id="transfers-status">En progreso</span>
                             </div>
                             <p>Pedidos realizados vs objetivo</p>
                         </div>
@@ -547,13 +563,13 @@
                 </div>
 
                 <!-- Objetivo 120 Transferencias -->
-                <div class="metric-card goal-card">
+                <div class="metric-card goal-card status-danger" id="goal-card">
                     <div class="metric-header">
                         <div class="metric-icon">🎯</div>
                         <div class="metric-title">
                             <div class="metric-title-row">
                                 <h3>Objetivo Mensual</h3>
-                                <span class="metric-status success">Meta cumplida</span>
+                                <span class="metric-status" id="goal-status-badge">En progreso</span>
                             </div>
                             <p>Meta: 120 transferencias</p>
                         </div>
@@ -573,13 +589,13 @@
                 </div>
 
                 <!-- Resumen General -->
-                <div class="metric-card summary-card">
+                <div class="metric-card summary-card status-neutral" id="summary-card">
                     <div class="metric-header">
                         <div class="metric-icon">📈</div>
                         <div class="metric-title">
                             <div class="metric-title-row">
                                 <h3>Resumen Total</h3>
-                                <span class="metric-status neutral">En progreso</span>
+                                <span class="metric-status" id="summary-status">En progreso</span>
                             </div>
                             <p>Estado de la base de datos</p>
                         </div>
