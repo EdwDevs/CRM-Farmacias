@@ -290,14 +290,15 @@
 
         /* Status Badges - Improved Design */
         .status-btn {
-            padding: 0.55rem 0.9rem; border-radius: 99px; font-size: 0.85rem; font-weight: 600;
+            padding: 0.7rem 1rem; border-radius: 99px; font-size: 0.85rem; font-weight: 600;
             border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
-            transition: all 0.2s ease; letter-spacing: 0.02em; min-width: 110px; min-height: 42px;
+            transition: all 0.2s ease; letter-spacing: 0.02em; min-width: 110px; min-height: 44px;
             justify-content: center;
         }
         .status-btn:focus-visible {
-            outline: 3px solid var(--primary-500);
+            outline: 3px solid var(--primary-600);
             outline-offset: 2px;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
         }
         /* Pendiente: Rojo suave */
         .status-btn.pendiente { 
@@ -320,9 +321,10 @@
             .status-btn {
                 width: 100%;
                 min-width: 0;
-                padding: 0.6rem 0.75rem;
+                padding: 0.65rem 0.85rem;
                 font-size: 0.875rem;
                 gap: 0.45rem;
+                display: flex;
             }
         }
 
