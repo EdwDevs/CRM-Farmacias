@@ -144,8 +144,14 @@
         }
         .header-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
         .version-badge { background: var(--primary-100); color: var(--primary-700); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.65rem; }
-        .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+        .header-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
         .header-actions .btn-primary { width: auto; }
+        .stats-filter-btn.is-active {
+            background: var(--primary-600);
+            border-color: var(--primary-600);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
         .btn-outline-danger { background: transparent; border: 1px solid var(--danger-500); color: var(--danger-600); }
         .btn-outline-danger:hover { background: var(--danger-500); color: white; }
 
@@ -466,6 +472,12 @@
                 <button id="reset-indicators-btn" class="btn-primary" title="Reiniciar indicadores para nuevo mes">
                     <span>Nuevo Mes</span>
                     <span>🔄</span>
+                </button>
+                <button id="stats-current-btn" class="btn-secondary stats-filter-btn is-active" type="button">
+                    <span>Estadísticas mes actual</span>
+                </button>
+                <button id="stats-previous-btn" class="btn-secondary stats-filter-btn" type="button">
+                    <span>Estadísticas mes anterior</span>
                 </button>
                 <button id="logout-btn" class="btn-outline-danger">
                     <span>Cerrar Sesión</span>

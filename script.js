@@ -93,6 +93,8 @@ const uploadSection = document.getElementById('upload-section');
 const btnUpload = document.getElementById('upload-initial-data');
 const themeToggle = document.getElementById('theme-toggle');
 const toastContainer = document.getElementById('toast-container');
+const statsCurrentBtn = document.getElementById('stats-current-btn');
+const statsPreviousBtn = document.getElementById('stats-previous-btn');
 
 // === REFERENCIAS PARA MÉTRICAS ===
 const resetIndicatorsBtn = document.getElementById('reset-indicators-btn');
@@ -135,6 +137,12 @@ const transfersDailyTargetElement = document.getElementById('transfers-daily-tar
 let allPharmacies = [];
 let unsubscribe = null;
 let hasShownWelcome = false;
+let statsMonth = 'current';
+
+function updateStatsButtons() {
+    statsCurrentBtn?.classList.toggle('is-active', statsMonth === 'current');
+    statsPreviousBtn?.classList.toggle('is-active', statsMonth === 'previous');
+}
 
 // ═══════════════════════════════════════════════════════════════
 // 📅 SISTEMA DE CONFIGURACIÓN DE DÍAS LABORALES
@@ -412,6 +420,18 @@ logoutBtn?.addEventListener('click', async () => {
     }
 });
 
+statsCurrentBtn?.addEventListener('click', () => {
+    statsMonth = 'current';
+    updateStatsButtons();
+    updateMetrics();
+});
+
+statsPreviousBtn?.addEventListener('click', () => {
+    statsMonth = 'previous';
+    updateStatsButtons();
+    updateMetrics();
+});
+
 // ═══════════════════════════════════════════════════════════════
 // 📊 INICIALIZACIÓN DEL CRM
 // ═══════════════════════════════════════════════════════════════
@@ -421,6 +441,7 @@ function initializeCRM() {
     
     // Cargar configuración diaria
     loadDailyConfig();
+    updateStatsButtons();
     
     const q = query(pharmaciesCollection, orderBy('nombre'));
     
@@ -518,8 +539,9 @@ function updateMetrics() {
     const totalCount = allPharmacies.length;
     const dailyGoal = dailyConfig.totalDailyGoal;
     const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const monthOffset = statsMonth === 'previous' ? -1 : 0;
+    const monthStart = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + monthOffset + 1, 0, 23, 59, 59, 999);
     
     // Contar con logging detallado
     let visitedCount = 0;
