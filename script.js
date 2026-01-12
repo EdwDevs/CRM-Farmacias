@@ -451,6 +451,8 @@ function handlePharmaciesSnapshot(snapshot) {
                 direccion: data.direccion || '',
                 visitado: normalizeStatus(data.visitado),
                 transferencia: normalizeStatus(data.transferencia),
+                visitadoAt: data.visitadoAt || null,
+                transferenciaAt: data.transferenciaAt || null,
                 createdAt: data.createdAt,
                 updatedAt: data.updatedAt
             };
@@ -515,22 +517,35 @@ function updateMetrics() {
     
     const totalCount = allPharmacies.length;
     const dailyGoal = dailyConfig.totalDailyGoal;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     
     // Contar con logging detallado
     let visitedCount = 0;
     let transferredCount = 0;
     let pendingVisitsCount = 0;
     let pendingTransfersCount = 0;
+    let missingVisitedTimestamps = 0;
+    let missingTransferTimestamps = 0;
     
     allPharmacies.forEach((pharmacy, index) => {
         if (pharmacy.visitado === 'Realizado') {
-            visitedCount++;
+            if (isTimestampInRange(pharmacy.visitadoAt, monthStart, monthEnd)) {
+                visitedCount++;
+            } else if (!pharmacy.visitadoAt) {
+                missingVisitedTimestamps++;
+            }
         } else {
             pendingVisitsCount++;
         }
         
         if (pharmacy.transferencia === 'Realizado') {
-            transferredCount++;
+            if (isTimestampInRange(pharmacy.transferenciaAt, monthStart, monthEnd)) {
+                transferredCount++;
+            } else if (!pharmacy.transferenciaAt) {
+                missingTransferTimestamps++;
+            }
         } else {
             pendingTransfersCount++;
         }
@@ -543,6 +558,10 @@ function updateMetrics() {
     
     console.log(`📊 RESULTADOS: Total=${totalCount}, Visitadas=${visitedCount}, Transferidas=${transferredCount}`);
     console.log(`🎯 OBJETIVO DIARIO: ${dailyGoal} (Día ${dailyConfig.currentWorkDay} × ${dailyConfig.pharmaciesPerDay})`);
+    if ((missingVisitedTimestamps > 0 || missingTransferTimestamps > 0) && !updateMetrics.hasShownTimestampWarning) {
+        showToast('⚠️ Hay registros antiguos sin fecha. Se excluyen del cálculo mensual.', 'warning', 6000);
+        updateMetrics.hasShownTimestampWarning = true;
+    }
     
     // Calcular porcentajes basados en objetivo diario
     const visitsPercentageValue = dailyGoal > 0 ? Math.round((visitedCount / dailyGoal) * 100) : 0;
@@ -587,6 +606,13 @@ function updateMetrics() {
     updateDailyStatus(visitedCount, transferredCount);
     
     console.log('✅ Métricas actualizadas completamente con objetivos diarios');
+}
+
+function isTimestampInRange(timestamp, startDate, endDate) {
+    if (!timestamp) return false;
+    const parsed = new Date(timestamp);
+    if (Number.isNaN(parsed.getTime())) return false;
+    return parsed >= startDate && parsed <= endDate;
 }
 
 function updateMetricElement(element, textContent, width = null) {
@@ -934,6 +960,8 @@ tableBody?.addEventListener('click', async (e) => {
     if (button.disabled || !id || !field || !currentStatus) return;
     
     const newStatus = currentStatus === 'Pendiente' ? 'Realizado' : 'Pendiente';
+    const timestampField = field === 'visitado' ? 'visitadoAt' : 'transferenciaAt';
+    const timestampValue = newStatus === 'Realizado' ? new Date().toISOString() : null;
     
     console.log(`🔄 Actualizando ${field} de farmacia ${id}: ${currentStatus} → ${newStatus}`);
     
@@ -946,6 +974,7 @@ tableBody?.addEventListener('click', async (e) => {
         const docRef = doc(db, 'pharmacies', id);
         await updateDoc(docRef, { 
             [field]: newStatus,
+            [timestampField]: timestampValue,
             updatedAt: new Date().toISOString()
         });
         
