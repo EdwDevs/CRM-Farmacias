@@ -515,6 +515,18 @@
                     </div>
                     <div class="daily-summary">
                         <div class="summary-item">
+                            <span class="summary-label">🗓️ Días laborales:</span>
+                            <span class="summary-value" id="display-work-days">1 día</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">👥 Meta diaria visitas:</span>
+                            <span class="summary-value" id="visits-daily-target">16</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">📦 Meta diaria transferencias:</span>
+                            <span class="summary-value" id="transfers-daily-target">16</span>
+                        </div>
+                        <div class="summary-item">
                             <span class="summary-label">📋 Meta Acumulada:</span>
                             <span class="summary-value" id="total-daily-goal">16</span>
                         </div>
@@ -871,7 +883,10 @@
                 goalInput: document.getElementById('pharmacies-per-day'),
                 btnUpdate: document.getElementById('update-daily-config'),
                 statusLabel: document.getElementById('daily-status'),
-                totalLabel: document.getElementById('total-daily-goal')
+                totalLabel: document.getElementById('total-daily-goal'),
+                workDaysLabel: document.getElementById('display-work-days'),
+                visitsTargetLabel: document.getElementById('visits-daily-target'),
+                transfersTargetLabel: document.getElementById('transfers-daily-target')
             },
             stats: {
                 currentBtn: document.getElementById('stats-current-btn'),
@@ -1100,12 +1115,7 @@
                 // Forzamos 16 siempre, ignorando lo guardado para cumplir la regla
                 dailyConfig.pharmaciesPerDay = DEFAULT_PHARMACIES_PER_DAY;
             }
-            if(elements.daily.dayInput) {
-                elements.daily.dayInput.value = dailyConfig.currentWorkDay;
-                // Aseguramos que el input muestre 16
-                elements.daily.goalInput.value = DEFAULT_PHARMACIES_PER_DAY;
-                elements.daily.totalLabel.textContent = getTotalDailyGoal();
-            }
+            updateDailyConfigUI();
         }
 
         elements.daily.btnUpdate?.addEventListener('click', () => {
@@ -1113,10 +1123,31 @@
             // Forzamos 16 al guardar también
             dailyConfig.pharmaciesPerDay = DEFAULT_PHARMACIES_PER_DAY;
             localStorage.setItem('crm-daily-config', JSON.stringify(dailyConfig));
+            updateDailyConfigUI();
             updateMetrics();
-            elements.daily.totalLabel.textContent = getTotalDailyGoal();
             showToast('Días laborales actualizados', 'success');
         });
+
+        function updateDailyConfigUI() {
+            if (!elements.daily.dayInput) return;
+
+            elements.daily.dayInput.value = dailyConfig.currentWorkDay;
+            elements.daily.goalInput.value = DEFAULT_PHARMACIES_PER_DAY;
+            elements.daily.totalLabel.textContent = getTotalDailyGoal();
+
+            if (elements.daily.workDaysLabel) {
+                const dayLabel = dailyConfig.currentWorkDay === 1 ? 'día' : 'días';
+                elements.daily.workDaysLabel.textContent = `${dailyConfig.currentWorkDay} ${dayLabel}`;
+            }
+
+            if (elements.daily.visitsTargetLabel) {
+                elements.daily.visitsTargetLabel.textContent = dailyConfig.pharmaciesPerDay;
+            }
+
+            if (elements.daily.transfersTargetLabel) {
+                elements.daily.transfersTargetLabel.textContent = dailyConfig.pharmaciesPerDay;
+            }
+        }
 
         function updateMetrics() {
             const visited = allPharmacies.filter(p => p.visitado === 'Realizado').length;
