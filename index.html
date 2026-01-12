@@ -872,11 +872,21 @@
                 btnUpdate: document.getElementById('update-daily-config'),
                 statusLabel: document.getElementById('daily-status'),
                 totalLabel: document.getElementById('total-daily-goal')
+            },
+            stats: {
+                currentBtn: document.getElementById('stats-current-btn'),
+                previousBtn: document.getElementById('stats-previous-btn')
             }
         };
 
         let allPharmacies = [];
         let unsubscribe = null;
+        let statsMonth = 'current';
+
+        function updateStatsButtons() {
+            elements.stats.currentBtn?.classList.toggle('is-active', statsMonth === 'current');
+            elements.stats.previousBtn?.classList.toggle('is-active', statsMonth === 'previous');
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // 🔐 AUTENTICACIÓN
@@ -913,6 +923,17 @@
         });
 
         document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+        elements.stats.currentBtn?.addEventListener('click', () => {
+            statsMonth = 'current';
+            updateStatsButtons();
+            updateMetrics();
+        });
+
+        elements.stats.previousBtn?.addEventListener('click', () => {
+            statsMonth = 'previous';
+            updateStatsButtons();
+            updateMetrics();
+        });
 
         // ═══════════════════════════════════════════════════════════════
         // 📊 LÓGICA CORE CRM
