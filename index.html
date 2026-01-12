@@ -971,7 +971,7 @@
 
         function normalizeStatus(status) {
             if (!status) return 'Pendiente';
-            const s = status.toLowerCase();
+            const s = status.toString().trim().toLowerCase();
             if (['realizado', 'completed', 'done'].includes(s)) return 'Realizado';
             if (['justificada', 'justified'].includes(s)) return 'Justificada';
             return 'Pendiente';
@@ -1059,10 +1059,11 @@
 
         window.toggleStatus = async (id, field, current) => {
             // Ciclo de estados: Pendiente -> Realizado -> Justificada -> Pendiente
-            let newVal;
-            if (current === 'Pendiente') newVal = 'Realizado';
-            else if (current === 'Realizado') newVal = 'Justificada';
-            else newVal = 'Pendiente'; // De Justificada vuelve a Pendiente
+            const cycle = ['Pendiente', 'Realizado', 'Justificada'];
+            const normalized = normalizeStatus(current);
+            const currentIndex = cycle.indexOf(normalized);
+            const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % cycle.length;
+            const newVal = cycle[nextIndex];
 
             const docRef = doc(db, 'pharmacies', id);
             try {
@@ -1121,8 +1122,7 @@
             const visited = allPharmacies.filter(p => p.visitado === 'Realizado').length;
             const transferred = allPharmacies.filter(p => p.transferencia === 'Realizado').length;
             
-            const visitedJustified = allPharmacies.filter(p => p.visitado === 'Justificada').length;
-            const transferredJustified = allPharmacies.filter(p => p.transferencia === 'Justificada').length;
+            const justifiedTotal = allPharmacies.filter(p => p.visitado === 'Justificada' || p.transferencia === 'Justificada').length;
             
             const dailyGoal = getTotalDailyGoal();
 
@@ -1144,11 +1144,11 @@
             
             elements.metrics.total.textContent = allPharmacies.length;
             
-            const pendingVisits = allPharmacies.length - (visited + visitedJustified);
+            const pendingVisits = allPharmacies.filter(p => p.visitado === 'Pendiente').length;
             elements.metrics.pending.textContent = pendingVisits;
             
             if (elements.metrics.justified) {
-                elements.metrics.justified.textContent = visitedJustified;
+                elements.metrics.justified.textContent = justifiedTotal;
             }
 
             if (visited >= dailyGoal && transferred >= dailyGoal) {
