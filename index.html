@@ -1160,6 +1160,27 @@
             const vPct = dailyGoal > 0 ? Math.min(100, Math.round((visited / dailyGoal) * 100)) : 0;
             const tPct = dailyGoal > 0 ? Math.min(100, Math.round((transferred / dailyGoal) * 100)) : 0;
             const mPct = Math.min(100, Math.round((transferred / MONTHLY_GOAL) * 100));
+            const statusClasses = ['status-success', 'status-warning', 'status-danger', 'status-neutral'];
+
+            const setMetricStatus = (cardEl, badgeEl, pct) => {
+                if (!cardEl || !badgeEl) return;
+
+                cardEl.classList.remove(...statusClasses);
+
+                let statusClass = 'status-danger';
+                let statusText = 'Crítico';
+
+                if (pct >= 80) {
+                    statusClass = 'status-success';
+                    statusText = 'Completado';
+                } else if (pct >= 50) {
+                    statusClass = 'status-warning';
+                    statusText = 'En progreso';
+                }
+
+                cardEl.classList.add(statusClass);
+                badgeEl.textContent = statusText;
+            };
 
             elements.metrics.visitsPct.textContent = `${vPct}%`;
             elements.metrics.visitsCount.textContent = `${visited} / ${dailyGoal}`;
@@ -1172,6 +1193,22 @@
             elements.metrics.goalRemaining.textContent = Math.max(0, MONTHLY_GOAL - transferred);
             elements.metrics.goalBar.style.width = `${mPct}%`;
             elements.metrics.goalPct.textContent = `${mPct}%`;
+
+            setMetricStatus(
+                document.getElementById('visits-card'),
+                document.getElementById('visits-status'),
+                vPct
+            );
+            setMetricStatus(
+                document.getElementById('transfers-card'),
+                document.getElementById('transfers-status'),
+                tPct
+            );
+            setMetricStatus(
+                document.getElementById('goal-card'),
+                document.getElementById('goal-status-badge'),
+                mPct
+            );
             
             elements.metrics.total.textContent = allPharmacies.length;
             
