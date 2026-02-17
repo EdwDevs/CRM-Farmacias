@@ -259,27 +259,72 @@
 
         /* Filters & Table */
         .filters-modern {
-            background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-xl);
+            background: var(--bg-primary); padding: 1rem 1.1rem; border-radius: var(--radius-xl);
             border: 1px solid var(--border-color); margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
         }
-        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+        .filters-toolbar {
+            display: grid;
+            grid-template-columns: minmax(280px, 1.25fr) minmax(0, 2fr) auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(150px, 1fr));
+            gap: 0.65rem;
+        }
         .filter-field { display: flex; flex-direction: column; gap: 0.35rem; }
-        .filter-field label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
-        .filter-action { display: flex; align-items: flex-end; }
-        .filter-action .btn-secondary { width: auto; }
-        .filters-grid select, .filters-grid input {
-            width: 100%; padding: 0.6rem; border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg); background: var(--bg-primary); color: var(--text-primary);
+        .filter-field label {
+            width: max-content;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+            padding: 0.18rem 0.48rem;
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
         }
-        .filters-grid .input-group { margin-bottom: 0; }
-        @media (max-width: 900px) {
-            .filters-grid { grid-template-columns: repeat(2, 1fr); }
+        .filter-action { display: flex; align-items: stretch; }
+        .filter-action .btn-secondary {
+            width: auto;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        .filter-action .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--text-tertiary);
+        }
+        .filters-toolbar select, .filters-toolbar input {
+            width: 100%; padding: 0.62rem 0.7rem; border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); background: var(--bg-primary); color: var(--text-primary);
+            transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+        .filters-toolbar select:focus,
+        .filters-toolbar input:focus,
+        .filters-toolbar select:active,
+        .filters-toolbar input:active {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+        }
+        .filters-toolbar .input-group { margin-bottom: 0; }
+        @media (max-width: 980px) {
+            .filters-toolbar {
+                grid-template-columns: 1fr;
+                gap: 0.7rem;
+                align-items: stretch;
+            }
+            .filters-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .filter-action .btn-secondary { width: 100%; }
         }
         @media (max-width: 600px) {
             .filters-modern { padding: 0.9rem; }
-            .filters-grid { grid-template-columns: 1fr; gap: 0.5rem; }
-            .filters-grid select, .filters-grid input { padding: 0.5rem; font-size: 0.95rem; }
-            .filter-action .btn-secondary { width: 100%; }
+            .filters-grid { grid-template-columns: 1fr; gap: 0.55rem; }
+            .filters-toolbar select, .filters-toolbar input { padding: 0.55rem 0.65rem; font-size: 0.95rem; }
         }
 
         .table-container-modern {
@@ -671,7 +716,7 @@
                 <h3 class="section-title">🔍 Filtros</h3>
             </div>
             
-            <div class="filters-grid">
+            <div class="filters-toolbar">
                 <div class="filter-field">
                     <label for="search-box">Búsqueda</label>
                     <div class="input-group">
@@ -679,32 +724,34 @@
                         <span class="search-icon">🔍</span>
                     </div>
                 </div>
-                
-                <div class="filter-field">
-                    <label for="filter-visitado">Estado visita</label>
-                    <select id="filter-visitado">
-                        <option value="">Estado Visita</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Realizado">Realizado</option>
-                        <option value="Justificada">Justificada</option>
-                    </select>
-                </div>
-                
-                <div class="filter-field">
-                    <label for="filter-transferencia">Estado transferencia</label>
-                    <select id="filter-transferencia">
-                        <option value="">Estado Transferencia</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Realizado">Realizado</option>
-                        <option value="Justificada">Justificada</option>
-                    </select>
-                </div>
-                
-                <div class="filter-field">
-                    <label for="filter-cadena">Cadena</label>
-                    <select id="filter-cadena">
-                        <option value="">Todas las Cadenas</option>
-                    </select>
+
+                <div class="filters-grid">
+                    <div class="filter-field">
+                        <label for="filter-visitado">Estado visita</label>
+                        <select id="filter-visitado">
+                            <option value="">Estado Visita</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Realizado">Realizado</option>
+                            <option value="Justificada">Justificada</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="filter-transferencia">Estado transferencia</label>
+                        <select id="filter-transferencia">
+                            <option value="">Estado Transferencia</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Realizado">Realizado</option>
+                            <option value="Justificada">Justificada</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="filter-cadena">Cadena</label>
+                        <select id="filter-cadena">
+                            <option value="">Todas las Cadenas</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="filter-action">
