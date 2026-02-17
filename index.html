@@ -1048,9 +1048,9 @@
             pharmacies.forEach(p => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><strong>${p.nombre}</strong></td>
-                    <td><span class="cadena-badge">${p.cadena}</span></td>
-                    <td class="address-cell" title="${p.direccion}">${p.direccion}</td>
+                    <td class="table-cell-truncate" title="${p.nombre}"><strong>${p.nombre}</strong></td>
+                    <td class="table-cell-truncate" title="${p.cadena}"><span class="cadena-badge">${p.cadena}</span></td>
+                    <td class="address-cell table-cell-truncate" title="${p.direccion}">${p.direccion}</td>
                     <td class="text-center">
                         ${renderStatusButton(p.id, 'visitado', p.visitado)}
                     </td>
