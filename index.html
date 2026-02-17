@@ -144,6 +144,8 @@
         }
         .header-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
         .version-badge { background: var(--primary-100); color: var(--primary-700); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.65rem; }
+        .section-title { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; }
+        .filters-panel { margin-bottom: 1.5rem; }
         .header-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
         .header-actions .btn-primary { width: auto; }
         .stats-filter-btn.is-active {
@@ -541,6 +543,7 @@
 
         <!-- Metrics Dashboard -->
         <section class="metrics-dashboard">
+            <h2 class="section-title">📊 KPIs de desempeño</h2>
             <div class="metrics-grid">
                 <!-- Cobertura de Visitas -->
                 <div class="metric-card visits-card status-danger" id="visits-card">
@@ -662,9 +665,10 @@
         </div>
 
         <!-- Filters -->
+        <section class="filters-panel">
         <div class="filters filters-modern">
             <div class="filters-header">
-                <h3>🔍 Filtros</h3>
+                <h3 class="section-title">🔍 Filtros</h3>
             </div>
             
             <div class="filters-grid">
@@ -711,12 +715,13 @@
                 </div>
             </div>
         </div>
+        </section>
 
         <!-- Data Table -->
         <div class="table-container table-container-modern">
             <div class="table-header">
                 <div class="table-info">
-                    <h3>📋 Listado de Farmacias</h3>
+                    <h3 class="section-title">📋 Listado de Farmacias</h3>
                     <p id="record-count">Cargando...</p>
                 </div>
                 <button id="refresh-btn" class="btn-outline">
