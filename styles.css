@@ -22,6 +22,22 @@
     --warning-600: #d97706;
     --info-500: #06b6d4;
 
+    /* === ESTADOS OPERATIVOS (AA light) === */
+    --state-pending-bg: #fef3c7;
+    --state-pending-text: #92400e;
+    --state-pending-border: #fcd34d;
+    --state-pending-row: #fffbeb;
+
+    --state-done-bg: #dcfce7;
+    --state-done-text: #166534;
+    --state-done-border: #86efac;
+    --state-done-row: #f0fdf4;
+
+    --state-justified-bg: #e0e7ff;
+    --state-justified-text: #3730a3;
+    --state-justified-border: #a5b4fc;
+    --state-justified-row: #eef2ff;
+
     /* === TEMA CLARO === */
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
@@ -85,6 +101,22 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.35);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.45);
+
+    /* === ESTADOS OPERATIVOS (AA dark) === */
+    --state-pending-bg: #3f2a05;
+    --state-pending-text: #fcd34d;
+    --state-pending-border: #92400e;
+    --state-pending-row: color-mix(in srgb, var(--state-pending-bg) 34%, transparent);
+
+    --state-done-bg: #052e1f;
+    --state-done-text: #6ee7b7;
+    --state-done-border: #047857;
+    --state-done-row: color-mix(in srgb, var(--state-done-bg) 38%, transparent);
+
+    --state-justified-bg: #312e81;
+    --state-justified-text: #c7d2fe;
+    --state-justified-border: #6366f1;
+    --state-justified-row: color-mix(in srgb, var(--state-justified-bg) 34%, transparent);
     color-scheme: dark;
 }
 
@@ -355,13 +387,46 @@ button { font-family: inherit; }
 }
 #goal-percentage { font-weight: 600; color: var(--warning-600); }
 
+.metric-status {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+.metric-status.pendiente {
+    background: var(--state-pending-bg);
+    color: var(--state-pending-text);
+    border-color: var(--state-pending-border);
+}
+.metric-status.realizado {
+    background: var(--state-done-bg);
+    color: var(--state-done-text);
+    border-color: var(--state-done-border);
+}
+.metric-status.justificada {
+    background: var(--state-justified-bg);
+    color: var(--state-justified-text);
+    border-color: var(--state-justified-border);
+}
+
 /* === SUMMARY STATS === */
 .summary-stats { display: flex; flex-direction: column; gap: var(--space-3); }
 .stat-item { display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--border-color); }
 .stat-item:last-child { border-bottom: none; }
 .stat-label { font-size: 0.875rem; color: var(--text-secondary); }
 .stat-value { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
-.stat-value.pending { color: var(--danger-500); }
+.stat-value.pending,
+.stat-value.pendiente { color: var(--state-pending-text); }
+.stat-value.realizado,
+.stat-value.done { color: var(--state-done-text); }
+.stat-value.justificada,
+.stat-value.justified { color: var(--state-justified-text); }
 
 /* === UPLOAD SECTION === */
 .upload-section-modern {
@@ -430,11 +495,45 @@ button { font-family: inherit; }
 }
 .status-btn:focus-visible { outline: none; box-shadow: var(--ring-inner), var(--ring-outer); }
 
-.status-btn.pendiente { background: #fef2f2; color: var(--danger-600); border: 1px solid #fecaca; }
-@media (hover: hover) { .status-btn.pendiente:hover { background: var(--danger-500); color: white; } }
+.status-btn.pendiente {
+    background: var(--state-pending-bg);
+    color: var(--state-pending-text);
+    border: 1px solid var(--state-pending-border);
+}
+@media (hover: hover) {
+  .status-btn.pendiente:hover { background: color-mix(in srgb, var(--state-pending-bg) 86%, black); }
+}
 
-.status-btn.realizado { background: #f0fdf4; color: var(--success-600); border: 1px solid #bbf7d0; }
-@media (hover: hover) { .status-btn.realizado:hover { background: var(--success-500); color: white; } }
+.status-btn.realizado {
+    background: var(--state-done-bg);
+    color: var(--state-done-text);
+    border: 1px solid var(--state-done-border);
+}
+@media (hover: hover) {
+  .status-btn.realizado:hover { background: color-mix(in srgb, var(--state-done-bg) 84%, black); }
+}
+
+.status-btn.justificada {
+    background: var(--state-justified-bg);
+    color: var(--state-justified-text);
+    border: 1px solid var(--state-justified-border);
+}
+@media (hover: hover) {
+  .status-btn.justificada:hover { background: color-mix(in srgb, var(--state-justified-bg) 82%, black); }
+}
+
+.modern-table tbody tr.status-pendiente,
+.modern-table tbody tr:has(.status-btn.pendiente) {
+    background: color-mix(in srgb, var(--state-pending-row) 38%, transparent);
+}
+.modern-table tbody tr.status-realizado,
+.modern-table tbody tr:has(.status-btn.realizado) {
+    background: color-mix(in srgb, var(--state-done-row) 36%, transparent);
+}
+.modern-table tbody tr.status-justificada,
+.modern-table tbody tr:has(.status-btn.justificada) {
+    background: color-mix(in srgb, var(--state-justified-row) 34%, transparent);
+}
 
 /* === LOADING & EMPTY STATES === */
 .loading-modern, .empty-state-modern { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
