@@ -1570,6 +1570,13 @@
                             <option value="">Todas las cadenas</option>
                         </select>
                     </div>
+                    <div class="toolbar-actions" style="display: flex; gap: 12px; margin-left: auto;">
+                        <button class="btn btn-primary btn-sm" onclick="window.showPharmacyModal()">
+                            <span>➕</span>
+                            <span>Nueva Farmacia</span>
+                        </button>
+                    </div>
+
                 </div>
                 
                 <div class="data-table-container">
@@ -1580,6 +1587,7 @@
                                 <th>Dirección</th>
                                 <th class="text-center">Estado Visita</th>
                                 <th class="text-center">Transferencia</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="pharmacy-table">
@@ -1631,6 +1639,61 @@
         </div>
     </div>
 
+
+    <!-- Pharmacy Modal -->
+    <div id="pharmacy-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon" style="background: var(--primary-50); color: var(--primary-600);">🏥</div>
+                <h3 class="modal-title" id="pharmacy-modal-title">Nueva Farmacia</h3>
+                <p class="modal-text">Ingresa los datos de la farmacia.</p>
+            </div>
+            <div class="modal-body">
+                <form id="pharmacy-form" onsubmit="event.preventDefault(); window.savePharmacy();">
+                    <input type="hidden" id="pharmacy-id">
+                    <div class="form-group">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" id="pharmacy-name-input" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cadena</label>
+                        <input type="text" id="pharmacy-chain-input" class="form-input" placeholder="Ej. General, Cruz Verde...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dirección *</label>
+                        <input type="text" id="pharmacy-address-input" class="form-input" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="window.hidePharmacyModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon" style="background: var(--danger-50); color: var(--danger-600);">🗑️</div>
+                <h3 class="modal-title">Eliminar Farmacia</h3>
+                <p class="modal-text">¿Estás seguro de que deseas eliminar la farmacia <strong id="delete-pharmacy-name"></strong>?</p>
+            </div>
+            <div class="modal-body">
+                <ul class="warning-list" style="background: var(--danger-50);">
+                    <li style="color: var(--danger-700);">Esta acción no se puede deshacer.</li>
+                    <li style="color: var(--danger-700);">Se perderá el progreso de visitas y transferencias.</li>
+                </ul>
+                <input type="hidden" id="delete-pharmacy-id">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="window.hideDeleteModal()">Cancelar</button>
+                <button class="btn btn-danger-soft" style="background: var(--danger-600); color: white;" onclick="window.deletePharmacy()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // ===== FIREBASE IMPORTS =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -1646,6 +1709,8 @@
             onSnapshot, 
             doc, 
             updateDoc, 
+            addDoc,
+            deleteDoc,
             query, 
             orderBy,
             writeBatch,
@@ -1948,7 +2013,18 @@
                             <span>${p.transferencia}</span>
                         </button>
                     </td>
+                                                                                <td class="text-center">
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button class="btn btn-secondary btn-sm" onclick="window.showPharmacyModal('${p.id}', '${p.nombre.replace(/\'/g, `\\'`)}', '${p.cadena.replace(/\'/g, `\\'`)}', '${p.direccion.replace(/\'/g, `\\'`)}')" title="Editar">
+                                ✏️
+                            </button>
+                            <button class="btn btn-danger-soft btn-sm" onclick="window.confirmDeletePharmacy('${p.id}', '${p.nombre.replace(/\'/g, `\\'`)}')" title="Eliminar">
+                                🗑️
+                            </button>
+                        </div>
+                    </td>
                 </tr>
+
             `).join('');
             
             if (state.filteredPharmacies.length > 50) {
@@ -2007,6 +2083,95 @@
             window.showToast('Actualizando', 'Sincronizando datos...', 'info');
             // Force re-render
             applyFilters();
+        };
+
+
+        // ===== CREATE / EDIT PHARMACY MODAL =====
+        window.showPharmacyModal = (id = '', nombre = '', cadena = '', direccion = '') => {
+            document.getElementById('pharmacy-id').value = id;
+            document.getElementById('pharmacy-name-input').value = nombre;
+            document.getElementById('pharmacy-chain-input').value = cadena;
+            document.getElementById('pharmacy-address-input').value = direccion;
+
+            const title = id ? 'Editar Farmacia' : 'Nueva Farmacia';
+            document.getElementById('pharmacy-modal-title').textContent = title;
+
+            document.getElementById('pharmacy-modal').classList.add('show');
+        };
+
+        window.hidePharmacyModal = () => {
+            document.getElementById('pharmacy-modal').classList.remove('show');
+            document.getElementById('pharmacy-form').reset();
+        };
+
+        window.savePharmacy = async () => {
+            const id = document.getElementById('pharmacy-id').value;
+            const nombre = document.getElementById('pharmacy-name-input').value.trim();
+            const cadena = document.getElementById('pharmacy-chain-input').value.trim() || 'General';
+            const direccion = document.getElementById('pharmacy-address-input').value.trim();
+
+            if (!nombre || !direccion) {
+                window.showToast('Error', 'Nombre y Dirección son obligatorios', 'error');
+                return;
+            }
+
+            window.showToast('Guardando', 'Procesando datos...', 'info');
+
+            try {
+                if (id) {
+                    // Update
+                    await updateDoc(doc(db, 'pharmacies', id), {
+                        nombre,
+                        cadena,
+                        direccion
+                    });
+                    window.showToast('Actualizado', 'Farmacia actualizada correctamente', 'success');
+                } else {
+                    // Create
+                    await addDoc(collection(db, 'pharmacies'), {
+                        nombre,
+                        cadena,
+                        direccion,
+                        visitado: 'Pendiente',
+                        transferencia: 'Pendiente',
+                        createdAt: new Date().toISOString()
+                    });
+                    window.showToast('Creado', 'Nueva farmacia agregada correctamente', 'success');
+                }
+                window.hidePharmacyModal();
+            } catch (err) {
+                console.error(err);
+                window.showToast('Error', 'No se pudo guardar la farmacia', 'error');
+            }
+        };
+
+
+
+        // ===== DELETE PHARMACY =====
+        window.confirmDeletePharmacy = (id, nombre) => {
+            document.getElementById('delete-pharmacy-id').value = id;
+            document.getElementById('delete-pharmacy-name').textContent = nombre;
+            document.getElementById('delete-modal').classList.add('show');
+        };
+
+        window.hideDeleteModal = () => {
+            document.getElementById('delete-modal').classList.remove('show');
+        };
+
+        window.deletePharmacy = async () => {
+            const id = document.getElementById('delete-pharmacy-id').value;
+            if (!id) return;
+
+            window.showToast('Eliminando', 'Borrando farmacia...', 'info');
+
+            try {
+                await deleteDoc(doc(db, 'pharmacies', id));
+                window.showToast('Eliminado', 'Farmacia eliminada correctamente', 'success');
+                window.hideDeleteModal();
+            } catch (err) {
+                console.error(err);
+                window.showToast('Error', 'No se pudo eliminar la farmacia', 'error');
+            }
         };
 
         // ===== RESET MODAL =====
