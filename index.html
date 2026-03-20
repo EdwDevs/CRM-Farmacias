@@ -669,6 +669,68 @@
             color: var(--neutral-500);
         }
 
+
+        /* Mini Stats Bar */
+        .mini-stats {
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 16px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--neutral-200);
+            margin-bottom: 32px;
+            gap: 24px;
+            animation: slideDown 0.3s ease-out;
+            overflow-x: auto;
+        }
+
+        .mini-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .mini-icon {
+            font-size: 18px;
+        }
+
+        .mini-label {
+            font-size: 13px;
+            color: var(--neutral-500);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mini-stat-item strong {
+            font-size: 18px;
+            color: var(--neutral-900);
+        }
+
+        .mini-sub {
+            font-size: 12px;
+            color: var(--neutral-400);
+        }
+
+        .mini-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--neutral-200);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Update stat-card colors for new ones */
+        .stat-card.effectiveness::before { background: var(--success-500); }
+        .stat-card.projection::before { background: var(--primary-500); }
+        .stat-card.justified::before { background: var(--neutral-400); }
+        .stat-card.pending-t::before { background: var(--warning-500); }
+
         /* Config Panel */
         .config-panel {
             background: var(--white);
@@ -907,6 +969,53 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+
+        .status-select {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 30px 8px 14px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select:focus {
+            outline: 2px solid var(--primary-500);
+            outline-offset: 2px;
+        }
+
+        .status-select.pending {
+            background-color: var(--warning-50);
+            color: var(--warning-600);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select.completed {
+            background-color: var(--success-50);
+            color: var(--success-600);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select.justified {
+            background-color: var(--primary-50);
+            color: var(--primary-600);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select option {
+            background-color: white;
+            color: var(--neutral-800);
+            font-weight: 500;
         }
 
         .status-toggle {
@@ -1433,10 +1542,31 @@
             </div>
 
             <!-- Quick Stats -->
-            <div class="quick-stats">
+
+            <!-- Stats Section -->
+            <div class="stats-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--neutral-700);">Resumen de Rendimiento</h3>
+                <button id="toggle-stats-btn" class="btn btn-secondary btn-sm" onclick="window.toggleStats()">
+                    <span>Ocultar Detalles</span> <span>⬆️</span>
+                </button>
+            </div>
+
+            <!-- Mini Summary (Hidden by default) -->
+            <div id="mini-stats" class="mini-stats" style="display: none;">
+                <div class="mini-stat-item"><span class="mini-icon">📊</span> <span class="mini-label">Efectividad:</span> <strong id="mini-efectividad">0%</strong></div>
+                <div class="mini-divider"></div>
+                <div class="mini-stat-item"><span class="mini-icon">🎯</span> <span class="mini-label">Faltan:</span> <strong id="mini-faltantes">0</strong> <span class="mini-sub">para la meta</span></div>
+                <div class="mini-divider"></div>
+                <div class="mini-stat-item"><span class="mini-icon">🚀</span> <span class="mini-label">Proyección:</span> <strong id="mini-proyeccion">0</strong> <span class="mini-sub">a fin de mes</span></div>
+                <div class="mini-divider"></div>
+                <div class="mini-stat-item"><span class="mini-icon">⚠️</span> <span class="mini-label">Urgentes:</span> <strong id="mini-urgentes">0</strong> <span class="mini-sub">visitas hoy</span></div>
+            </div>
+
+            <div id="quick-stats" class="quick-stats">
+                <!-- Fila 1 -->
                 <div class="stat-card visits">
                     <div class="stat-header">
-                        <span class="stat-label">Visitas Realizadas</span>
+                        <span class="stat-label">Visitas</span>
                         <span class="stat-badge warning" id="visits-badge">En Progreso</span>
                     </div>
                     <div class="stat-value" id="visits-value">0</div>
@@ -1446,7 +1576,6 @@
                             <div class="progress-bar-fill" id="visits-bar" style="width: 0%"></div>
                         </div>
                     </div>
-                    <div class="stat-footer" id="visits-pending">0 pendientes</div>
                 </div>
 
                 <div class="stat-card transfers">
@@ -1461,16 +1590,42 @@
                             <div class="progress-bar-fill" id="transfers-bar" style="width: 0%"></div>
                         </div>
                     </div>
-                    <div class="stat-footer" id="transfers-pending">0 pendientes</div>
                 </div>
 
+                <div class="stat-card effectiveness">
+                    <div class="stat-header">
+                        <span class="stat-label">Efectividad</span>
+                        <span class="stat-badge success" id="effect-badge">Óptimo</span>
+                    </div>
+                    <div class="stat-value"><span id="effect-value">0</span>%</div>
+                    <div class="stat-context">Transf. / Visitas Realizadas</div>
+                    <div class="stat-progress">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="effect-bar" style="width: 0%; background: var(--success-500);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card pending">
+                    <div class="stat-header">
+                        <span class="stat-label">Pendientes Visita</span>
+                        <span class="stat-badge danger" id="pending-v-badge">Urgente</span>
+                    </div>
+                    <div class="stat-value" id="pending-v-value">0</div>
+                    <div class="stat-context">farmacias sin visitar hoy</div>
+                    <div class="stat-footer" style="margin-top: 24px;">
+                        <span id="total-pharmacies">0</span> farmacias en total
+                    </div>
+                </div>
+
+                <!-- Fila 2 -->
                 <div class="stat-card goal">
                     <div class="stat-header">
                         <span class="stat-label">Meta Mensual</span>
                         <span class="stat-badge warning" id="month-badge">En Progreso</span>
                     </div>
                     <div class="stat-value" id="month-value">0</div>
-                    <div class="stat-context">de <strong>120</strong> transferencias</div>
+                    <div class="stat-context">de <strong id="month-goal">120</strong> transferencias</div>
                     <div class="stat-progress">
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" id="month-bar" style="width: 0%"></div>
@@ -1479,20 +1634,48 @@
                     <div class="stat-footer" id="month-remaining">120 restantes</div>
                 </div>
 
-                <div class="stat-card pending">
+                <div class="stat-card projection">
                     <div class="stat-header">
-                        <span class="stat-label">Pendientes Hoy</span>
-                        <span class="stat-badge danger" id="pending-badge">Urgente</span>
+                        <span class="stat-label">Proyección Mes</span>
+                        <span class="stat-badge success" id="proj-badge">Excelente</span>
                     </div>
-                    <div class="stat-value" id="pending-value">0</div>
-                    <div class="stat-context">farmacias por visitar</div>
+                    <div class="stat-value" id="proj-value">0</div>
+                    <div class="stat-context">transferencias estimadas</div>
+                    <div class="stat-progress">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="proj-bar" style="width: 0%; background: var(--primary-500);"></div>
+                        </div>
+                    </div>
+                    <div class="stat-footer" id="proj-diff">0 vs Meta</div>
+                </div>
+
+                <div class="stat-card justified">
+                    <div class="stat-header">
+                        <span class="stat-label">Justificadas</span>
+                        <span class="stat-badge" style="background: var(--neutral-100); color: var(--neutral-600);" id="justified-badge">Info</span>
+                    </div>
+                    <div class="stat-value" id="justified-value">0</div>
+                    <div class="stat-context">visitas o transferencias</div>
                     <div class="stat-footer" style="margin-top: 24px;">
-                        <span id="total-pharmacies">0</span> farmacias en total
+                        Requieren seguimiento
+                    </div>
+                </div>
+
+                <div class="stat-card pending-t">
+                    <div class="stat-header">
+                        <span class="stat-label">Pdtes. Transf.</span>
+                        <span class="stat-badge warning" id="pending-t-badge">Atención</span>
+                    </div>
+                    <div class="stat-value" id="pending-t-value">0</div>
+                    <div class="stat-context">visitadas sin transferencia</div>
+                    <div class="stat-footer" style="margin-top: 24px;">
+                        Oportunidad de cierre
                     </div>
                 </div>
             </div>
 
             <!-- Config Panel -->
+
             <div class="config-panel">
                 <div class="config-header">
                     <div class="config-icon-large">📅</div>
@@ -1570,6 +1753,13 @@
                             <option value="">Todas las cadenas</option>
                         </select>
                     </div>
+                    <div class="toolbar-actions" style="display: flex; gap: 12px; margin-left: auto;">
+                        <button class="btn btn-primary btn-sm" onclick="window.showPharmacyModal()">
+                            <span>➕</span>
+                            <span>Nueva Farmacia</span>
+                        </button>
+                    </div>
+
                 </div>
                 
                 <div class="data-table-container">
@@ -1580,6 +1770,7 @@
                                 <th>Dirección</th>
                                 <th class="text-center">Estado Visita</th>
                                 <th class="text-center">Transferencia</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="pharmacy-table">
@@ -1631,6 +1822,62 @@
         </div>
     </div>
 
+
+    <!-- Pharmacy Modal -->
+    <div id="pharmacy-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon" style="background: var(--primary-50); color: var(--primary-600);">🏥</div>
+                <h3 class="modal-title" id="pharmacy-modal-title">Nueva Farmacia</h3>
+                <p class="modal-text">Ingresa los datos de la farmacia.</p>
+            </div>
+            <div class="modal-body">
+                <form id="pharmacy-form" onsubmit="event.preventDefault(); window.savePharmacy();">
+                    <input type="hidden" id="pharmacy-id">
+                    <div class="form-group">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" id="pharmacy-name-input" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cadena</label>
+                        <input type="text" id="pharmacy-chain-input" class="form-input" list="chain-options" placeholder="Ej. General, Cruz Verde...">
+                        <datalist id="chain-options"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dirección *</label>
+                        <input type="text" id="pharmacy-address-input" class="form-input" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="window.hidePharmacyModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon" style="background: var(--danger-50); color: var(--danger-600);">🗑️</div>
+                <h3 class="modal-title">Eliminar Farmacia</h3>
+                <p class="modal-text">¿Estás seguro de que deseas eliminar la farmacia <strong id="delete-pharmacy-name"></strong>?</p>
+            </div>
+            <div class="modal-body">
+                <ul class="warning-list" style="background: var(--danger-50);">
+                    <li style="color: var(--danger-700);">Esta acción no se puede deshacer.</li>
+                    <li style="color: var(--danger-700);">Se perderá el progreso de visitas y transferencias.</li>
+                </ul>
+                <input type="hidden" id="delete-pharmacy-id">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="window.hideDeleteModal()">Cancelar</button>
+                <button class="btn btn-danger-soft" style="background: var(--danger-600); color: white;" onclick="window.deletePharmacy()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // ===== FIREBASE IMPORTS =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -1646,6 +1893,8 @@
             onSnapshot, 
             doc, 
             updateDoc, 
+            addDoc,
+            deleteDoc,
             query, 
             orderBy,
             writeBatch,
@@ -1717,8 +1966,8 @@
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 document.getElementById('dashboard').classList.add('fade-in');
-                document.getElementById('user-name').textContent = user.email.split('@')[0];
-                document.getElementById('user-avatar').textContent = user.email[0].toUpperCase();
+                const _el_user_name = document.getElementById('user-name'); if (_el_user_name) _el_user_name.textContent = user.email.split('@')[0]; else console.error('Missing ID: user-name');
+                const _el_user_avatar = document.getElementById('user-avatar'); if (_el_user_avatar) _el_user_avatar.textContent = user.email[0].toUpperCase(); else console.error('Missing ID: user-avatar');
                 loadConfig();
                 initPharmacyListener();
                 window.showToast('Bienvenido', `Hola ${user.email}`, 'success');
@@ -1774,13 +2023,13 @@
 
         function updateConfigDisplay() {
             const total = state.config.currentWorkDay * state.config.pharmaciesPerDay;
-            document.getElementById('config-total').textContent = total;
+            const _el_config_total = document.getElementById('config-total'); if (_el_config_total) _el_config_total.textContent = total; else console.error('Missing ID: config-total');
             
             const visited = state.pharmacies.filter(p => p.visitado === 'Realizado').length;
             const transferred = state.pharmacies.filter(p => p.transferencia === 'Realizado').length;
             const completed = visited >= total && transferred >= total;
             
-            document.getElementById('config-status').textContent = completed ? '✅' : '🎯';
+            const _el_config_status = document.getElementById('config-status'); if (_el_config_status) _el_config_status.textContent = completed ? '✅' : '🎯'; else console.error('Missing ID: config-status');
         }
 
         // ===== PHARMACY DATA =====
@@ -1813,6 +2062,10 @@
             });
         }
 
+
+        window.escapeHtmlAttr = function(str) {
+            return (str || '').replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+        };
         function normalizeStatus(status) {
             if (!status) return 'Pendiente';
             const s = status.toString().trim().toLowerCase();
@@ -1821,20 +2074,71 @@
         }
 
         // ===== STATS =====
+
+        // ===== STATS TOGGLE =====
+        window.toggleStats = () => {
+            const stats = document.getElementById('quick-stats');
+            const mini = document.getElementById('mini-stats');
+            const btn = document.getElementById('toggle-stats-btn');
+
+            if (stats.style.display === 'none') {
+                stats.style.display = 'grid';
+                mini.style.display = 'none';
+                btn.innerHTML = '<span>Ocultar Detalles</span> <span>⬆️</span>';
+                localStorage.setItem('pharma-stats-view', 'full');
+            } else {
+                stats.style.display = 'none';
+                mini.style.display = 'flex';
+                btn.innerHTML = '<span>Ver Detalles</span> <span>⬇️</span>';
+                localStorage.setItem('pharma-stats-view', 'mini');
+            }
+        };
+
+        // Initialize stats view based on saved preference
+        const savedStatsView = localStorage.getItem('pharma-stats-view');
+        if (savedStatsView === 'mini') {
+            document.getElementById('quick-stats').style.display = 'none';
+            document.getElementById('mini-stats').style.display = 'flex';
+            document.getElementById('toggle-stats-btn').innerHTML = '<span>Ver Detalles</span> <span>⬇️</span>';
+        }
+
         function updateStats() {
             const dailyGoal = state.config.currentWorkDay * state.config.pharmaciesPerDay;
             
             const visited = state.pharmacies.filter(p => p.visitado === 'Realizado').length;
             const transferred = state.pharmacies.filter(p => p.transferencia === 'Realizado').length;
-            const pending = state.pharmacies.filter(p => p.visitado === 'Pendiente').length;
+            const pendingVisit = state.pharmacies.filter(p => p.visitado === 'Pendiente').length;
+            const justified = state.pharmacies.filter(p => p.visitado === 'Justificada' || p.transferencia === 'Justificada').length;
+            const pendingTransfer = state.pharmacies.filter(p => p.visitado === 'Realizado' && p.transferencia === 'Pendiente').length;
             
-            // Update cards
-            updateStatCard('visits', visited, dailyGoal, state.pharmacies.filter(p => p.visitado === 'Pendiente').length);
+            // Calculated Metrics
+            const effectiveness = visited > 0 ? Math.round((transferred / visited) * 100) : 0;
+            const totalWorkDays = 22; // Asumiendo un mes de 22 dias laborables tipicos
+            const projection = state.config.currentWorkDay > 0 ? Math.round((transferred / state.config.currentWorkDay) * totalWorkDays) : 0;
+
+            // Update core cards
+            updateStatCard('visits', visited, dailyGoal, pendingVisit);
             updateStatCard('transfers', transferred, dailyGoal, state.pharmacies.filter(p => p.transferencia === 'Pendiente').length);
-            updateStatCard('month', transferred, 120, 120 - transferred, true);
+            updateStatCard('month', transferred, MONTHLY_GOAL, MONTHLY_GOAL - transferred, true);
+
+            // Update new cards
+            const _el_effect_value = document.getElementById('effect-value'); if (_el_effect_value) _el_effect_value.textContent = effectiveness; else console.error('Missing ID: effect-value');
+            const _el2_effect_bar = document.getElementById('effect-bar'); if (_el2_effect_bar) _el2_effect_bar.style.width = `${effectiveness}%`; else console.error('Missing ID: effect-bar');
+            const _el_pending_v_value = document.getElementById('pending-v-value'); if (_el_pending_v_value) _el_pending_v_value.textContent = pendingVisit; else console.error('Missing ID: pending-v-value');
+            const _el_total_pharmacies = document.getElementById('total-pharmacies'); if (_el_total_pharmacies) _el_total_pharmacies.textContent = state.pharmacies.length; else console.error('Missing ID: total-pharmacies');
+
+            const _el_proj_value = document.getElementById('proj-value'); if (_el_proj_value) _el_proj_value.textContent = projection; else console.error('Missing ID: proj-value');
+            const _el2_proj_bar = document.getElementById('proj-bar'); if (_el2_proj_bar) _el2_proj_bar.style.width = `${Math.min(100, Math.round((projection / MONTHLY_GOAL) * 100))}%`; else console.error('Missing ID: proj-bar');
+            const _el_proj_diff = document.getElementById('proj-diff'); if (_el_proj_diff) _el_proj_diff.textContent = `${Math.abs(projection - MONTHLY_GOAL)} ${projection >= MONTHLY_GOAL ? 'por encima de la meta' : 'por debajo de la meta'}`; else console.error('Missing ID: proj-diff');
+
+            const _el_justified_value = document.getElementById('justified-value'); if (_el_justified_value) _el_justified_value.textContent = justified; else console.error('Missing ID: justified-value');
+            const _el_pending_t_value = document.getElementById('pending-t-value'); if (_el_pending_t_value) _el_pending_t_value.textContent = pendingTransfer; else console.error('Missing ID: pending-t-value');
             
-            document.getElementById('pending-value').textContent = pending;
-            document.getElementById('total-pharmacies').textContent = state.pharmacies.length;
+            // Update Mini Stats
+            const _el_mini_efectividad = document.getElementById('mini-efectividad'); if (_el_mini_efectividad) _el_mini_efectividad.textContent = `${effectiveness}%`; else console.error('Missing ID: mini-efectividad');
+            const _el_mini_faltantes = document.getElementById('mini-faltantes'); if (_el_mini_faltantes) _el_mini_faltantes.textContent = Math.max(0, MONTHLY_GOAL - transferred); else console.error('Missing ID: mini-faltantes');
+            const _el_mini_proyeccion = document.getElementById('mini-proyeccion'); if (_el_mini_proyeccion) _el_mini_proyeccion.textContent = projection; else console.error('Missing ID: mini-proyeccion');
+            const _el_mini_urgentes = document.getElementById('mini-urgentes'); if (_el_mini_urgentes) _el_mini_urgentes.textContent = pendingVisit; else console.error('Missing ID: mini-urgentes');
             
             updateConfigDisplay();
         }
@@ -1842,14 +2146,14 @@
         function updateStatCard(type, current, goal, secondary, isMonth = false) {
             const pct = Math.min(100, Math.round((current / goal) * 100));
             
-            document.getElementById(`${type}-value`).textContent = current;
-            document.getElementById(`${type}-goal`).textContent = goal;
-            document.getElementById(`${type}-bar`).style.width = `${pct}%`;
+            const _el_value = document.getElementById(`${type}-value`); if (_el_value) _el_value.textContent =  current;
+            const _el_goal = document.getElementById(`${type}-goal`); if (_el_goal) _el_goal.textContent =  goal;
+            const _el_bar_bar = document.getElementById(`${type}-bar`); if (_el_bar_bar) _el_bar_bar.style.width =  `${pct}%`;
             
             if (!isMonth) {
-                document.getElementById(`${type}-pending`).textContent = `${secondary} pendientes`;
+                const _el_pending = document.getElementById(`${type}-pending`); if (_el_pending) _el_pending.textContent =  `${secondary} pendientes`;
             } else {
-                document.getElementById(`${type}-remaining`).textContent = `${Math.max(0, secondary)} restantes`;
+                const _el_remaining = document.getElementById(`${type}-remaining`); if (_el_remaining) _el_remaining.textContent =  `${Math.max(0, secondary)} restantes`;
             }
             
             const badge = document.getElementById(`${type}-badge`);
@@ -1879,6 +2183,16 @@
                 select.appendChild(opt);
             });
             select.value = current;
+            // Also update the datalist for the modal
+            const datalist = document.getElementById('chain-options');
+            if (datalist) {
+                datalist.innerHTML = '';
+                chains.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    datalist.appendChild(opt);
+                });
+            }
         }
 
         function applyFilters() {
@@ -1919,8 +2233,8 @@
                         </td>
                     </tr>
                 `;
-                document.getElementById('showing-count').textContent = 0;
-                document.getElementById('total-count').textContent = state.pharmacies.length;
+                const _el_showing_count = document.getElementById('showing-count'); if (_el_showing_count) _el_showing_count.textContent = 0; else console.error('Missing ID: showing-count');
+                const _el_total_count = document.getElementById('total-count'); if (_el_total_count) _el_total_count.textContent = state.pharmacies.length; else console.error('Missing ID: total-count');
                 return;
             }
             
@@ -1937,16 +2251,28 @@
                         <div class="pharmacy-address" title="${p.direccion}">${p.direccion}</div>
                     </td>
                     <td class="text-center">
-                        <button class="status-toggle ${getStatusClass(p.visitado)}" onclick="window.toggleStatus('${p.id}', 'visitado', '${p.visitado}')">
-                            <span class="status-icon">${getStatusIcon(p.visitado)}</span>
-                            <span>${p.visitado}</span>
-                        </button>
+                        <select class="status-select ${getStatusClass(p.visitado)}" onchange="window.toggleStatus('${p.id}', 'visitado', this.value)">
+                            <option value="Pendiente" ${p.visitado === 'Pendiente' ? 'selected' : ''}>○ Pendiente</option>
+                            <option value="Realizado" ${p.visitado === 'Realizado' ? 'selected' : ''}>✓ Realizado</option>
+                            <option value="Justificada" ${p.visitado === 'Justificada' ? 'selected' : ''}>🛡 Justificada</option>
+                        </select>
                     </td>
                     <td class="text-center">
-                        <button class="status-toggle ${getStatusClass(p.transferencia)}" onclick="window.toggleStatus('${p.id}', 'transferencia', '${p.transferencia}')">
-                            <span class="status-icon">${getStatusIcon(p.transferencia)}</span>
-                            <span>${p.transferencia}</span>
-                        </button>
+                        <select class="status-select ${getStatusClass(p.transferencia)}" onchange="window.toggleStatus('${p.id}', 'transferencia', this.value)">
+                            <option value="Pendiente" ${p.transferencia === 'Pendiente' ? 'selected' : ''}>○ Pendiente</option>
+                            <option value="Realizado" ${p.transferencia === 'Realizado' ? 'selected' : ''}>✓ Realizado</option>
+                            <option value="Justificada" ${p.transferencia === 'Justificada' ? 'selected' : ''}>🛡 Justificada</option>
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <div style="display: flex; gap: 8px; justify-content: center;">
+                            <button class="btn btn-secondary btn-sm" onclick="window.showPharmacyModal('${p.id}', '${window.escapeHtmlAttr(p.nombre)}', '${window.escapeHtmlAttr(p.cadena)}', '${window.escapeHtmlAttr(p.direccion)}')" title="Editar">
+                                ✏️
+                            </button>
+                            <button class="btn btn-danger-soft btn-sm" onclick="window.confirmDeletePharmacy('${p.id}', '${window.escapeHtmlAttr(p.nombre)}')" title="Eliminar">
+                                🗑️
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -1961,8 +2287,8 @@
                 `;
             }
             
-            document.getElementById('showing-count').textContent = Math.min(50, state.filteredPharmacies.length);
-            document.getElementById('total-count').textContent = state.pharmacies.length;
+            const _el_showing_count = document.getElementById('showing-count'); if (_el_showing_count) _el_showing_count.textContent = Math.min(50, state.filteredPharmacies.length); else console.error('Missing ID: showing-count');
+            const _el_total_count = document.getElementById('total-count'); if (_el_total_count) _el_total_count.textContent = state.pharmacies.length; else console.error('Missing ID: total-count');
         }
 
         function getStatusClass(status) {
@@ -1973,14 +2299,12 @@
             return status === 'Realizado' ? '✓' : status === 'Justificada' ? '🛡' : '○';
         }
 
-        window.toggleStatus = async (id, field, current) => {
-            const cycle = ['Pendiente', 'Realizado', 'Justificada'];
-            const next = cycle[(cycle.indexOf(current) + 1) % cycle.length];
-            
+        window.toggleStatus = async (id, field, newValue) => {
             try {
-                await updateDoc(doc(db, 'pharmacies', id), { [field]: next });
-                window.showToast('Estado actualizado', `${field}: ${next}`, 'success');
+                await updateDoc(doc(db, 'pharmacies', id), { [field]: newValue });
+                window.showToast('Estado actualizado', `${field}: ${newValue}`, 'success');
             } catch (err) {
+                console.error(err);
                 window.showToast('Error', 'No se pudo actualizar el estado', 'error');
             }
         };
@@ -2007,6 +2331,95 @@
             window.showToast('Actualizando', 'Sincronizando datos...', 'info');
             // Force re-render
             applyFilters();
+        };
+
+
+        // ===== CREATE / EDIT PHARMACY MODAL =====
+        window.showPharmacyModal = (id = '', nombre = '', cadena = '', direccion = '') => {
+            document.getElementById('pharmacy-id').value = id || '';
+            document.getElementById('pharmacy-name-input').value = nombre;
+            document.getElementById('pharmacy-chain-input').value = cadena;
+            document.getElementById('pharmacy-address-input').value = direccion;
+
+            const title = id ? 'Editar Farmacia' : 'Nueva Farmacia';
+            const _el_pharmacy_modal_title = document.getElementById('pharmacy-modal-title'); if (_el_pharmacy_modal_title) _el_pharmacy_modal_title.textContent = title; else console.error('Missing ID: pharmacy-modal-title');
+
+            document.getElementById('pharmacy-modal').classList.add('show');
+        };
+
+        window.hidePharmacyModal = () => {
+            document.getElementById('pharmacy-modal').classList.remove('show');
+            document.getElementById('pharmacy-form').reset();
+        };
+
+        window.savePharmacy = async () => {
+            const id = document.getElementById('pharmacy-id').value;
+            const nombre = document.getElementById('pharmacy-name-input').value.trim();
+            const cadena = document.getElementById('pharmacy-chain-input').value.trim() || 'General';
+            const direccion = document.getElementById('pharmacy-address-input').value.trim();
+
+            if (!nombre || !direccion) {
+                window.showToast('Error', 'Nombre y Dirección son obligatorios', 'error');
+                return;
+            }
+
+            window.showToast('Guardando', 'Procesando datos...', 'info');
+
+            try {
+                if (id) {
+                    // Update
+                    await updateDoc(doc(db, 'pharmacies', id), {
+                        nombre,
+                        cadena,
+                        direccion
+                    });
+                    window.showToast('Actualizado', 'Farmacia actualizada correctamente', 'success');
+                } else {
+                    // Create
+                    await addDoc(collection(db, 'pharmacies'), {
+                        nombre,
+                        cadena,
+                        direccion,
+                        visitado: 'Pendiente',
+                        transferencia: 'Pendiente',
+                        createdAt: new Date().toISOString()
+                    });
+                    window.showToast('Creado', 'Nueva farmacia agregada correctamente', 'success');
+                }
+                window.hidePharmacyModal();
+            } catch (err) {
+                console.error(err);
+                window.showToast('Error', 'No se pudo guardar la farmacia', 'error');
+            }
+        };
+
+
+
+        // ===== DELETE PHARMACY =====
+        window.confirmDeletePharmacy = (id, nombre) => {
+            document.getElementById('delete-pharmacy-id').value = id;
+            const _el_delete_pharmacy_name = document.getElementById('delete-pharmacy-name'); if (_el_delete_pharmacy_name) _el_delete_pharmacy_name.textContent = nombre; else console.error('Missing ID: delete-pharmacy-name');
+            document.getElementById('delete-modal').classList.add('show');
+        };
+
+        window.hideDeleteModal = () => {
+            document.getElementById('delete-modal').classList.remove('show');
+        };
+
+        window.deletePharmacy = async () => {
+            const id = document.getElementById('delete-pharmacy-id').value;
+            if (!id) return;
+
+            window.showToast('Eliminando', 'Borrando farmacia...', 'info');
+
+            try {
+                await deleteDoc(doc(db, 'pharmacies', id));
+                window.showToast('Eliminado', 'Farmacia eliminada correctamente', 'success');
+                window.hideDeleteModal();
+            } catch (err) {
+                console.error(err);
+                window.showToast('Error', 'No se pudo eliminar la farmacia', 'error');
+            }
         };
 
         // ===== RESET MODAL =====
