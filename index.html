@@ -909,6 +909,53 @@
             white-space: nowrap;
         }
 
+
+        .status-select {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 30px 8px 14px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select:focus {
+            outline: 2px solid var(--primary-500);
+            outline-offset: 2px;
+        }
+
+        .status-select.pending {
+            background-color: var(--warning-50);
+            color: var(--warning-600);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select.completed {
+            background-color: var(--success-50);
+            color: var(--success-600);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select.justified {
+            background-color: var(--primary-50);
+            color: var(--primary-600);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        .status-select option {
+            background-color: white;
+            color: var(--neutral-800);
+            font-weight: 500;
+        }
+
         .status-toggle {
             display: inline-flex;
             align-items: center;
@@ -1880,6 +1927,10 @@
             });
         }
 
+
+        window.escapeHtmlAttr = function(str) {
+            return (str || '').replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+        };
         function normalizeStatus(status) {
             if (!status) return 'Pendiente';
             const s = status.toString().trim().toLowerCase();
@@ -1946,6 +1997,16 @@
                 select.appendChild(opt);
             });
             select.value = current;
+            // Also update the datalist for the modal
+            const datalist = document.getElementById('chain-options');
+            if (datalist) {
+                datalist.innerHTML = '';
+                chains.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    datalist.appendChild(opt);
+                });
+            }
         }
 
         function updatePharmacyChainOptions(selectedValue = 'General') {
@@ -2027,29 +2088,30 @@
                         <div class="pharmacy-address" title="${p.direccion}">${p.direccion}</div>
                     </td>
                     <td class="text-center">
-                        <button class="status-toggle ${getStatusClass(p.visitado)}" onclick="window.toggleStatus('${p.id}', 'visitado', '${p.visitado}')">
-                            <span class="status-icon">${getStatusIcon(p.visitado)}</span>
-                            <span>${p.visitado}</span>
-                        </button>
+                        <select class="status-select ${getStatusClass(p.visitado)}" onchange="window.toggleStatus('${p.id}', 'visitado', this.value)">
+                            <option value="Pendiente" ${p.visitado === 'Pendiente' ? 'selected' : ''}>○ Pendiente</option>
+                            <option value="Realizado" ${p.visitado === 'Realizado' ? 'selected' : ''}>✓ Realizado</option>
+                            <option value="Justificada" ${p.visitado === 'Justificada' ? 'selected' : ''}>🛡 Justificada</option>
+                        </select>
                     </td>
                     <td class="text-center">
-                        <button class="status-toggle ${getStatusClass(p.transferencia)}" onclick="window.toggleStatus('${p.id}', 'transferencia', '${p.transferencia}')">
-                            <span class="status-icon">${getStatusIcon(p.transferencia)}</span>
-                            <span>${p.transferencia}</span>
-                        </button>
+                        <select class="status-select ${getStatusClass(p.transferencia)}" onchange="window.toggleStatus('${p.id}', 'transferencia', this.value)">
+                            <option value="Pendiente" ${p.transferencia === 'Pendiente' ? 'selected' : ''}>○ Pendiente</option>
+                            <option value="Realizado" ${p.transferencia === 'Realizado' ? 'selected' : ''}>✓ Realizado</option>
+                            <option value="Justificada" ${p.transferencia === 'Justificada' ? 'selected' : ''}>🛡 Justificada</option>
+                        </select>
                     </td>
-                                                                                <td class="text-center">
+                    <td class="text-center">
                         <div style="display: flex; gap: 8px; justify-content: center;">
-                            <button class="btn btn-secondary btn-sm" onclick="window.showPharmacyModal('${p.id}', '${p.nombre.replace(/\'/g, `\\'`)}', '${p.cadena.replace(/\'/g, `\\'`)}', '${p.direccion.replace(/\'/g, `\\'`)}')" title="Editar">
+                            <button class="btn btn-secondary btn-sm" onclick="window.showPharmacyModal('${p.id}', '${window.escapeHtmlAttr(p.nombre)}', '${window.escapeHtmlAttr(p.cadena)}', '${window.escapeHtmlAttr(p.direccion)}')" title="Editar">
                                 ✏️
                             </button>
-                            <button class="btn btn-danger-soft btn-sm" onclick="window.confirmDeletePharmacy('${p.id}', '${p.nombre.replace(/\'/g, `\\'`)}')" title="Eliminar">
+                            <button class="btn btn-danger-soft btn-sm" onclick="window.confirmDeletePharmacy('${p.id}', '${window.escapeHtmlAttr(p.nombre)}')" title="Eliminar">
                                 🗑️
                             </button>
                         </div>
                     </td>
                 </tr>
-
             `).join('');
             
             if (state.filteredPharmacies.length > 50) {
@@ -2074,14 +2136,12 @@
             return status === 'Realizado' ? '✓' : status === 'Justificada' ? '🛡' : '○';
         }
 
-        window.toggleStatus = async (id, field, current) => {
-            const cycle = ['Pendiente', 'Realizado', 'Justificada'];
-            const next = cycle[(cycle.indexOf(current) + 1) % cycle.length];
-            
+        window.toggleStatus = async (id, field, newValue) => {
             try {
-                await updateDoc(doc(db, 'pharmacies', id), { [field]: next });
-                window.showToast('Estado actualizado', `${field}: ${next}`, 'success');
+                await updateDoc(doc(db, 'pharmacies', id), { [field]: newValue });
+                window.showToast('Estado actualizado', `${field}: ${newValue}`, 'success');
             } catch (err) {
+                console.error(err);
                 window.showToast('Error', 'No se pudo actualizar el estado', 'error');
             }
         };
