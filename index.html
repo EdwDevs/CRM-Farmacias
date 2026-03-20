@@ -1840,8 +1840,9 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Cadena</label>
-                        <input type="text" id="pharmacy-chain-input" class="form-input" list="chain-options" placeholder="Ej. General, Cruz Verde...">
-                        <datalist id="chain-options"></datalist>
+                        <select id="pharmacy-chain-input" class="form-input">
+                            <option value="General">General</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Dirección *</label>
@@ -1851,7 +1852,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="window.hidePharmacyModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="submit" form="pharmacy-form" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>
@@ -2195,6 +2196,29 @@
             }
         }
 
+        function updatePharmacyChainOptions(selectedValue = 'General') {
+            const select = document.getElementById('pharmacy-chain-input');
+            const chains = [...new Set(state.pharmacies.map(p => (p.cadena || 'General').trim()))]
+                .filter(Boolean)
+                .sort();
+
+            const options = chains.includes('General') ? chains : ['General', ...chains];
+
+            if (selectedValue && !options.includes(selectedValue)) {
+                options.push(selectedValue);
+            }
+
+            select.innerHTML = '';
+            options.forEach(chain => {
+                const option = document.createElement('option');
+                option.value = chain;
+                option.textContent = chain;
+                select.appendChild(option);
+            });
+
+            select.value = selectedValue || 'General';
+        }
+
         function applyFilters() {
             const search = document.getElementById('search-input').value.toLowerCase().trim();
             const visitFilter = document.getElementById('filter-visit').value;
@@ -2336,13 +2360,15 @@
 
         // ===== CREATE / EDIT PHARMACY MODAL =====
         window.showPharmacyModal = (id = '', nombre = '', cadena = '', direccion = '') => {
-            document.getElementById('pharmacy-id').value = id || '';
+            const selectedChain = (cadena || 'General').trim() || 'General';
+
+            document.getElementById('pharmacy-id').value = id;
             document.getElementById('pharmacy-name-input').value = nombre;
-            document.getElementById('pharmacy-chain-input').value = cadena;
+            updatePharmacyChainOptions(selectedChain);
             document.getElementById('pharmacy-address-input').value = direccion;
 
             const title = id ? 'Editar Farmacia' : 'Nueva Farmacia';
-            const _el_pharmacy_modal_title = document.getElementById('pharmacy-modal-title'); if (_el_pharmacy_modal_title) _el_pharmacy_modal_title.textContent = title; else console.error('Missing ID: pharmacy-modal-title');
+            document.getElementById('pharmacy-modal-title').textContent = title;
 
             document.getElementById('pharmacy-modal').classList.add('show');
         };
@@ -2355,7 +2381,7 @@
         window.savePharmacy = async () => {
             const id = document.getElementById('pharmacy-id').value;
             const nombre = document.getElementById('pharmacy-name-input').value.trim();
-            const cadena = document.getElementById('pharmacy-chain-input').value.trim() || 'General';
+            const cadena = document.getElementById('pharmacy-chain-input').value || 'General';
             const direccion = document.getElementById('pharmacy-address-input').value.trim();
 
             if (!nombre || !direccion) {
@@ -2398,7 +2424,7 @@
         // ===== DELETE PHARMACY =====
         window.confirmDeletePharmacy = (id, nombre) => {
             document.getElementById('delete-pharmacy-id').value = id;
-            const _el_delete_pharmacy_name = document.getElementById('delete-pharmacy-name'); if (_el_delete_pharmacy_name) _el_delete_pharmacy_name.textContent = nombre; else console.error('Missing ID: delete-pharmacy-name');
+            document.getElementById('delete-pharmacy-name').textContent = nombre;
             document.getElementById('delete-modal').classList.add('show');
         };
 
