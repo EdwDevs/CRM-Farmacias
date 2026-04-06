@@ -615,6 +615,15 @@
             position: relative;
             overflow: hidden;
             transition: all 0.2s ease-out;
+            isolation: isolate;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, color-mix(in srgb, var(--white) 94%, var(--primary-50)), transparent 55%);
+            z-index: -1;
         }
 
         .stat-card:hover {
@@ -681,6 +690,12 @@
             line-height: 1.2;
             margin-bottom: 8px;
             letter-spacing: -0.02em;
+            transition: transform 0.25s ease, color 0.25s ease;
+        }
+
+        .stat-value.value-updated {
+            transform: translateY(-1px) scale(1.03);
+            color: var(--primary-600);
         }
 
         .stat-context {
@@ -717,6 +732,48 @@
             margin-top: 12px;
             font-size: 13px;
             color: var(--neutral-500);
+        }
+
+        .stat-meta {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--neutral-500);
+        }
+
+        .stat-trend {
+            font-weight: 700;
+            color: var(--neutral-700);
+        }
+
+        .stats-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--neutral-500);
+            background: var(--white);
+            border: 1px solid var(--neutral-200);
+            border-radius: 999px;
+            padding: 6px 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-500);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
 
@@ -1858,11 +1915,17 @@
             <!-- Quick Stats -->
 
             <!-- Stats Section -->
-            <div class="stats-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div class="stats-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap;">
                 <h3 style="font-size: 16px; font-weight: 700; color: var(--neutral-700);">Resumen de Rendimiento</h3>
-                <button id="toggle-stats-btn" class="btn btn-secondary btn-sm" onclick="window.toggleStats()">
-                    <span>Ocultar Detalles</span> <span>⬆️</span>
-                </button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="stats-live">
+                        <span class="live-dot"></span>
+                        <span>En vivo · <strong id="stats-last-update">--:--:--</strong></span>
+                    </div>
+                    <button id="toggle-stats-btn" class="btn btn-secondary btn-sm" onclick="window.toggleStats()">
+                        <span>Ocultar Detalles</span> <span>⬆️</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Mini Summary (Hidden by default) -->
@@ -1890,6 +1953,10 @@
                             <div class="progress-bar-fill" id="visits-bar" style="width: 0%"></div>
                         </div>
                     </div>
+                    <div class="stat-meta">
+                        <span>Avance diario</span>
+                        <span class="stat-trend" id="visits-trend">0%</span>
+                    </div>
                 </div>
 
                 <div class="stat-card transfers">
@@ -1904,6 +1971,10 @@
                             <div class="progress-bar-fill" id="transfers-bar" style="width: 0%"></div>
                         </div>
                     </div>
+                    <div class="stat-meta">
+                        <span>Avance diario</span>
+                        <span class="stat-trend" id="transfers-trend">0%</span>
+                    </div>
                 </div>
 
                 <div class="stat-card effectiveness">
@@ -1917,6 +1988,10 @@
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" id="effect-bar" style="width: 0%; background: var(--success-500);"></div>
                         </div>
+                    </div>
+                    <div class="stat-meta">
+                        <span>Ratio actual</span>
+                        <span class="stat-trend" id="effect-trend">0%</span>
                     </div>
                 </div>
 
@@ -1945,6 +2020,10 @@
                             <div class="progress-bar-fill" id="month-bar" style="width: 0%"></div>
                         </div>
                     </div>
+                    <div class="stat-meta">
+                        <span>Avance mensual</span>
+                        <span class="stat-trend" id="month-trend">0%</span>
+                    </div>
                     <div class="stat-footer" id="month-remaining">120 restantes</div>
                 </div>
 
@@ -1959,6 +2038,10 @@
                         <div class="progress-bar-bg">
                             <div class="progress-bar-fill" id="proj-bar" style="width: 0%; background: var(--primary-500);"></div>
                         </div>
+                    </div>
+                    <div class="stat-meta">
+                        <span>Progreso esperado</span>
+                        <span class="stat-trend" id="proj-trend">0%</span>
                     </div>
                     <div class="stat-footer" id="proj-diff">0 vs Meta</div>
                 </div>
@@ -2535,17 +2618,51 @@
             updateStatCard('month', transferred, MONTHLY_GOAL, MONTHLY_GOAL - transferred, true);
 
             // Update new cards
-            const _el_effect_value = document.getElementById('effect-value'); if (_el_effect_value) _el_effect_value.textContent = effectiveness; else console.error('Missing ID: effect-value');
+            const _el_effect_value = document.getElementById('effect-value'); if (_el_effect_value) setAnimatedNumber(_el_effect_value, effectiveness); else console.error('Missing ID: effect-value');
             const _el2_effect_bar = document.getElementById('effect-bar'); if (_el2_effect_bar) _el2_effect_bar.style.width = `${effectiveness}%`; else console.error('Missing ID: effect-bar');
             const _el_pending_v_value = document.getElementById('pending-v-value'); if (_el_pending_v_value) _el_pending_v_value.textContent = pendingVisit; else console.error('Missing ID: pending-v-value');
             const _el_total_pharmacies = document.getElementById('total-pharmacies'); if (_el_total_pharmacies) _el_total_pharmacies.textContent = state.pharmacies.length; else console.error('Missing ID: total-pharmacies');
 
-            const _el_proj_value = document.getElementById('proj-value'); if (_el_proj_value) _el_proj_value.textContent = projection; else console.error('Missing ID: proj-value');
-            const _el2_proj_bar = document.getElementById('proj-bar'); if (_el2_proj_bar) _el2_proj_bar.style.width = `${Math.min(100, Math.round((projection / MONTHLY_GOAL) * 100))}%`; else console.error('Missing ID: proj-bar');
+            const projectionPct = Math.min(100, Math.round((projection / MONTHLY_GOAL) * 100));
+            const _el_proj_value = document.getElementById('proj-value'); if (_el_proj_value) setAnimatedNumber(_el_proj_value, projection); else console.error('Missing ID: proj-value');
+            const _el2_proj_bar = document.getElementById('proj-bar'); if (_el2_proj_bar) _el2_proj_bar.style.width = `${projectionPct}%`; else console.error('Missing ID: proj-bar');
             const _el_proj_diff = document.getElementById('proj-diff'); if (_el_proj_diff) _el_proj_diff.textContent = `${Math.abs(projection - MONTHLY_GOAL)} ${projection >= MONTHLY_GOAL ? 'por encima de la meta' : 'por debajo de la meta'}`; else console.error('Missing ID: proj-diff');
 
             const _el_justified_value = document.getElementById('justified-value'); if (_el_justified_value) _el_justified_value.textContent = justified; else console.error('Missing ID: justified-value');
             const _el_pending_t_value = document.getElementById('pending-t-value'); if (_el_pending_t_value) _el_pending_t_value.textContent = pendingTransfer; else console.error('Missing ID: pending-t-value');
+
+            // Línea de estado en tiempo real para tarjetas que no pasan por updateStatCard.
+            updateDynamicBadge('effect-badge', effectiveness, [
+                { min: 35, className: 'success', text: 'Óptimo' },
+                { min: 20, className: 'warning', text: 'Mejorable' },
+                { min: 0, className: 'danger', text: 'Bajo' }
+            ]);
+            updateDynamicBadge('proj-badge', projectionPct, [
+                { min: 100, className: 'success', text: 'Meta Superada' },
+                { min: 75, className: 'success', text: 'Excelente' },
+                { min: 45, className: 'warning', text: 'En Ruta' },
+                { min: 0, className: 'danger', text: 'En Riesgo' }
+            ]);
+            updateDynamicBadge('pending-v-badge', pendingVisit, [
+                { min: 30, className: 'danger', text: 'Urgente' },
+                { min: 10, className: 'warning', text: 'Atención' },
+                { min: 0, className: 'success', text: 'Controlado' }
+            ]);
+            updateDynamicBadge('pending-t-badge', pendingTransfer, [
+                { min: 20, className: 'danger', text: 'Crítico' },
+                { min: 8, className: 'warning', text: 'Atención' },
+                { min: 0, className: 'success', text: 'Bajo' }
+            ]);
+            updateDynamicBadge('justified-badge', justified, [
+                { min: 10, className: 'warning', text: 'Revisar' },
+                { min: 1, className: 'warning', text: 'Info' },
+                { min: 0, className: 'success', text: 'Sin casos' }
+            ]);
+
+            // Metadatos de apoyo para hacer la lectura más ejecutiva.
+            setTrendText('effect-trend', `${effectiveness}%`);
+            setTrendText('proj-trend', `${projectionPct}%`);
+            setTrendText('stats-last-update', new Date().toLocaleTimeString('es-ES'));
             
             // Update Mini Stats
             const _el_mini_efectividad = document.getElementById('mini-efectividad'); if (_el_mini_efectividad) _el_mini_efectividad.textContent = `${effectiveness}%`; else console.error('Missing ID: mini-efectividad');
@@ -2557,11 +2674,13 @@
         }
 
         function updateStatCard(type, current, goal, secondary, isMonth = false) {
-            const pct = Math.min(100, Math.round((current / goal) * 100));
+            const safeGoal = Number(goal) > 0 ? Number(goal) : 1;
+            const pct = Math.min(100, Math.round((current / safeGoal) * 100));
             
-            const _el_value = document.getElementById(`${type}-value`); if (_el_value) _el_value.textContent =  current;
+            const _el_value = document.getElementById(`${type}-value`); if (_el_value) setAnimatedNumber(_el_value, current);
             const _el_goal = document.getElementById(`${type}-goal`); if (_el_goal) _el_goal.textContent =  goal;
             const _el_bar_bar = document.getElementById(`${type}-bar`); if (_el_bar_bar) _el_bar_bar.style.width =  `${pct}%`;
+            setTrendText(`${type}-trend`, `${pct}%`);
             
             if (!isMonth) {
                 const _el_pending = document.getElementById(`${type}-pending`); if (_el_pending) _el_pending.textContent =  `${secondary} pendientes`;
@@ -2580,6 +2699,30 @@
                 badge.className = 'stat-badge danger';
                 badge.textContent = type === 'month' ? 'En Progreso' : 'Urgente';
             }
+        }
+
+        function setAnimatedNumber(element, value) {
+            const nextValue = String(value);
+            if (element.textContent !== nextValue) {
+                // Resaltado breve para que el usuario vea qué KPI cambió sin recargar.
+                element.classList.remove('value-updated');
+                void element.offsetWidth;
+                element.classList.add('value-updated');
+            }
+            element.textContent = nextValue;
+        }
+
+        function setTrendText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        function updateDynamicBadge(id, metric, levels) {
+            const badge = document.getElementById(id);
+            if (!badge) return;
+            const level = levels.find(item => metric >= item.min) || levels[levels.length - 1];
+            badge.className = `stat-badge ${level.className}`;
+            badge.textContent = level.text;
         }
 
         // ===== TABLE & FILTERS =====
