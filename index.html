@@ -7,6 +7,9 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Chart.js para gráficos interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <style>
         :root {
             --primary-50: #eff6ff;
@@ -834,6 +837,169 @@
             letter-spacing: 0.5px;
         }
 
+        /* Charts Section - Diseño Corporativo Interactivo */
+        .charts-section {
+            margin-bottom: 32px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .charts-header {
+            margin-bottom: 24px;
+        }
+
+        .charts-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: 4px;
+        }
+
+        .charts-subtitle {
+            font-size: 14px;
+            color: var(--neutral-500);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--neutral-200);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-200);
+        }
+
+        .chart-card:hover::before {
+            opacity: 1;
+        }
+
+        .chart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-card-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--neutral-800);
+        }
+
+        .chart-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--neutral-100);
+            color: var(--neutral-600);
+            letter-spacing: 0.5px;
+        }
+
+        .chart-badge.success {
+            background: var(--success-50);
+            color: var(--success-600);
+        }
+
+        .chart-badge.warning {
+            background: var(--warning-50);
+            color: var(--warning-600);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--neutral-100);
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--neutral-600);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .chart-metrics {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--neutral-100);
+        }
+
+        .metric-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-mini strong {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--neutral-800);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Data Section */
         .data-section {
             background: var(--white);
@@ -1340,6 +1506,10 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
             .sidebar {
                 transform: translateX(-100%);
             }
@@ -1366,6 +1536,14 @@
                 border-top: 2px solid var(--neutral-200);
                 padding-top: 20px;
                 justify-content: space-around;
+            }
+            
+            .chart-legend {
+                gap: 12px;
+            }
+            
+            .chart-metrics {
+                gap: 16px;
             }
         }
 
@@ -1726,6 +1904,94 @@
                 </button>
             </div>
 
+            <!-- Sección de Gráficos Interactivos -->
+            <div class="charts-section" id="charts-section" style="display: none;">
+                <div class="charts-header">
+                    <h2 class="charts-title">📊 Análisis Visual de Rendimiento</h2>
+                    <p class="charts-subtitle">Métricas interactivas para seguimiento del desempeño</p>
+                </div>
+                
+                <div class="charts-grid">
+                    <!-- Gráfico de Progreso Diario -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3>Progreso del Día</h3>
+                            <span class="chart-badge">Tiempo Real</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: var(--primary-500);"></span>
+                                <span>Visitas Completadas</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: var(--success-500);"></span>
+                                <span>Transferencias</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: var(--neutral-300);"></span>
+                                <span>Pendientes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Efectividad Semanal -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3>Tendencia Semanal</h3>
+                            <span class="chart-badge success">+12% vs semana anterior</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: var(--primary-500);"></span>
+                                <span>Visitas</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: var(--success-500);"></span>
+                                <span>Transferencias</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Distribución por Cadena -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3>Distribución por Cadena</h3>
+                            <span class="chart-badge">Acumulado Mes</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chainChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Metas -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3>Cumplimiento de Metas</h3>
+                            <span class="chart-badge warning">En Progreso</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="goalChart"></canvas>
+                        </div>
+                        <div class="chart-metrics">
+                            <div class="metric-mini">
+                                <span class="metric-label">Meta Diaria</span>
+                                <strong id="goal-daily-display">16</strong>
+                            </div>
+                            <div class="metric-mini">
+                                <span class="metric-label">Meta Mensual</span>
+                                <strong id="goal-monthly-display">120</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Data Section -->
             <div class="data-section">
                 <div class="data-toolbar">
@@ -2080,16 +2346,26 @@
         window.toggleStats = () => {
             const stats = document.getElementById('quick-stats');
             const mini = document.getElementById('mini-stats');
+            const chartsSection = document.getElementById('charts-section');
             const btn = document.getElementById('toggle-stats-btn');
 
             if (stats.style.display === 'none') {
                 stats.style.display = 'grid';
                 mini.style.display = 'none';
+                // Mostrar gráficos cuando se muestran estadísticas completas
+                if (chartsSection) {
+                    chartsSection.style.display = 'block';
+                    setTimeout(() => window.initCharts(), 100);
+                }
                 btn.innerHTML = '<span>Ocultar Detalles</span> <span>⬆️</span>';
                 localStorage.setItem('pharma-stats-view', 'full');
             } else {
                 stats.style.display = 'none';
                 mini.style.display = 'flex';
+                // Ocultar gráficos cuando se ocultan estadísticas
+                if (chartsSection) {
+                    chartsSection.style.display = 'none';
+                }
                 btn.innerHTML = '<span>Ver Detalles</span> <span>⬇️</span>';
                 localStorage.setItem('pharma-stats-view', 'mini');
             }
@@ -2854,6 +3130,269 @@ DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
         window.showSection = (section) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
+        };
+
+        // ===== GRÁFICOS INTERACTIVOS CON CHART.JS =====
+        let progressChartInstance = null;
+        let trendChartInstance = null;
+        let chainChartInstance = null;
+        let goalChartInstance = null;
+
+        window.initCharts = () => {
+            const chartsSection = document.getElementById('charts-section');
+            if (!chartsSection) return;
+
+            // Configuración común para modo oscuro/claro
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#e2e8f0' : '#475569';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+            // 1. Gráfico de Progreso Diario (Doughnut)
+            const progressCtx = document.getElementById('progressChart');
+            if (progressCtx) {
+                progressChartInstance = new Chart(progressCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Visitas Completadas', 'Transferencias', 'Pendientes'],
+                        datasets: [{
+                            data: [0, 0, 16],
+                            backgroundColor: [
+                                getComputedStyle(document.documentElement).getPropertyValue('--primary-500').trim(),
+                                getComputedStyle(document.documentElement).getPropertyValue('--success-500').trim(),
+                                getComputedStyle(document.documentElement).getPropertyValue('--neutral-300').trim()
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                borderColor: gridColor,
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + context.parsed;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+            }
+
+            // 2. Gráfico de Tendencia Semanal (Line)
+            const trendCtx = document.getElementById('trendChart');
+            if (trendCtx) {
+                trendChartInstance = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                        datasets: [
+                            {
+                                label: 'Visitas',
+                                data: [12, 14, 11, 15, 13, 8, 5],
+                                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-500').trim(),
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: 'Transferencias',
+                                data: [8, 10, 9, 12, 10, 6, 4],
+                                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--success-500').trim(),
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                borderColor: gridColor,
+                                borderWidth: 1,
+                                padding: 12,
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: textColor }
+                            },
+                            y: {
+                                grid: { color: gridColor, borderDash: [5, 5] },
+                                ticks: { color: textColor },
+                                beginAtZero: true
+                            }
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            axis: 'x',
+                            intersect: false
+                        }
+                    }
+                });
+            }
+
+            // 3. Gráfico de Distribución por Cadena (Bar Horizontal)
+            const chainCtx = document.getElementById('chainChart');
+            if (chainCtx) {
+                chainChartInstance = new Chart(chainCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Cruz Verde', 'Alemana', 'Pague Menos', 'Granados', 'Rebaja', 'General'],
+                        datasets: [{
+                            label: 'Transferencias',
+                            data: [25, 18, 15, 12, 8, 22],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(99, 102, 241, 0.8)',
+                                'rgba(236, 72, 153, 0.8)',
+                                'rgba(148, 163, 184, 0.8)'
+                            ],
+                            borderRadius: 6,
+                            barThickness: 24
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                borderColor: gridColor,
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.x + ' transferencias';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: gridColor, borderDash: [5, 5] },
+                                ticks: { color: textColor }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { color: textColor }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 4. Gráfico de Metas (Polar Area)
+            const goalCtx = document.getElementById('goalChart');
+            if (goalCtx) {
+                goalChartInstance = new Chart(goalCtx, {
+                    type: 'polarArea',
+                    data: {
+                        labels: ['Visitas Diarias', 'Transferencias Diarias', 'Meta Mensual', 'Proyección'],
+                        datasets: [{
+                            data: [16, 12, 120, 145],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(245, 158, 11, 0.7)',
+                                'rgba(139, 92, 246, 0.7)'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                borderColor: gridColor,
+                                borderWidth: 1,
+                                padding: 12
+                            }
+                        },
+                        scales: {
+                            r: {
+                                grid: { color: gridColor },
+                                ticks: { 
+                                    color: textColor,
+                                    backdropColor: 'transparent'
+                                }
+                            }
+                        },
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        }
+                    }
+                });
+            }
+        };
+
+        window.updateCharts = (stats) => {
+            // Actualizar gráfico de progreso
+            if (progressChartInstance) {
+                const visits = stats.visits || 0;
+                const transfers = stats.transfers || 0;
+                const pending = Math.max(0, 16 - visits);
+                
+                progressChartInstance.data.datasets[0].data = [visits, transfers, pending];
+                progressChartInstance.update('active');
+            }
+
+            // Actualizar métricas de metas
+            const dailyGoalEl = document.getElementById('goal-daily-display');
+            const monthlyGoalEl = document.getElementById('goal-monthly-display');
+            if (dailyGoalEl) dailyGoalEl.textContent = stats.dailyGoal || 16;
+            if (monthlyGoalEl) monthlyGoalEl.textContent = stats.monthlyGoal || 120;
+        };
+
+        window.toggleChartsSection = (show) => {
+            const chartsSection = document.getElementById('charts-section');
+            if (chartsSection) {
+                chartsSection.style.display = show ? 'block' : 'none';
+                if (show && !progressChartInstance) {
+                    // Pequeño delay para asegurar que el DOM esté listo
+                    setTimeout(() => window.initCharts(), 100);
+                }
+            }
         };
     </script>
 </body>
