@@ -159,6 +159,8 @@
 
     <!-- ========== Dashboard ========== -->
     <div id="dashboard" class="dashboard">
+        <!-- Sidebar backdrop (mobile) -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -196,6 +198,18 @@
                 </div>
 
                 <div class="nav-section">
+                    <div class="nav-section-title">
+                        <span>Actividad reciente</span>
+                        <button type="button" class="nav-section-action" id="recent-clear" title="Limpiar" aria-label="Limpiar actividad" hidden>
+                            <svg class="icon" style="width:11px;height:11px"><use href="#i-trash"/></svg>
+                        </button>
+                    </div>
+                    <div id="recent-list" aria-live="polite">
+                        <div class="nav-fav-empty">Aún no hay actividad.</div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
                     <div class="nav-section-title"><span>Configuración</span></div>
                     <div class="nav-item" onclick="showSection('settings')" role="button" tabindex="0">
                         <span class="nav-icon"><svg class="icon"><use href="#i-settings"/></svg></span>
@@ -222,7 +236,7 @@
         <main class="main-content">
             <!-- Topbar -->
             <div class="topbar">
-                <button class="icon-btn" id="sidebar-toggle" aria-label="Menú" style="display:none;">
+                <button class="icon-btn sidebar-toggle-btn" id="sidebar-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
                     <svg class="icon"><use href="#i-menu"/></svg>
                 </button>
                 <nav class="breadcrumb" aria-label="Ruta de navegación" id="breadcrumb">

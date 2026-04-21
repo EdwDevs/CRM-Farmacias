@@ -500,7 +500,11 @@ function renderTable() {
                             <path d="M122 36 L138 52 M138 36 L122 52" stroke="#635BFF" stroke-width="2.2" stroke-linecap="round"/>
                         </svg>
                         <h3 class="empty-title">Sin resultados</h3>
-                        <p class="empty-text">No hay farmacias que coincidan con los filtros actuales. Prueba a ajustarlos o limpiarlos.</p>
+                        <p class="empty-text">No hay farmacias que coincidan con los filtros actuales.</p>
+                        <button type="button" class="btn btn-secondary btn-sm empty-cta" onclick="window.clearFilters()">
+                            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>
+                            Limpiar filtros
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -544,17 +548,17 @@ function renderTable() {
                 <div class="pharmacy-address" title="${p.direccion}">${p.direccion}</div>
             </td>
             <td class="text-center">
-                <select class="status-select ${getStatusClass(p.visitado)}" aria-label="Estado de visita" onchange="window.toggleStatus('${p.id}', 'visitado', this.value)">
-                    <option value="Pendiente" ${p.visitado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-                    <option value="Realizado" ${p.visitado === 'Realizado' ? 'selected' : ''}>Realizado</option>
-                    <option value="Justificada" ${p.visitado === 'Justificada' ? 'selected' : ''}>Justificada</option>
+                <select class="status-select ${getStatusClass(p.visitado)}" aria-label="Estado de visita" onchange="window.toggleStatus('${p.id}', 'visitado', this.value, this)">
+                    <option value="Pendiente" ${p.visitado === 'Pendiente' ? 'selected' : ''}>◷ Pendiente</option>
+                    <option value="Realizado" ${p.visitado === 'Realizado' ? 'selected' : ''}>✓ Realizado</option>
+                    <option value="Justificada" ${p.visitado === 'Justificada' ? 'selected' : ''}>◐ Justificada</option>
                 </select>
             </td>
             <td class="text-center">
-                <select class="status-select ${getStatusClass(p.transferencia)}" aria-label="Estado de transferencia" onchange="window.toggleStatus('${p.id}', 'transferencia', this.value)">
-                    <option value="Pendiente" ${p.transferencia === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-                    <option value="Realizado" ${p.transferencia === 'Realizado' ? 'selected' : ''}>Realizado</option>
-                    <option value="Justificada" ${p.transferencia === 'Justificada' ? 'selected' : ''}>Justificada</option>
+                <select class="status-select ${getStatusClass(p.transferencia)}" aria-label="Estado de transferencia" onchange="window.toggleStatus('${p.id}', 'transferencia', this.value, this)">
+                    <option value="Pendiente" ${p.transferencia === 'Pendiente' ? 'selected' : ''}>◷ Pendiente</option>
+                    <option value="Realizado" ${p.transferencia === 'Realizado' ? 'selected' : ''}>✓ Realizado</option>
+                    <option value="Justificada" ${p.transferencia === 'Justificada' ? 'selected' : ''}>◐ Justificada</option>
                 </select>
             </td>
             <td class="text-center">
@@ -627,18 +631,39 @@ function getStatusIcon(status) {
     return '<svg class="icon icon-sm" style="opacity:.5"><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor"/></svg>';
 }
 
-window.toggleStatus = async (id, field, newValue) => {
+window.toggleStatus = async (id, field, newValue, selectEl) => {
     const current = state.pharmacies.find(p => p.id === id);
     const prevValue = current ? current[field] : null;
+    const label = field === 'visitado' ? 'Visita' : 'Transferencia';
     try {
         await updateDoc(doc(db, 'pharmacies', id), { [field]: newValue });
-        const label = field === 'visitado' ? 'Visita' : 'Transferencia';
+        if (selectEl && selectEl.classList) {
+            selectEl.classList.remove('status-pulse');
+            // Force reflow to restart animation
+            void selectEl.offsetWidth;
+            selectEl.classList.add('status-pulse');
+            setTimeout(() => selectEl.classList.remove('status-pulse'), 900);
+        }
+        if (current && prevValue !== newValue) {
+            window.pushRecentAction({
+                id,
+                nombre: current.nombre,
+                field,
+                from: prevValue,
+                to: newValue,
+                at: Date.now()
+            });
+        }
         window.showToast(`${label} actualizada`, `Nuevo estado: ${newValue}`, 'success', {
             action: prevValue && prevValue !== newValue ? {
                 label: `Deshacer (volver a "${prevValue}")`,
                 onClick: async () => {
                     try {
                         await updateDoc(doc(db, 'pharmacies', id), { [field]: prevValue });
+                        if (current) window.pushRecentAction({
+                            id, nombre: current.nombre, field,
+                            from: newValue, to: prevValue, at: Date.now()
+                        });
                         window.showToast('Cambio revertido', `${label} vuelto a "${prevValue}"`, 'info');
                     } catch (e) {
                         window.showToast('Error', 'No se pudo deshacer el cambio', 'error');
@@ -1581,12 +1606,22 @@ window.quickTransferPharmacy = async (id) => {
     const prev = current.transferencia;
     try {
         await updateDoc(doc(db, 'pharmacies', id), { transferencia: 'Realizado' });
+        if (prev !== 'Realizado') {
+            window.pushRecentAction({
+                id, nombre: current.nombre, field: 'transferencia',
+                from: prev, to: 'Realizado', at: Date.now()
+            });
+        }
         window.showToast('Transferencia realizada', current.nombre, 'success', {
             action: prev && prev !== 'Realizado' ? {
                 label: 'Deshacer',
                 onClick: async () => {
                     try {
                         await updateDoc(doc(db, 'pharmacies', id), { transferencia: prev });
+                        window.pushRecentAction({
+                            id, nombre: current.nombre, field: 'transferencia',
+                            from: 'Realizado', to: prev, at: Date.now()
+                        });
                         window.showToast('Cambio revertido', `Volvió a "${prev}"`, 'info');
                     } catch (e) {
                         window.showToast('Error', 'No se pudo deshacer', 'error');
@@ -1598,6 +1633,77 @@ window.quickTransferPharmacy = async (id) => {
         window.showToast('Error', 'No se pudo marcar la transferencia', 'error');
     }
 };
+
+// ---------- Actividad reciente (localStorage) ----------
+const RECENT_KEY = 'pharma-recent-actions';
+const RECENT_MAX = 8;
+function getRecentActions() {
+    try {
+        const raw = localStorage.getItem(RECENT_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+}
+function saveRecentActions(arr) {
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(arr.slice(0, RECENT_MAX))); } catch (e) {}
+}
+window.pushRecentAction = (entry) => {
+    if (!entry || !entry.id) return;
+    const list = getRecentActions();
+    list.unshift(entry);
+    saveRecentActions(list);
+    renderRecentSidebar();
+};
+window.clearRecentActions = () => {
+    saveRecentActions([]);
+    renderRecentSidebar();
+};
+function relativeTime(ts) {
+    const diff = Math.max(0, Date.now() - ts);
+    const s = Math.floor(diff / 1000);
+    if (s < 60) return 'ahora';
+    const m = Math.floor(s / 60);
+    if (m < 60) return `hace ${m}m`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `hace ${h}h`;
+    const d = Math.floor(h / 24);
+    return `hace ${d}d`;
+}
+function recentFieldLabel(field) {
+    return field === 'visitado' ? 'Visita' : 'Transferencia';
+}
+function recentDotClass(to) {
+    if (to === 'Realizado') return 'completed';
+    if (to === 'Justificada') return 'justified';
+    return 'pending';
+}
+function renderRecentSidebar() {
+    const list = document.getElementById('recent-list');
+    const clearBtn = document.getElementById('recent-clear');
+    if (!list) return;
+    const items = getRecentActions();
+    if (clearBtn) clearBtn.hidden = items.length === 0;
+    if (items.length === 0) {
+        list.innerHTML = '<div class="nav-fav-empty">Aún no hay actividad.</div>';
+        return;
+    }
+    list.innerHTML = items.slice(0, 5).map(it => {
+        const name = (it.nombre || 'Farmacia').replace(/"/g, '&quot;');
+        const dot = recentDotClass(it.to);
+        const label = recentFieldLabel(it.field);
+        const when = relativeTime(it.at);
+        return `
+            <div class="nav-recent-item" role="button" tabindex="0" onclick="window.openPharmacyFromFav('${it.id}')" title="${name} · ${label}: ${it.from || '—'} → ${it.to}">
+                <span class="recent-dot ${dot}" aria-hidden="true"></span>
+                <div class="recent-body">
+                    <div class="recent-name">${name}</div>
+                    <div class="recent-meta">${label}: ${it.to} · <span class="recent-when">${when}</span></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+window.__renderRecentSidebar = renderRecentSidebar;
 
 // ---------- Pending badge on Farmacias nav item ----------
 function updatePendingBadge() {
@@ -1696,6 +1802,7 @@ function runPostStatsVisuals() {
     try { renderAllSparklines(); } catch (e) { console.warn('sparklines', e); }
     try { updatePendingBadge(); } catch (e) { console.warn('badge', e); }
     try { renderFavSidebar(); } catch (e) { console.warn('fav', e); }
+    try { renderRecentSidebar(); } catch (e) { console.warn('recent', e); }
 }
 
 // Observe stat value changes (updateStats is module-local). Whenever visits-value
@@ -1944,6 +2051,58 @@ function runPostStatsVisuals() {
         });
     }
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bind, { once: true });
+    } else {
+        bind();
+    }
+})();
+
+// ---------- UX polish: sidebar mobile toggle + recent clear ----------
+(function initUxPolish() {
+    function bind() {
+        const toggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        function openSidebar() {
+            if (!sidebar) return;
+            sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.add('show');
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('sidebar-open');
+        }
+        function closeSidebar() {
+            if (!sidebar) return;
+            sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('show');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('sidebar-open');
+        }
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                if (sidebar && sidebar.classList.contains('open')) closeSidebar();
+                else openSidebar();
+            });
+        }
+        if (backdrop) backdrop.addEventListener('click', closeSidebar);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) closeSidebar();
+        });
+        document.querySelectorAll('.sidebar .nav-item').forEach(el => {
+            el.addEventListener('click', () => {
+                if (window.matchMedia('(max-width: 960px)').matches) closeSidebar();
+            });
+        });
+
+        const clearBtn = document.getElementById('recent-clear');
+        if (clearBtn) clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.clearRecentActions();
+        });
+
+        try { renderRecentSidebar(); } catch (_) {}
+    }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', bind, { once: true });
     } else {
