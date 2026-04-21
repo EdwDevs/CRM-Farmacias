@@ -2349,3 +2349,174 @@ img, svg { display: block; max-width: 100%; }
     .data-footer { flex-direction: column; align-items: stretch; }
     .pagination { justify-content: center; flex-wrap: wrap; }
 }
+
+/* ==========================================================
+   v4.2 — UX Polish
+   Status pulse · Recent activity · Sidebar backdrop · Mobile
+   Empty state CTA
+   ========================================================== */
+
+/* ---------- Status pulse (success feedback on <select> change) ---------- */
+@keyframes statusPulseRing {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, #10B981 55%, transparent); }
+    55%  { box-shadow: 0 0 0 6px color-mix(in srgb, #10B981 0%,  transparent); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes statusPulseScale {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+.status-select.status-pulse {
+    animation: statusPulseRing .75s var(--ease) 1,
+               statusPulseScale .4s var(--ease) 1;
+}
+
+/* ---------- Empty state CTA ---------- */
+.empty-cta {
+    margin-top: var(--space-4);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.empty-cta .icon { width: 14px; height: 14px; }
+
+/* ---------- Sidebar section action (icon button in section title) ---------- */
+.nav-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.nav-section-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    opacity: .6;
+    transition: background var(--dur) var(--ease), color var(--dur) var(--ease), opacity var(--dur) var(--ease);
+}
+.nav-section-action:hover,
+.nav-section-action:focus-visible {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    opacity: 1;
+}
+
+/* ---------- Recent activity list (sidebar) ---------- */
+.nav-recent-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background var(--dur) var(--ease);
+    margin-bottom: 2px;
+}
+.nav-recent-item:hover,
+.nav-recent-item:focus-visible {
+    background: var(--surface-hover);
+}
+.recent-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-top: 6px;
+    background: #94A3B8;
+}
+.recent-dot.completed { background: #10B981; }
+.recent-dot.justified { background: #A78BFA; }
+.recent-dot.pending   { background: #F59E0B; }
+.recent-body { min-width: 0; flex: 1; }
+.recent-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+.recent-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.recent-when { color: var(--text-secondary); }
+
+/* ---------- Sidebar mobile: hamburger + backdrop ---------- */
+.sidebar-toggle-btn { display: none; }
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur) var(--ease);
+    z-index: 45;
+}
+.sidebar-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (max-width: 960px) {
+    .sidebar-toggle-btn { display: inline-flex; }
+    .sidebar {
+        z-index: 50;
+        box-shadow: var(--shadow-xl);
+    }
+    /* Prevent background scroll when sidebar is open */
+    body.sidebar-open { overflow: hidden; }
+
+    /* Hide quick chain filter behind scroll on narrow screens */
+    .filters-bar { flex-wrap: wrap; }
+    .filter-group { flex: 1 1 140px; }
+
+    /* Table horizontal scroll with min-width preserved */
+    .data-table-wrap, .table-wrapper { overflow-x: auto; }
+    .data-table { min-width: 720px; }
+
+    /* Topbar tightening */
+    .topbar { gap: 8px; }
+    .topbar-search { max-width: 100%; flex: 1; min-width: 0; }
+    .topbar-kbd { display: none; }
+
+    /* KPIs single column already handled by .quick-stats rule above;
+       stats grid and groups also collapse */
+    .stats-grid { grid-template-columns: 1fr !important; }
+    .stat-group-title { margin-top: var(--space-5); }
+
+    /* Page header action buttons wrap */
+    .page-header { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+    .header-actions { flex-wrap: wrap; }
+}
+
+@media (max-width: 560px) {
+    .main-scroll { padding: var(--space-4); }
+    .stat-card { padding: var(--space-4); }
+    .stat-value { font-size: var(--text-2xl); }
+    /* Hide the secondary actions column label but keep cell */
+    .data-table th:last-child span { display: none; }
+    .row-actions { gap: 4px; }
+    .row-actions .quick-action span { display: none; }
+}
+
+/* Reduced-motion: disable status pulse */
+@media (prefers-reduced-motion: reduce) {
+    .status-select.status-pulse { animation: none !important; }
+    .sidebar-backdrop { transition: none !important; }
+}
