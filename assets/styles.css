@@ -1503,7 +1503,7 @@ img, svg { display: block; max-width: 100%; }
     z-index: 100;
     padding: var(--space-4);
 }
-.modal-overlay.active {
+.modal-overlay.show {
     display: flex;
     animation: fade-in 200ms var(--ease-out);
 }
