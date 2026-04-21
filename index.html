@@ -70,6 +70,13 @@
             <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
             <symbol id="i-search-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="8" x2="14" y2="14"/><line x1="14" y1="8" x2="8" y2="14"/></symbol>
             <symbol id="i-command" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></symbol>
+            <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+            <symbol id="i-transfer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+            <symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+            <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
+            <symbol id="i-sunrise" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></symbol>
+            <symbol id="i-cal-month" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></symbol>
+            <symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
         </defs>
     </svg>
 
@@ -166,7 +173,7 @@
 
             <nav class="sidebar-nav" aria-label="Navegación principal">
                 <div class="nav-section">
-                    <div class="nav-section-title">Principal</div>
+                    <div class="nav-section-title"><span>Principal</span></div>
                     <div class="nav-item active" onclick="showSection('dashboard')" role="button" tabindex="0">
                         <span class="nav-icon"><svg class="icon"><use href="#i-dashboard"/></svg></span>
                         <span>Dashboard</span>
@@ -174,11 +181,22 @@
                     <div class="nav-item" onclick="showSection('pharmacies')" role="button" tabindex="0">
                         <span class="nav-icon"><svg class="icon"><use href="#i-building"/></svg></span>
                         <span>Farmacias</span>
+                        <span id="nav-pharmacies-badge" class="nav-badge danger" aria-label="Pendientes" hidden>0</span>
                     </div>
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Configuración</div>
+                    <div class="nav-section-title">
+                        <span>Favoritos</span>
+                        <span class="nav-badge" id="fav-count" aria-label="Favoritos" hidden>0</span>
+                    </div>
+                    <div id="fav-list" aria-live="polite">
+                        <div class="nav-fav-empty">Añade desde la tabla <svg class="icon" style="width:11px;height:11px;display:inline;vertical-align:-1px"><use href="#i-star"/></svg></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title"><span>Configuración</span></div>
                     <div class="nav-item" onclick="showSection('settings')" role="button" tabindex="0">
                         <span class="nav-icon"><svg class="icon"><use href="#i-settings"/></svg></span>
                         <span>Ajustes</span>
@@ -207,9 +225,15 @@
                 <button class="icon-btn" id="sidebar-toggle" aria-label="Menú" style="display:none;">
                     <svg class="icon"><use href="#i-menu"/></svg>
                 </button>
+                <nav class="breadcrumb" aria-label="Ruta de navegación" id="breadcrumb">
+                    <svg class="icon" style="width:12px;height:12px"><use href="#i-home"/></svg>
+                    <span class="breadcrumb-item">PharmaTrack</span>
+                    <span class="breadcrumb-sep">/</span>
+                    <span class="breadcrumb-item active" id="breadcrumb-current">Panel de Control</span>
+                </nav>
                 <div class="topbar-search">
                     <span class="input-icon"><svg class="icon icon-sm"><use href="#i-search"/></svg></span>
-                    <input type="text" placeholder="Buscar farmacias, acciones…" id="topbar-search-input">
+                    <input type="text" placeholder="Buscar farmacias, acciones…" id="topbar-search-input" aria-label="Búsqueda global">
                     <span class="topbar-kbd" aria-hidden="true"><svg class="icon" style="width:11px;height:11px"><use href="#i-command"/></svg>K</span>
                 </div>
                 <div class="topbar-actions">
@@ -283,12 +307,14 @@
 
                 <!-- Stats Grid -->
                 <div id="quick-stats" class="quick-stats">
+                    <div class="kpi-group-title"><svg class="icon"><use href="#i-sunrise"/></svg><span>Hoy</span></div>
                     <div class="stat-card visits">
                         <div class="stat-header">
                             <span class="stat-label">Visitas</span>
                             <span class="stat-badge warning" id="visits-badge">En progreso</span>
                         </div>
                         <div class="stat-value" id="visits-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-visits"></svg>
                         <div class="stat-context">de <strong id="visits-goal">0</strong> objetivo diario</div>
                         <div class="stat-progress">
                             <div class="progress-bar-bg">
@@ -307,6 +333,7 @@
                             <span class="stat-badge warning" id="transfers-badge">En progreso</span>
                         </div>
                         <div class="stat-value" id="transfers-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-transfers"></svg>
                         <div class="stat-context">de <strong id="transfers-goal">0</strong> objetivo diario</div>
                         <div class="stat-progress">
                             <div class="progress-bar-bg">
@@ -325,6 +352,7 @@
                             <span class="stat-badge success" id="effect-badge">Óptimo</span>
                         </div>
                         <div class="stat-value"><span id="effect-value">0</span>%</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-effect"></svg>
                         <div class="stat-context">Transf. / Visitas realizadas</div>
                         <div class="stat-progress">
                             <div class="progress-bar-bg">
@@ -343,11 +371,14 @@
                             <span class="stat-badge danger" id="pending-v-badge">Urgente</span>
                         </div>
                         <div class="stat-value" id="pending-v-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-pending"></svg>
                         <div class="stat-context">farmacias sin visitar hoy</div>
-                        <div class="stat-footer" style="margin-top: 24px;">
+                        <div class="stat-footer">
                             <span id="total-pharmacies">0</span> farmacias en total
                         </div>
                     </div>
+
+                    <div class="kpi-group-title"><svg class="icon"><use href="#i-cal-month"/></svg><span>Mes</span></div>
 
                     <div class="stat-card goal">
                         <div class="stat-header">
@@ -355,6 +386,7 @@
                             <span class="stat-badge warning" id="month-badge">En progreso</span>
                         </div>
                         <div class="stat-value" id="month-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-month"></svg>
                         <div class="stat-context">de <strong id="month-goal">120</strong> transferencias</div>
                         <div class="stat-progress">
                             <div class="progress-bar-bg">
@@ -374,6 +406,7 @@
                             <span class="stat-badge success" id="proj-badge">Excelente</span>
                         </div>
                         <div class="stat-value" id="proj-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-proj"></svg>
                         <div class="stat-context">transferencias estimadas</div>
                         <div class="stat-progress">
                             <div class="progress-bar-bg">
@@ -393,8 +426,9 @@
                             <span class="stat-badge" id="justified-badge">Info</span>
                         </div>
                         <div class="stat-value" id="justified-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-justified"></svg>
                         <div class="stat-context">visitas o transferencias</div>
-                        <div class="stat-footer" style="margin-top: 24px;">Requieren seguimiento</div>
+                        <div class="stat-footer">Requieren seguimiento</div>
                     </div>
 
                     <div class="stat-card pending-t">
@@ -403,8 +437,9 @@
                             <span class="stat-badge warning" id="pending-t-badge">Atención</span>
                         </div>
                         <div class="stat-value" id="pending-t-value">0</div>
+                        <svg class="stat-sparkline" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" id="spark-pending-t"></svg>
                         <div class="stat-context">visitadas sin transferencia</div>
-                        <div class="stat-footer" style="margin-top: 24px;">Oportunidad de cierre</div>
+                        <div class="stat-footer">Oportunidad de cierre</div>
                     </div>
                 </div>
 
@@ -562,20 +597,34 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Farmacia</th>
-                                    <th>Dirección</th>
-                                    <th class="text-center">Estado visita</th>
-                                    <th class="text-center">Transferencia</th>
+                                    <th class="sortable" data-sort="nombre" aria-sort="none">
+                                        Farmacia
+                                        <span class="sort-indicator"><svg class="icon"><use href="#i-chevron-down"/></svg></span>
+                                    </th>
+                                    <th class="sortable" data-sort="direccion" aria-sort="none">
+                                        Dirección
+                                        <span class="sort-indicator"><svg class="icon"><use href="#i-chevron-down"/></svg></span>
+                                    </th>
+                                    <th class="sortable text-center" data-sort="visitado" aria-sort="none">
+                                        Estado visita
+                                        <span class="sort-indicator"><svg class="icon"><use href="#i-chevron-down"/></svg></span>
+                                    </th>
+                                    <th class="sortable text-center" data-sort="transferencia" aria-sort="none">
+                                        Transferencia
+                                        <span class="sort-indicator"><svg class="icon"><use href="#i-chevron-down"/></svg></span>
+                                    </th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="pharmacy-table">
                                 <tr class="loading-row">
                                     <td colspan="5">
-                                        <div style="padding: 40px; display:flex; flex-direction:column; gap:10px; align-items:center;">
-                                            <div class="skeleton" style="height: 16px; width: 60%;"></div>
-                                            <div class="skeleton" style="height: 16px; width: 40%;"></div>
-                                            <div class="skeleton" style="height: 16px; width: 55%;"></div>
+                                        <div style="padding: 28px 20px; display:flex; flex-direction:column; gap:10px;">
+                                            <div class="skeleton-line w-60"></div>
+                                            <div class="skeleton-line w-80"></div>
+                                            <div class="skeleton-line w-40"></div>
+                                            <div class="skeleton-line w-60"></div>
+                                            <div class="skeleton-line w-80"></div>
                                         </div>
                                     </td>
                                 </tr>
@@ -586,6 +635,17 @@
                     <div class="data-footer">
                         <div class="data-info">
                             Mostrando <strong id="showing-count">0</strong> de <strong id="total-count">0</strong> farmacias
+                        </div>
+                        <div class="pagination" id="pagination" role="navigation" aria-label="Paginación">
+                            <label class="sr-only" for="page-size">Farmacias por página</label>
+                            <select class="page-size-select" id="page-size">
+                                <option value="25">25 / pág</option>
+                                <option value="50" selected>50 / pág</option>
+                                <option value="100">100 / pág</option>
+                            </select>
+                            <button class="page-btn" id="page-prev" aria-label="Página anterior" disabled>‹</button>
+                            <span class="page-info" id="page-info">1 / 1</span>
+                            <button class="page-btn" id="page-next" aria-label="Página siguiente" disabled>›</button>
                         </div>
                         <button class="btn btn-secondary btn-sm" onclick="window.clearFilters()">
                             <svg class="icon"><use href="#i-filter-x"/></svg>
@@ -629,19 +689,20 @@
             <div class="modal-body">
                 <form id="pharmacy-form" onsubmit="event.preventDefault(); window.savePharmacy();">
                     <input type="hidden" id="pharmacy-id">
-                    <div class="form-group">
-                        <label class="form-label" for="pharmacy-name-input">Nombre *</label>
-                        <input type="text" id="pharmacy-name-input" class="form-input" required>
+                    <div class="form-float">
+                        <input type="text" id="pharmacy-name-input" class="form-input" required placeholder=" " autocomplete="off">
+                        <label for="pharmacy-name-input">Nombre de la farmacia *</label>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="pharmacy-chain-input">Cadena</label>
-                        <select id="pharmacy-chain-input" class="form-input">
+                    <div class="form-float">
+                        <select id="pharmacy-chain-input" class="form-input has-value">
                             <option value="General">General</option>
                         </select>
+                        <label for="pharmacy-chain-input">Cadena</label>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="pharmacy-address-input">Dirección *</label>
-                        <input type="text" id="pharmacy-address-input" class="form-input" required>
+                    <div class="form-float">
+                        <input type="text" id="pharmacy-address-input" class="form-input" required placeholder=" " autocomplete="off">
+                        <label for="pharmacy-address-input">Dirección *</label>
+                        <div class="form-hint">Incluye ciudad y barrio para facilitar la ubicación</div>
                     </div>
                 </form>
             </div>
@@ -669,6 +730,23 @@
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="window.hideDeleteModal()">Cancelar</button>
                 <button class="btn btn-danger-soft" onclick="window.deletePharmacy()">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== Command palette (Ctrl+K) ========== -->
+    <div id="cmdk" class="cmdk-overlay" role="dialog" aria-modal="true" aria-label="Paleta de comandos">
+        <div class="cmdk-panel">
+            <div class="cmdk-input-wrap">
+                <svg class="icon"><use href="#i-search"/></svg>
+                <input type="text" class="cmdk-input" id="cmdk-input" placeholder="Escribe una acción, farmacia o cadena…" aria-label="Buscar comando" autocomplete="off">
+                <span class="cmdk-kbd-esc">ESC</span>
+            </div>
+            <div class="cmdk-list" id="cmdk-list" role="listbox"></div>
+            <div class="cmdk-footer">
+                <span class="cmdk-hint"><kbd>↑</kbd><kbd>↓</kbd> Navegar</span>
+                <span class="cmdk-hint"><kbd>Enter</kbd> Abrir</span>
+                <span class="cmdk-hint"><kbd>Esc</kbd> Cerrar</span>
             </div>
         </div>
     </div>
