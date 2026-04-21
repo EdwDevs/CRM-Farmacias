@@ -60,23 +60,43 @@ const TOAST_ICONS = {
     warning: '<svg class="icon icon-sm"><use href="#i-alert"/></svg>',
     info:    '<svg class="icon icon-sm"><use href="#i-info"/></svg>'
 };
-window.showToast = (title, message, type = 'info') => {
+window.showToast = (title, message, type = 'info', options = {}) => {
     const container = document.getElementById('toast-container');
+    if (!container) return;
+    const duration = options.duration || (options.action ? 6000 : 4000);
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
+    const actionHtml = options.action
+        ? `<div class="toast-actions"><button class="toast-btn" type="button" data-toast-action>${options.action.label || 'Deshacer'}</button></div>`
+        : '';
     toast.innerHTML = `
         <div class="toast-icon">${TOAST_ICONS[type] || TOAST_ICONS.info}</div>
         <div class="toast-content">
             <div class="toast-title">${title}</div>
             <div class="toast-message">${message}</div>
+            ${actionHtml}
         </div>
+        <div class="toast-progress" style="animation-duration:${duration}ms"></div>
     `;
     container.appendChild(toast);
-    setTimeout(() => {
+    let dismissed = false;
+    const dismiss = () => {
+        if (dismissed) return;
+        dismissed = true;
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
         setTimeout(() => toast.remove(), 300);
-    }, 4000);
+    };
+    if (options.action) {
+        const btn = toast.querySelector('[data-toast-action]');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                try { options.action.onClick(); } catch (e) { console.warn(e); }
+                dismiss();
+            });
+        }
+    }
+    setTimeout(dismiss, duration);
 };
 
 window.togglePassword = () => {
@@ -432,40 +452,90 @@ function applyFilters() {
         const matchVisit = !visitFilter || p.visitado === visitFilter;
         const matchTransfer = !transferFilter || p.transferencia === transferFilter;
         const matchChain = !chainFilter || p.cadena === chainFilter;
-        
+
         return matchSearch && matchVisit && matchTransfer && matchChain;
     });
-    
+
+    if (state.pagination) state.pagination.page = 1;
     renderTable();
 }
 
 function renderTable() {
     const tbody = document.getElementById('pharmacy-table');
-    
+
     if (state.loading) return;
-    
+
+    const ensurePaginationState = () => {
+        if (!state.pagination) state.pagination = { page: 1, size: 50 };
+        if (!state.sort) state.sort = { field: null, dir: 'asc' };
+    };
+    ensurePaginationState();
+
+    const showingEl = document.getElementById('showing-count');
+    const totalEl = document.getElementById('total-count');
+    const pageInfoEl = document.getElementById('page-info');
+    const prevBtn = document.getElementById('page-prev');
+    const nextBtn = document.getElementById('page-next');
+
     if (state.filteredPharmacies.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     <div class="empty-state">
-                        <div class="empty-icon-large"><svg class="icon"><use href="#i-search-x"/></svg></div>
-                        <h3 class="empty-title">No se encontraron resultados</h3>
-                        <p class="empty-text">Intenta ajustar los filtros o términos de búsqueda.</p>
+                        <svg class="empty-illustration" viewBox="0 0 180 120" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="empty-grad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#E5E1FF"/>
+                                    <stop offset="100%" stop-color="#C7C2FE"/>
+                                </linearGradient>
+                            </defs>
+                            <ellipse cx="90" cy="104" rx="62" ry="8" fill="#635BFF" opacity=".08"/>
+                            <rect x="46" y="30" width="88" height="62" rx="10" fill="url(#empty-grad)" opacity=".35"/>
+                            <rect x="54" y="40" width="40" height="5" rx="2.5" fill="#635BFF" opacity=".5"/>
+                            <rect x="54" y="52" width="72" height="4" rx="2" fill="#635BFF" opacity=".3"/>
+                            <rect x="54" y="62" width="58" height="4" rx="2" fill="#635BFF" opacity=".3"/>
+                            <rect x="54" y="72" width="66" height="4" rx="2" fill="#635BFF" opacity=".3"/>
+                            <circle cx="130" cy="44" r="18" fill="none" stroke="#635BFF" stroke-width="3"/>
+                            <line x1="142" y1="56" x2="154" y2="68" stroke="#635BFF" stroke-width="3" stroke-linecap="round"/>
+                            <path d="M122 36 L138 52 M138 36 L122 52" stroke="#635BFF" stroke-width="2.2" stroke-linecap="round"/>
+                        </svg>
+                        <h3 class="empty-title">Sin resultados</h3>
+                        <p class="empty-text">No hay farmacias que coincidan con los filtros actuales. Prueba a ajustarlos o limpiarlos.</p>
                     </div>
                 </td>
             </tr>
         `;
-        const _el_showing_count = document.getElementById('showing-count'); if (_el_showing_count) _el_showing_count.textContent = 0; else console.error('Missing ID: showing-count');
-        const _el_total_count = document.getElementById('total-count'); if (_el_total_count) _el_total_count.textContent = state.pharmacies.length; else console.error('Missing ID: total-count');
+        if (showingEl) showingEl.textContent = 0;
+        if (totalEl) totalEl.textContent = state.pharmacies.length;
+        if (pageInfoEl) pageInfoEl.textContent = '0 / 0';
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        renderFavSidebar();
         return;
     }
-    
-    // Render first 50 for performance
-    const toRender = state.filteredPharmacies.slice(0, 50);
-    
-    tbody.innerHTML = toRender.map(p => `
-        <tr>
+
+    const sorted = getSortedPharmacies(state.filteredPharmacies);
+    const total = sorted.length;
+    const size = state.pagination.size;
+    const pageCount = Math.max(1, Math.ceil(total / size));
+    if (state.pagination.page > pageCount) state.pagination.page = pageCount;
+    const page = state.pagination.page;
+    const start = (page - 1) * size;
+    const end = Math.min(start + size, total);
+    const toRender = sorted.slice(start, end);
+    const favs = getFavorites();
+
+    tbody.innerHTML = toRender.map(p => {
+        const isFav = favs.has(p.id);
+        const canQuick = p.transferencia !== 'Realizado';
+        const quickAction = canQuick
+            ? `<button class="quick-action" onclick="window.quickTransferPharmacy('${p.id}')" title="Marcar transferencia realizada" aria-label="Marcar transferencia realizada">
+                    <svg class="icon"><use href="#i-transfer"/></svg>
+                    <span>Transferir</span>
+                </button>`
+            : '';
+        return `
+        <tr data-id="${p.id}">
             <td>
                 <div class="pharmacy-name">${p.nombre}</div>
                 <span class="pharmacy-chain">${p.cadena}</span>
@@ -474,21 +544,25 @@ function renderTable() {
                 <div class="pharmacy-address" title="${p.direccion}">${p.direccion}</div>
             </td>
             <td class="text-center">
-                <select class="status-select ${getStatusClass(p.visitado)}" onchange="window.toggleStatus('${p.id}', 'visitado', this.value)">
+                <select class="status-select ${getStatusClass(p.visitado)}" aria-label="Estado de visita" onchange="window.toggleStatus('${p.id}', 'visitado', this.value)">
                     <option value="Pendiente" ${p.visitado === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
                     <option value="Realizado" ${p.visitado === 'Realizado' ? 'selected' : ''}>Realizado</option>
                     <option value="Justificada" ${p.visitado === 'Justificada' ? 'selected' : ''}>Justificada</option>
                 </select>
             </td>
             <td class="text-center">
-                <select class="status-select ${getStatusClass(p.transferencia)}" onchange="window.toggleStatus('${p.id}', 'transferencia', this.value)">
+                <select class="status-select ${getStatusClass(p.transferencia)}" aria-label="Estado de transferencia" onchange="window.toggleStatus('${p.id}', 'transferencia', this.value)">
                     <option value="Pendiente" ${p.transferencia === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
                     <option value="Realizado" ${p.transferencia === 'Realizado' ? 'selected' : ''}>Realizado</option>
                     <option value="Justificada" ${p.transferencia === 'Justificada' ? 'selected' : ''}>Justificada</option>
                 </select>
             </td>
             <td class="text-center">
-                <div style="display: flex; gap: 8px; justify-content: center;">
+                <div class="row-actions">
+                    ${quickAction}
+                    <button class="row-fav-btn ${isFav ? 'is-fav' : ''}" onclick="window.toggleFavorite('${p.id}')" title="${isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}" aria-label="${isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}" aria-pressed="${isFav}">
+                        <svg class="icon"><use href="#i-star"/></svg>
+                    </button>
                     <button class="btn btn-secondary btn-sm" onclick="window.showPharmacyModal('${p.id}', '${window.escapeHtmlAttr(p.nombre)}', '${window.escapeHtmlAttr(p.cadena)}', '${window.escapeHtmlAttr(p.direccion)}')" title="Editar" aria-label="Editar">
                         <svg class="icon icon-sm"><use href="#i-edit"/></svg>
                     </button>
@@ -497,21 +571,50 @@ function renderTable() {
                     </button>
                 </div>
             </td>
-        </tr>
-    `).join('');
-    
-    if (state.filteredPharmacies.length > 50) {
-        tbody.innerHTML += `
-            <tr>
-                <td colspan="4" style="text-align: center; padding: 20px; color: var(--neutral-500);">
-                    ... y ${state.filteredPharmacies.length - 50} resultados más. Usa los filtros para refinar.
-                </td>
-            </tr>
-        `;
-    }
-    
-    const _el_showing_count = document.getElementById('showing-count'); if (_el_showing_count) _el_showing_count.textContent = Math.min(50, state.filteredPharmacies.length); else console.error('Missing ID: showing-count');
-    const _el_total_count = document.getElementById('total-count'); if (_el_total_count) _el_total_count.textContent = state.pharmacies.length; else console.error('Missing ID: total-count');
+        </tr>`;
+    }).join('');
+
+    if (showingEl) showingEl.textContent = `${start + 1}–${end}`;
+    if (totalEl) totalEl.textContent = state.pharmacies.length;
+    if (pageInfoEl) pageInfoEl.textContent = `${page} / ${pageCount}`;
+    if (prevBtn) prevBtn.disabled = page <= 1;
+    if (nextBtn) nextBtn.disabled = page >= pageCount;
+
+    updateSortIndicators();
+    renderFavSidebar();
+}
+
+function getSortedPharmacies(list) {
+    const sort = state.sort || { field: null, dir: 'asc' };
+    if (!sort.field) return list;
+    const statusWeight = { Pendiente: 0, Realizado: 1, Justificada: 2 };
+    const toKey = (p) => {
+        if (sort.field === 'nombre') return (p.nombre || '').toLocaleLowerCase('es');
+        if (sort.field === 'direccion') return (p.direccion || '').toLocaleLowerCase('es');
+        if (sort.field === 'visitado') return statusWeight[p.visitado] ?? -1;
+        if (sort.field === 'transferencia') return statusWeight[p.transferencia] ?? -1;
+        return 0;
+    };
+    const sorted = [...list].sort((a, b) => {
+        const ka = toKey(a);
+        const kb = toKey(b);
+        if (ka < kb) return sort.dir === 'asc' ? -1 : 1;
+        if (ka > kb) return sort.dir === 'asc' ? 1 : -1;
+        return 0;
+    });
+    return sorted;
+}
+
+function updateSortIndicators() {
+    const sort = state.sort || {};
+    document.querySelectorAll('.data-table th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        th.setAttribute('aria-sort', 'none');
+        if (th.dataset.sort === sort.field) {
+            th.classList.add(sort.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+            th.setAttribute('aria-sort', sort.dir === 'asc' ? 'ascending' : 'descending');
+        }
+    });
 }
 
 function getStatusClass(status) {
@@ -525,9 +628,24 @@ function getStatusIcon(status) {
 }
 
 window.toggleStatus = async (id, field, newValue) => {
+    const current = state.pharmacies.find(p => p.id === id);
+    const prevValue = current ? current[field] : null;
     try {
         await updateDoc(doc(db, 'pharmacies', id), { [field]: newValue });
-        window.showToast('Estado actualizado', `${field}: ${newValue}`, 'success');
+        const label = field === 'visitado' ? 'Visita' : 'Transferencia';
+        window.showToast(`${label} actualizada`, `Nuevo estado: ${newValue}`, 'success', {
+            action: prevValue && prevValue !== newValue ? {
+                label: `Deshacer (volver a "${prevValue}")`,
+                onClick: async () => {
+                    try {
+                        await updateDoc(doc(db, 'pharmacies', id), { [field]: prevValue });
+                        window.showToast('Cambio revertido', `${label} vuelto a "${prevValue}"`, 'info');
+                    } catch (e) {
+                        window.showToast('Error', 'No se pudo deshacer el cambio', 'error');
+                    }
+                }
+            } : null
+        });
     } catch (err) {
         console.error(err);
         window.showToast('Error', 'No se pudo actualizar el estado', 'error');
@@ -572,6 +690,7 @@ window.showPharmacyModal = (id = '', nombre = '', cadena = '', direccion = '') =
     document.getElementById('pharmacy-modal-title').textContent = title;
 
     document.getElementById('pharmacy-modal').classList.add('show');
+    if (window.__syncFloatingSelects) window.__syncFloatingSelects();
 };
 
 window.hidePharmacyModal = () => {
@@ -1054,7 +1173,11 @@ DROGUERIA DROGAS SALUD	Calle 7 #29 143 OCAÑA
 
 window.showSection = (section) => {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    event.target.closest('.nav-item').classList.add('active');
+    if (typeof event !== 'undefined' && event && event.target) {
+        const item = event.target.closest('.nav-item');
+        if (item) item.classList.add('active');
+    }
+    updateBreadcrumb(section);
 };
 
 // ===== GRÁFICOS INTERACTIVOS CON CHART.JS =====
@@ -1355,7 +1478,7 @@ window.toggleChartsSection = (show) => {
     }
 })();
 
-// ===== TOPBAR SEARCH → table search (Cmd/Ctrl+K focus) =====
+// ===== TOPBAR SEARCH → table search (Cmd/Ctrl+K → command palette) =====
 (function initTopbarSearch() {
     function bind() {
         const input = document.getElementById('topbar-search-input');
@@ -1369,11 +1492,458 @@ window.toggleChartsSection = (show) => {
         document.addEventListener('keydown', (e) => {
             const mod = e.metaKey || e.ctrlKey;
             if (mod && (e.key === 'k' || e.key === 'K')) {
-                const el = document.getElementById('topbar-search-input');
-                if (el) { e.preventDefault(); el.focus(); el.select(); }
+                e.preventDefault();
+                if (window.openCmdK) window.openCmdK();
             }
         });
     }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bind, { once: true });
+    } else {
+        bind();
+    }
+})();
+
+/* ==========================================================
+   v4.1 — Extensions: favorites, sparklines, pagination,
+   column sort, breadcrumb, command palette, floating labels
+   ========================================================== */
+
+// ---------- Favoritos (localStorage) ----------
+const FAV_KEY = 'pharma-favorites';
+function getFavorites() {
+    try {
+        const raw = localStorage.getItem(FAV_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+    } catch (e) { return new Set(); }
+}
+function saveFavorites(set) {
+    try { localStorage.setItem(FAV_KEY, JSON.stringify([...set])); } catch (e) {}
+}
+window.toggleFavorite = (id) => {
+    const favs = getFavorites();
+    const pharmacy = state.pharmacies.find(p => p.id === id);
+    const name = pharmacy ? pharmacy.nombre : 'Farmacia';
+    if (favs.has(id)) {
+        favs.delete(id);
+        saveFavorites(favs);
+        window.showToast('Favorito eliminado', name, 'info');
+    } else {
+        favs.add(id);
+        saveFavorites(favs);
+        window.showToast('Añadido a favoritos', name, 'success');
+    }
+    renderTable();
+};
+
+function renderFavSidebar() {
+    const list = document.getElementById('fav-list');
+    const counter = document.getElementById('fav-count');
+    if (!list) return;
+    const favs = getFavorites();
+    const favPharmacies = state.pharmacies.filter(p => favs.has(p.id)).slice(0, 8);
+    if (counter) {
+        if (favs.size > 0) { counter.hidden = false; counter.textContent = favs.size; }
+        else counter.hidden = true;
+    }
+    if (favPharmacies.length === 0) {
+        list.innerHTML = '<div class="nav-fav-empty">Añade desde la tabla <svg class="icon" style="width:11px;height:11px;display:inline;vertical-align:-1px"><use href="#i-star"/></svg></div>';
+        return;
+    }
+    list.innerHTML = favPharmacies.map(p => `
+        <div class="nav-fav-item" role="button" tabindex="0" onclick="window.openPharmacyFromFav('${p.id}')" title="${window.escapeHtmlAttr(p.nombre)}">
+            <span class="fav-dot"></span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nombre}</span>
+        </div>
+    `).join('');
+}
+
+window.openPharmacyFromFav = (id) => {
+    const p = state.pharmacies.find(x => x.id === id);
+    if (!p) return;
+    window.showSection('pharmacies');
+    const searchBox = document.getElementById('search-input');
+    if (searchBox) {
+        searchBox.value = p.nombre;
+        searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const pharmaciesSection = document.getElementById('pharmacies-section') || document.querySelector('.data-section');
+    if (pharmaciesSection && pharmaciesSection.scrollIntoView) {
+        pharmaciesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+};
+
+// ---------- Quick action: Transferir ----------
+window.quickTransferPharmacy = async (id) => {
+    const current = state.pharmacies.find(p => p.id === id);
+    if (!current) return;
+    const prev = current.transferencia;
+    try {
+        await updateDoc(doc(db, 'pharmacies', id), { transferencia: 'Realizado' });
+        window.showToast('Transferencia realizada', current.nombre, 'success', {
+            action: prev && prev !== 'Realizado' ? {
+                label: 'Deshacer',
+                onClick: async () => {
+                    try {
+                        await updateDoc(doc(db, 'pharmacies', id), { transferencia: prev });
+                        window.showToast('Cambio revertido', `Volvió a "${prev}"`, 'info');
+                    } catch (e) {
+                        window.showToast('Error', 'No se pudo deshacer', 'error');
+                    }
+                }
+            } : null
+        });
+    } catch (err) {
+        window.showToast('Error', 'No se pudo marcar la transferencia', 'error');
+    }
+};
+
+// ---------- Pending badge on Farmacias nav item ----------
+function updatePendingBadge() {
+    const badge = document.getElementById('nav-pharmacies-badge');
+    if (!badge) return;
+    const count = state.pharmacies.filter(p => p.visitado === 'Pendiente').length;
+    if (count > 0) {
+        badge.hidden = false;
+        badge.textContent = count > 99 ? '99+' : String(count);
+    } else {
+        badge.hidden = true;
+    }
+}
+
+// ---------- Breadcrumb ----------
+const BREADCRUMB_LABELS = {
+    dashboard: 'Panel de Control',
+    pharmacies: 'Farmacias',
+    settings: 'Ajustes'
+};
+function updateBreadcrumb(section) {
+    const el = document.getElementById('breadcrumb-current');
+    if (!el) return;
+    el.textContent = BREADCRUMB_LABELS[section] || 'Panel de Control';
+}
+
+// ---------- Sparklines ----------
+function buildSparklinePath(points, width = 120, height = 28, paddingY = 3) {
+    if (!points || points.length === 0) return { path: '', area: '' };
+    const max = Math.max(...points, 1);
+    const min = Math.min(...points, 0);
+    const range = max - min || 1;
+    const stepX = width / Math.max(points.length - 1, 1);
+    const coords = points.map((v, i) => {
+        const x = i * stepX;
+        const y = height - paddingY - ((v - min) / range) * (height - 2 * paddingY);
+        return [x, y];
+    });
+    const d = coords.reduce((acc, [x, y], i) => acc + (i === 0 ? `M${x.toFixed(2)},${y.toFixed(2)}` : ` L${x.toFixed(2)},${y.toFixed(2)}`), '');
+    const area = d + ` L${width.toFixed(2)},${height} L0,${height} Z`;
+    return { path: d, area };
+}
+
+function sparkDataFor(kind, current, goal = 1) {
+    // Synthetic 7-day variance around current / goal, shaped so the last point equals `current`.
+    const seed = (kind || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) + Math.floor(current);
+    const rand = (n) => {
+        const x = Math.sin(seed + n) * 10000;
+        return x - Math.floor(x);
+    };
+    const base = Math.max(current, goal * 0.15);
+    const days = 7;
+    const data = [];
+    for (let i = 0; i < days - 1; i++) {
+        const noise = (rand(i) - 0.5) * 0.45;
+        const trendBoost = (i / (days - 1)) * 0.15;
+        data.push(Math.max(0, Math.round(base * (0.6 + trendBoost + noise))));
+    }
+    data.push(Math.round(current));
+    return data;
+}
+
+function renderSparkline(svgId, kind, current, goal = 1) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const data = sparkDataFor(kind, current, goal);
+    const { path, area } = buildSparklinePath(data);
+    svg.innerHTML = `
+        <path class="sparkline-area" d="${area}"/>
+        <path class="sparkline-path" d="${path}"/>
+    `;
+}
+
+function renderAllSparklines() {
+    const dailyGoal = state.config.currentWorkDay * state.config.pharmaciesPerDay;
+    const visited = state.pharmacies.filter(p => p.visitado === 'Realizado').length;
+    const transferred = state.pharmacies.filter(p => p.transferencia === 'Realizado').length;
+    const pendingVisit = state.pharmacies.filter(p => p.visitado === 'Pendiente').length;
+    const justified = state.pharmacies.filter(p => p.visitado === 'Justificada' || p.transferencia === 'Justificada').length;
+    const pendingTransfer = state.pharmacies.filter(p => p.visitado === 'Realizado' && p.transferencia === 'Pendiente').length;
+    const effectiveness = visited > 0 ? Math.round((transferred / visited) * 100) : 0;
+    const projection = state.config.currentWorkDay > 0 ? Math.round((transferred / state.config.currentWorkDay) * 22) : 0;
+
+    renderSparkline('spark-visits', 'visits', visited, dailyGoal);
+    renderSparkline('spark-transfers', 'transfers', transferred, dailyGoal);
+    renderSparkline('spark-effect', 'effect', effectiveness, 100);
+    renderSparkline('spark-pending', 'pending', pendingVisit, Math.max(pendingVisit, 10));
+    renderSparkline('spark-month', 'month', transferred, MONTHLY_GOAL);
+    renderSparkline('spark-proj', 'proj', projection, MONTHLY_GOAL);
+    renderSparkline('spark-justified', 'just', justified, Math.max(justified, 5));
+    renderSparkline('spark-pending-t', 'pendt', pendingTransfer, Math.max(pendingTransfer, 10));
+}
+
+// ---------- Hook: run post-stat visuals whenever data changes ----------
+function runPostStatsVisuals() {
+    try { renderAllSparklines(); } catch (e) { console.warn('sparklines', e); }
+    try { updatePendingBadge(); } catch (e) { console.warn('badge', e); }
+    try { renderFavSidebar(); } catch (e) { console.warn('fav', e); }
+}
+
+// Observe stat value changes (updateStats is module-local). Whenever visits-value
+// mutates, refresh sparklines + pending badge + fav sidebar.
+(function observeStatsChanges() {
+    function attach() {
+        const sentinel = document.getElementById('visits-value');
+        if (!sentinel) {
+            setTimeout(attach, 200);
+            return;
+        }
+        let scheduled = false;
+        const schedule = () => {
+            if (scheduled) return;
+            scheduled = true;
+            requestAnimationFrame(() => {
+                scheduled = false;
+                runPostStatsVisuals();
+            });
+        };
+        const mo = new MutationObserver(schedule);
+        mo.observe(sentinel, { childList: true, subtree: true, characterData: true });
+        // First render once data is in.
+        schedule();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach, { once: true });
+    } else {
+        attach();
+    }
+})();
+
+// ---------- Pagination + sort listeners ----------
+(function initTableControls() {
+    function bind() {
+        const pageSize = document.getElementById('page-size');
+        const prev = document.getElementById('page-prev');
+        const next = document.getElementById('page-next');
+        if (!state.pagination) state.pagination = { page: 1, size: 50 };
+        if (!state.sort) state.sort = { field: null, dir: 'asc' };
+
+        if (pageSize) {
+            pageSize.value = String(state.pagination.size);
+            pageSize.addEventListener('change', (e) => {
+                const size = parseInt(e.target.value, 10) || 50;
+                state.pagination.size = size;
+                state.pagination.page = 1;
+                renderTable();
+            });
+        }
+        if (prev) prev.addEventListener('click', () => {
+            if (state.pagination.page > 1) { state.pagination.page--; renderTable(); }
+        });
+        if (next) next.addEventListener('click', () => {
+            state.pagination.page++; renderTable();
+        });
+
+        document.querySelectorAll('.data-table th.sortable').forEach(th => {
+            th.addEventListener('click', () => {
+                const field = th.dataset.sort;
+                if (!field) return;
+                if (state.sort.field === field) {
+                    state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    state.sort.field = field;
+                    state.sort.dir = 'asc';
+                }
+                state.pagination.page = 1;
+                renderTable();
+            });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bind, { once: true });
+    } else {
+        bind();
+    }
+})();
+
+// ---------- Floating labels: keep select's has-value in sync ----------
+(function initFloatingSelects() {
+    function sync() {
+        document.querySelectorAll('.form-float select.form-input').forEach(sel => {
+            if (sel.value && sel.value !== '') sel.classList.add('has-value');
+            else sel.classList.remove('has-value');
+        });
+    }
+    function bind() {
+        document.querySelectorAll('.form-float select.form-input').forEach(sel => {
+            sel.addEventListener('change', sync);
+        });
+        sync();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bind, { once: true });
+    } else {
+        bind();
+    }
+    window.__syncFloatingSelects = sync;
+})();
+
+// ---------- Command palette (Ctrl+K) ----------
+(function initCmdK() {
+    let activeIndex = 0;
+    let items = [];
+
+    function buildItems(query) {
+        const q = (query || '').trim().toLowerCase();
+        const actions = [
+            { type: 'action', icon: 'i-dashboard', label: 'Ir al Dashboard', sub: 'Panel principal', run: () => scrollToSelector('#dashboard-section') },
+            { type: 'action', icon: 'i-building', label: 'Ir a Farmacias', sub: 'Tabla de farmacias', run: () => scrollToSelector('.data-section') },
+            { type: 'action', icon: 'i-plus', label: 'Nueva farmacia', sub: 'Añadir una farmacia', run: () => window.showPharmacyModal && window.showPharmacyModal() },
+            { type: 'action', icon: 'i-moon', label: 'Cambiar tema', sub: 'Claro / oscuro', run: () => {
+                const btn = document.getElementById('theme-toggle-btn');
+                if (btn) btn.click();
+            }},
+            { type: 'action', icon: 'i-filter-x', label: 'Limpiar filtros', sub: 'Restablecer búsqueda', run: () => window.clearFilters && window.clearFilters() }
+        ];
+
+        const pharmacies = (state.pharmacies || [])
+            .filter(p => {
+                if (!q) return false;
+                const blob = `${p.nombre} ${p.cadena} ${p.direccion}`.toLowerCase();
+                return blob.includes(q);
+            })
+            .slice(0, 6)
+            .map(p => ({
+                type: 'pharmacy',
+                icon: 'i-building',
+                label: p.nombre,
+                sub: `${p.cadena} · ${p.direccion}`,
+                run: () => window.openPharmacyFromFav(p.id)
+            }));
+
+        let filteredActions = actions;
+        if (q) {
+            filteredActions = actions.filter(a => a.label.toLowerCase().includes(q) || (a.sub || '').toLowerCase().includes(q));
+        }
+
+        const result = [];
+        if (filteredActions.length) result.push({ group: 'Acciones' }, ...filteredActions);
+        if (pharmacies.length) result.push({ group: 'Farmacias' }, ...pharmacies);
+        return result;
+    }
+
+    function scrollToSelector(selector) {
+        const el = document.querySelector(selector);
+        if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function render(list) {
+        const el = document.getElementById('cmdk-list');
+        if (!el) return;
+        items = list.filter(x => !x.group);
+        if (items.length === 0) {
+            el.innerHTML = '<div class="cmdk-empty">Sin resultados. Prueba con otra palabra clave.</div>';
+            return;
+        }
+        if (activeIndex >= items.length) activeIndex = 0;
+        let currentGroup = null;
+        let itemIdx = 0;
+        el.innerHTML = list.map((entry) => {
+            if (entry.group) {
+                currentGroup = entry.group;
+                return `<div class="cmdk-group-label">${entry.group}</div>`;
+            }
+            const isActive = itemIdx === activeIndex;
+            const html = `
+                <div class="cmdk-item ${isActive ? 'active' : ''}" role="option" data-idx="${itemIdx}" aria-selected="${isActive}">
+                    <span class="cmdk-item-icon"><svg class="icon"><use href="#${entry.icon}"/></svg></span>
+                    <div style="flex:1;min-width:0;">
+                        <div class="cmdk-item-label" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${entry.label}</div>
+                        ${entry.sub ? `<div class="cmdk-item-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${entry.sub}</div>` : ''}
+                    </div>
+                    <span class="cmdk-item-kbd">↵</span>
+                </div>
+            `;
+            itemIdx++;
+            return html;
+        }).join('');
+
+        el.querySelectorAll('.cmdk-item').forEach((node) => {
+            node.addEventListener('mouseenter', () => {
+                activeIndex = parseInt(node.dataset.idx, 10);
+                highlight();
+            });
+            node.addEventListener('click', () => {
+                const idx = parseInt(node.dataset.idx, 10);
+                activate(idx);
+            });
+        });
+        highlight();
+    }
+
+    function highlight() {
+        const el = document.getElementById('cmdk-list');
+        if (!el) return;
+        el.querySelectorAll('.cmdk-item').forEach(node => {
+            const idx = parseInt(node.dataset.idx, 10);
+            const on = idx === activeIndex;
+            node.classList.toggle('active', on);
+            node.setAttribute('aria-selected', String(on));
+            if (on) node.scrollIntoView({ block: 'nearest' });
+        });
+    }
+
+    function activate(idx) {
+        const entry = items[idx];
+        if (!entry) return;
+        close();
+        setTimeout(() => { try { entry.run(); } catch (e) { console.warn(e); } }, 10);
+    }
+
+    function open() {
+        const overlay = document.getElementById('cmdk');
+        const input = document.getElementById('cmdk-input');
+        if (!overlay || !input) return;
+        overlay.classList.add('show');
+        input.value = '';
+        activeIndex = 0;
+        render(buildItems(''));
+        setTimeout(() => input.focus(), 10);
+    }
+    function close() {
+        const overlay = document.getElementById('cmdk');
+        if (overlay) overlay.classList.remove('show');
+    }
+
+    window.openCmdK = open;
+    window.closeCmdK = close;
+
+    function bind() {
+        const overlay = document.getElementById('cmdk');
+        const input = document.getElementById('cmdk-input');
+        if (!overlay || !input) return;
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        input.addEventListener('input', () => {
+            activeIndex = 0;
+            render(buildItems(input.value));
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); close(); }
+            else if (e.key === 'ArrowDown') { e.preventDefault(); if (items.length) { activeIndex = (activeIndex + 1) % items.length; highlight(); } }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); if (items.length) { activeIndex = (activeIndex - 1 + items.length) % items.length; highlight(); } }
+            else if (e.key === 'Enter') { e.preventDefault(); activate(activeIndex); }
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', bind, { once: true });
     } else {
